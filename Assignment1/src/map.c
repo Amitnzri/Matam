@@ -53,7 +53,11 @@ static void stepBackward(Map map)
     }
   }
 
-
+static void goToFirstItem(Map map){
+  while(map->dictionary->previous_block){
+    stepBackward(map);
+  }
+}
 
 
 
@@ -67,7 +71,7 @@ Map mapCreate(copyMapDataElements copyDataElement,
   assert(copyDataElement&&copyKeyElement&&freeKeyElement&&
          freeDataElement&&compareKeyElements);
 
-  //@Checks Params
+  //Checks Params
   if(!copyDataElement||!copyKeyElement||!freeKeyElement)return NULL;
   if(!freeDataElement||!compareKeyElements)return NULL;
 
@@ -76,7 +80,7 @@ Map mapCreate(copyMapDataElements copyDataElement,
   if(!map)return NULL;
 
   map->dictionary = NULL;
-  //@Assigns function pointers
+  //Assigns function pointers
   map->copyDataFunction = copyDataElement;
   map->copyKeyFunction = copyKeyElement;
   map->freeKeyFunction = freeKeyElement;
@@ -130,4 +134,30 @@ MapResult mapPut(Map map,MapKeyElement keyElement,MapDataElement dataElement){
         return assignValues(map,key,data);
     }
   }
+}
+
+MapKeyElement mapGetFirst(Map map){
+  if(!map) return NULL;
+  goToFirstItem(map);
+  return map->dictionary->key;
+}
+
+MapKeyElement mapGetNext(Map map){
+  if(map->dictionary->next_block){
+    stepForward(map);
+    return map->dictionary->key;
+  }else{
+    return NULL;
+  }
+}
+
+int mapGetSize(Map map){
+  if(!map) return NULL;
+  int counter = 0;
+  goToFirstItem(map);
+  while(map->dictionary->next_block){
+    stepForward(map);
+    counter++;
+  }
+  return counter;
 }

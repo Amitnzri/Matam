@@ -28,6 +28,7 @@ struct Map_t{
 
 //InnerFunctions..
 
+
 //Assigns a given key and data to the current dictionary location.
 static MapResult assignValues(Map map, element key, element data){
   assert(map&&key&&data);
@@ -58,18 +59,66 @@ static void goToFirstItem(Map map){
   while(map->dictionary->previous_block){
     stepBackward(map);
   }
-
 }
 
 static dictionary createDictionaryBlock(Map map,dictionary previous_block
                                         ,dictionary next_block){
+  assert(map);
+  dictionary new_block = malloc(sizeof(*(new_block)));
+  assert(new_block);
+  if(!new_block) return NULL;
+  new_block->previous_block = previous_block;
+  new_block->next_block = next_block;
+  return new_block;
+}
 
-    dictionary new_block = malloc(sizeof(*(new_block)));
-    assert(new_block);
-    if(!new_block) return NULL;
-    new_block->previous_block = previous_block;
-    new_block->next_block = next_block;
-    return new_block;
+static void placeBetweenKeys(dictionary wanted_key){
+  wanted_key->next_block->previous_block = wanted_key;
+  wanted_key->previous_block->next_block = wanted_key;
+}
+
+//finds and return the sorted location for placing a key.
+static dictionary findSortedPosition(Map map,MapKeyElement key){
+  /*********************
+  TODO: fix bugs.
+  *********************/
+  assert(key&&map->dictionary);
+  compareMapKeyElements compareKeys = map->CompareKeysFunction;
+  while(compareKeys(key,map->dictionary->key)>0){
+    if(!map->dictionary->next_block){ //if last item.
+      map->dictionary->next_block = createDictionaryBlock(map,map->dictionary,
+                                                          NULL);
+      assert(map->dictionary->next_block);
+      stepForward(map);
+      return map->dictionary;
+    }else if(compareKeys(key,map->dictionary->next_block)<0){ //TODO: look for bug here.
+      dictionary new_block = createDictionaryBlock(map,
+                  map->dictionary,map->dictionary->next_block);
+      assert(new_block);
+      placeBetweenKeys(new_block);
+      stepForward(map);
+      return map->dictionary;
+    }
+    stepForward(map);
+  }
+  while(compareKeys(key,map->dictionary->key)<0){
+    if(!map->dictionary->previous_block){ //if first item.
+      map->dictionary->previous_block = createDictionaryBlock(map,NULL,
+                                                         map->dictionary);
+      assert(map->dictionary->previous_block);
+      stepBackward(map);
+      return map->dictionary;
+    }else if(compareKeys(key,map->dictionary->previous_block)>0){
+      dictionary new_block = createDictionaryBlock(map,
+                  map->dictionary->previous_block,map->dictionary);
+      assert(new_block);
+      placeBetweenKeys(new_block);
+      stepBackward(map);
+      return map->dictionary;
+    }
+    stepBackward(map);
+  }
+  return map->dictionary; //if the keys are equal.
 }
 
 //Functions..
@@ -101,7 +150,34 @@ Map mapCreate(copyMapDataElements copyDataElement,
   return map;
 }
 
-MapResult mapPut(Map map,MapKeyElement keyElement,MapDataElement dataElement){
+MapResult mapPut(Map map,MapKeyElement keyElement,MapKeyElement dataElement){
+/*****************************
+TODO: 1.Fix the return values.
+      2.Fix bugs.
+      3.change findSorted type.
+*****************************/
+  //Checks if the map has dictionary already.
+  assert(map);
+  if(!map) return MAP_NULL_ARGUMENT;
+  if(!map->dictionary){
+    printf("[+]Should be shown once\n");
+    map->dictionary = createDictionaryBlock(map,NULL,NULL);
+    if(!map->dictionary) return MAP_OUT_OF_MEMORY;
+    assignValues(map,keyElement,dataElement);
+    return MAP_SUCCESS;
+  }else{ //if has items in it already.
+    //looking for the location.
+    printf("[+]Should be shown 2 times.\n");
+    dictionary sorted_location = findSortedPosition(map,keyElement);
+    if(!sorted_location)return MAP_NULL_ARGUMENT;
+    //place it.
+    assignValues(map,keyElement,dataElement);
+    return MAP_SUCCESS;
+  }
+
+}
+
+MapResult mapPutObsolute(Map map,MapKeyElement keyElement,MapDataElement dataElement){
 
   /******************************************************
   TODO: 1.has a bug when creating new blocks in the middle.
@@ -173,6 +249,7 @@ MapResult mapPut(Map map,MapKeyElement keyElement,MapDataElement dataElement){
 }
 
 MapKeyElement mapGetFirst(Map map){
+  assert(map);
   if(!map) return NULL;
   goToFirstItem(map);
   return map->dictionary->key;

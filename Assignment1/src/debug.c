@@ -41,20 +41,36 @@ static int compareInts(MapKeyElement n1, MapKeyElement n2) {
     return (*(int *) n1 - *(int *) n2);
 }
 
-
-static void log()
-{
+static void log(){
   static int counter =0;
   counter ++;
   printf("[?]Log %d: ",counter);
 }
 
+static void printKeysByOrder(Map map){
+  assert(map);
+  int counter =1;
+  MapKeyElement key = mapGetFirst(map);
+  while(key){
+    printf("[+]Key %d is: %d\n",counter,*(int*)key);
+    key = mapGetNext(map);
+    counter++;
+  }
+}
+
 int main(){
-  int keys[] = {1,2};
+  int keys[] = {1,3,12,2};
   char data[] = {'A','B'};
   Map map = mapCreate(copyKeyInt,copyDataChar,
                        freeChar,freeInt,compareInts);
-  mapPut(map,keys,data);
-  printf("[+] Key:%d\nData:%c\n",keys[0], *(char*)(mapGet(map,keys)));
+  mapPut(map,&keys[0],data);
+  //printKeysByOrder(map);
+  mapPut(map,&keys[1],&data[1]);
+  //printKeysByOrder(map);
+  mapPut(map,&keys[3],&data[0]);
+  //log();
+  printf("[+]Whatt.\n");
+  printKeysByOrder(map);
+  //printf("[+] Key:%d\nData:%c\n",keys[0], *(char*)(mapGet(map,keys)));
   return 0;
 }

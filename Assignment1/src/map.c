@@ -15,7 +15,7 @@ struct Map_t{
     struct dictionary_t* previous_block;
     struct dictionary_t* next_block;
 
-  }*dictionary;
+  }* dictionary;
 
 
   copyMapDataElements copyDataFunction;
@@ -95,18 +95,18 @@ MapResult mapPut(Map map,MapKeyElement keyElement,MapDataElement dataElement){
   assert(map&&keyElement&&dataElement);
   if(!map||!keyElement||!dataElement)return MAP_NULL_ARGUMENT;
 
-  copyMapKeyElements copyKeyFunction = map->copyKeyFunction;
-  copyMapKeyElements copyDataFunction = map->copyDataFunction;
+  copyMapKeyElements copyKey = map->copyKeyFunction;
+  copyMapKeyElements copyData = map->copyDataFunction;
 
   //Creates new dictionary if this is the first item.
   if(!map->dictionary){
-    map->dictionary = malloc(sizeof((map->dictionary))); //TODO: check
+    map->dictionary = malloc(sizeof(*(map->dictionary))); //TODO: check
     assert(map->dictionary);
     if(!map->dictionary)return MAP_OUT_OF_MEMORY; //TODO: check if valid
     map->dictionary->next_block=NULL;
     map->dictionary->previous_block=NULL;
-    map->dictionary->key = map->copyKeyFunction(keyElement); //TODO: remove the map
-    map->dictionary->data = map->copyDataFunction(dataElement);
+    map->dictionary->key = copyKey(keyElement);
+    map->dictionary->data = copyData(dataElement);
     //TODO:CHECKS
     return MAP_SUCCESS;
   }else{ //The map has items in it.
@@ -117,9 +117,11 @@ MapResult mapPut(Map map,MapKeyElement keyElement,MapDataElement dataElement){
         if(map->dictionary->next_block){
           stepForward(map);
         }else{
-          map->dictionary->next_block = malloc(sizeof(map->dictionary));//TODO: check
+          map->dictionary->next_block = malloc(sizeof(*(map->dictionary)));//TODO: check
           assert(map->dictionary->next_block);
           if(!map->dictionary->next_block) return MAP_OUT_OF_MEMORY;
+          map->dictionary= map->dictionary->next_block;
+          map->dictionary->next_block = NULL; //TODO:put in inner function + has bug with replace in the middle
           return assignValues(map,keyElement,dataElement);
         }
       }
@@ -130,6 +132,8 @@ MapResult mapPut(Map map,MapKeyElement keyElement,MapDataElement dataElement){
           map->dictionary->previous_block = malloc(sizeof(map->dictionary)); //TODO: check
           assert(map->dictionary->previous_block);
           if(!map->dictionary->previous_block) return MAP_OUT_OF_MEMORY;
+          map->dictionary= map->dictionary->previous_block;
+          map->dictionary->previous_block = NULL;//TODO: put in inner function.
           return assignValues(map,keyElement,dataElement);
         }
       }
@@ -137,6 +141,10 @@ MapResult mapPut(Map map,MapKeyElement keyElement,MapDataElement dataElement){
         return assignValues(map,keyElement,dataElement);
     }
   }
+  #ifndef NDEBUG
+  printf("[!]ERROR: got to the end of mapPut.\n");
+  #endif
+  return MAP_NULL_ARGUMENT; //Shouldn't get here.
 }
 
 MapKeyElement mapGetFirst(Map map){
@@ -157,10 +165,14 @@ MapKeyElement mapGetNext(Map map){
 int mapGetSize(Map map){
   if(!map) return -1;
   int counter = 0;
-  goToFirstItem(map);
-  while(map->dictionary->next_block){
-    stepForward(map);
+  if(map->dictionary){
     counter++;
+    goToFirstItem(map);
+    while(map->dictionary->next_block){
+      printf("[!}Got Here\n");
+      stepForward(map);
+      counter++;
+    }
   }
   return counter;
 }

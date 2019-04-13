@@ -2,21 +2,22 @@
 #include <assert.h>
 
 //Typedefs..
-typedef void* element;
+typedef void *element;
 
 //DataTypes..
+typedef struct dictionary_t {
+
+  element key;
+  element data;
+
+  struct dictionary_t* previous_block;
+  struct dictionary_t* next_block;
+
+}* dictionary;
+
 struct Map_t{
 
-  struct dictionary_t {
-
-    element key;
-    element data;
-
-    struct dictionary_t* previous_block;
-    struct dictionary_t* next_block;
-
-  }* dictionary;
-
+  dictionary dictionary;
 
   copyMapDataElements copyDataFunction;
   copyMapKeyElements  copyKeyFunction;
@@ -60,7 +61,22 @@ static void goToFirstItem(Map map){
 
 }
 
-
+static dictionary createDictionaryBlock(Map map,dictionary previous_block
+                                        ,dictionary next_block){
+    /***********************
+    TODO: Fix the structure.
+    ***********************/
+    
+    dictionary current_block = map->dictionary;
+    dictionary new_block = malloc(sizeof(*(new_block)));
+    assert(new_block);
+    if(!new_block) return NULL;
+    map->dictionary = new_block;
+    map->dictionary->previous_block = previous_block;
+    map->dictionary->next_block = next_block;
+    map->dictionary = current_block;
+    return new_block;
+}
 
 //Functions..
 Map mapCreate(copyMapDataElements copyDataElement,
@@ -92,6 +108,13 @@ Map mapCreate(copyMapDataElements copyDataElement,
 }
 
 MapResult mapPut(Map map,MapKeyElement keyElement,MapDataElement dataElement){
+
+  /******************************************************
+  TODO: 1.has a bug when creating new blocks in the middle.
+        2.add checks for NULL.
+        3.replace code with inner function
+  ******************************************************/
+
   assert(map&&keyElement&&dataElement);
   if(!map||!keyElement||!dataElement)return MAP_NULL_ARGUMENT;
 
@@ -100,16 +123,16 @@ MapResult mapPut(Map map,MapKeyElement keyElement,MapDataElement dataElement){
 
   //Creates new dictionary if this is the first item.
   if(!map->dictionary){
-    map->dictionary = malloc(sizeof(*(map->dictionary))); //TODO: check
+    map->dictionary = createDictionaryBlock(map,NULL,NULL); //TODO: check
     assert(map->dictionary);
     if(!map->dictionary)return MAP_OUT_OF_MEMORY; //TODO: check if valid
-    map->dictionary->next_block=NULL;
-    map->dictionary->previous_block=NULL;
+    createDictionaryBlock(map,NULL,NULL);
     map->dictionary->key = copyKey(keyElement);
     map->dictionary->data = copyData(dataElement);
     //TODO:CHECKS
     return MAP_SUCCESS;
   }else{ //The map has items in it.
+
     //Checks if contains the key.
     if(!mapContains(map,keyElement)){
       //Assigns the values in sorted location.
@@ -117,11 +140,10 @@ MapResult mapPut(Map map,MapKeyElement keyElement,MapDataElement dataElement){
         if(map->dictionary->next_block){
           stepForward(map);
         }else{
-          map->dictionary->next_block = malloc(sizeof(*(map->dictionary)));//TODO: check
+          map->dictionary->next_block = createDictionaryBlock(map,map->dictionary,NULL);
           assert(map->dictionary->next_block);
-          if(!map->dictionary->next_block) return MAP_OUT_OF_MEMORY;
+          if(!map->dictionary->next_block)return MAP_OUT_OF_MEMORY;
           map->dictionary= map->dictionary->next_block;
-          map->dictionary->next_block = NULL; //TODO:put in inner function + has bug with replace in the middle
           return assignValues(map,keyElement,dataElement);
         }
       }
@@ -129,11 +151,10 @@ MapResult mapPut(Map map,MapKeyElement keyElement,MapDataElement dataElement){
         if(map->dictionary->previous_block){
           stepBackward(map);
         }else{
-          map->dictionary->previous_block = malloc(sizeof(map->dictionary)); //TODO: check
+          map->dictionary->previous_block = createDictionaryBlock(map,NULL,map->dictionary);
           assert(map->dictionary->previous_block);
           if(!map->dictionary->previous_block) return MAP_OUT_OF_MEMORY;
-          map->dictionary= map->dictionary->previous_block;
-          map->dictionary->previous_block = NULL;//TODO: put in inner function.
+          map->dictionary = map->dictionary->previous_block;
           return assignValues(map,keyElement,dataElement);
         }
       }

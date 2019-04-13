@@ -55,7 +55,7 @@ int main(){
   printf("[+]Map size:%d\n",mapGetSize(test));
   MapResult result_2 = mapPut(test,&tmp_key_2,tmp_data);
   if(result_2 == MAP_SUCCESS) printf("[+]2: Dictionary created successfully\n");
-  printf("Check\n");
+  //printf("Check\n");
   printf("[+]Map size:%d\n",mapGetSize(test));
   return 0;
 }

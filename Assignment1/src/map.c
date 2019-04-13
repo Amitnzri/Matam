@@ -219,3 +219,22 @@ bool mapContains(Map map, MapKeyElement element){
   }
   return true;
 }
+
+
+MapDataElement mapGet(Map map, MapKeyElement keyElement){
+
+  compareMapKeyElements compareKey = map->CompareKeysFunction;
+  //checks if the key is in the dictionary.
+  if(!mapContains(map,keyElement))return NULL;
+
+  //locate the key in the dictionary.
+  while(compareKey(keyElement,map->dictionary->key)>0){
+    assert(map->dictionary->next_block);
+    stepForward(map);
+  }
+  while(compareKey(keyElement,map->dictionary->key)<0){
+    assert(map->dictionary->previous_block);
+    stepBackward(map);
+  }
+  return map->dictionary->data;
+}

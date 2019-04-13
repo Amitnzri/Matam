@@ -41,6 +41,7 @@ static int compareInts(MapKeyElement n1, MapKeyElement n2) {
     return (*(int *) n1 - *(int *) n2);
 }
 
+
 static void log()
 {
   static int counter =0;
@@ -51,19 +52,28 @@ static void log()
 int main(){
   int tmp_key = 1;
   int tmp_key_2 =2;
-  char* tmp_data = "uno";
+  int tmp_key_3 =5;
+  char* tmp_data = "A";
+  char* tmp_data_2 = "B";
   Map test = mapCreate(copyKeyInt,copyDataChar,
                        freeChar,freeInt,compareInts);
-  log();                     
+  log();
   printf("Map size:%d\n",mapGetSize(test));
   printf("[+]Creating Dictionary..\n");
   MapResult result = mapPut(test,&tmp_key,tmp_data);
   if(result == MAP_SUCCESS) printf("[+]1: Dictionary created successfully\n");
   log();
   printf("Map size:%d\n",mapGetSize(test));
-  MapResult result_2 = mapPut(test,&tmp_key_2,tmp_data);
+  MapResult result_2 = mapPut(test,&tmp_key_2,tmp_data_2);
   if(result_2 == MAP_SUCCESS) printf("[+]2: Dictionary created successfully\n");
   log();
   printf("Map size:%d\n",mapGetSize(test));
+
+  log();
+  if(mapContains(test,&tmp_key))printf("The key 1 is in\n");
+  if(mapContains(test,&tmp_key_2))printf("The key 2 is in\n");
+  if(mapContains(test,&tmp_key_3))printf("The key 5 is in\n");
+  char* rec = mapGet(test,&tmp_key_3);
+  printf("%s\n",rec);
   return 0;
 }

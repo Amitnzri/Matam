@@ -63,18 +63,12 @@ static void goToFirstItem(Map map){
 
 static dictionary createDictionaryBlock(Map map,dictionary previous_block
                                         ,dictionary next_block){
-    /***********************
-    TODO: Fix the structure.
-    ***********************/
-    
-    dictionary current_block = map->dictionary;
+
     dictionary new_block = malloc(sizeof(*(new_block)));
     assert(new_block);
     if(!new_block) return NULL;
-    map->dictionary = new_block;
-    map->dictionary->previous_block = previous_block;
-    map->dictionary->next_block = next_block;
-    map->dictionary = current_block;
+    new_block->previous_block = previous_block;
+    new_block->next_block = next_block;
     return new_block;
 }
 
@@ -112,7 +106,7 @@ MapResult mapPut(Map map,MapKeyElement keyElement,MapDataElement dataElement){
   /******************************************************
   TODO: 1.has a bug when creating new blocks in the middle.
         2.add checks for NULL.
-        3.replace code with inner function
+        3.change the structure.
   ******************************************************/
 
   assert(map&&keyElement&&dataElement);
@@ -120,6 +114,7 @@ MapResult mapPut(Map map,MapKeyElement keyElement,MapDataElement dataElement){
 
   copyMapKeyElements copyKey = map->copyKeyFunction;
   copyMapKeyElements copyData = map->copyDataFunction;
+  compareMapKeyElements compareKey = map->CompareKeysFunction;
 
   //Creates new dictionary if this is the first item.
   if(!map->dictionary){
@@ -136,9 +131,13 @@ MapResult mapPut(Map map,MapKeyElement keyElement,MapDataElement dataElement){
     //Checks if contains the key.
     if(!mapContains(map,keyElement)){
       //Assigns the values in sorted location.
-      while(map->CompareKeysFunction(keyElement,map->dictionary->key)>0){
+      while(compareKey(keyElement,map->dictionary->key)>0){
         if(map->dictionary->next_block){
-          stepForward(map);
+          if(compareKey(keyElement,map->dictionary->next_block)<0){
+            //TODO:create
+          }else if(compareKey(keyElement,map->dictionary->next_block)>0){
+            stepForward(map);
+          }
         }else{
           map->dictionary->next_block = createDictionaryBlock(map,map->dictionary,NULL);
           assert(map->dictionary->next_block);
@@ -147,9 +146,14 @@ MapResult mapPut(Map map,MapKeyElement keyElement,MapDataElement dataElement){
           return assignValues(map,keyElement,dataElement);
         }
       }
-      while(map->CompareKeysFunction(keyElement,map->dictionary->key)<0){
+      while(compareKey(keyElement,map->dictionary->key)<0){
         if(map->dictionary->previous_block){
-          stepBackward(map);
+          if(compareKey(keyElement,map->dictionary->next_block)>0){
+            //TODO: create
+          }else if(compareKey(keyElement,map->dictionary->next_block)<0){
+            stepBackward(map);
+          }
+
         }else{
           map->dictionary->previous_block = createDictionaryBlock(map,NULL,map->dictionary);
           assert(map->dictionary->previous_block);
@@ -190,7 +194,6 @@ int mapGetSize(Map map){
     counter++;
     goToFirstItem(map);
     while(map->dictionary->next_block){
-      printf("[!}Got Here\n");
       stepForward(map);
       counter++;
     }

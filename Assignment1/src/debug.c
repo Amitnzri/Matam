@@ -41,21 +41,29 @@ static int compareInts(MapKeyElement n1, MapKeyElement n2) {
     return (*(int *) n1 - *(int *) n2);
 }
 
+static void log()
+{
+  static int counter =0;
+  counter ++;
+  printf("[?]Log %d: ",counter);
+}
+
 int main(){
   int tmp_key = 1;
   int tmp_key_2 =2;
   char* tmp_data = "uno";
   Map test = mapCreate(copyKeyInt,copyDataChar,
                        freeChar,freeInt,compareInts);
-
-  printf("[+]Map size:%d\n",mapGetSize(test));
+  log();                     
+  printf("Map size:%d\n",mapGetSize(test));
   printf("[+]Creating Dictionary..\n");
   MapResult result = mapPut(test,&tmp_key,tmp_data);
   if(result == MAP_SUCCESS) printf("[+]1: Dictionary created successfully\n");
-  printf("[+]Map size:%d\n",mapGetSize(test));
+  log();
+  printf("Map size:%d\n",mapGetSize(test));
   MapResult result_2 = mapPut(test,&tmp_key_2,tmp_data);
   if(result_2 == MAP_SUCCESS) printf("[+]2: Dictionary created successfully\n");
-  //printf("Check\n");
-  printf("[+]Map size:%d\n",mapGetSize(test));
+  log();
+  printf("Map size:%d\n",mapGetSize(test));
   return 0;
 }

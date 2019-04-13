@@ -16,6 +16,7 @@
       return false;                             \
     } while(0)
 
+
 #define CHECK_WITH_FREE(b,res,f)                \
   if((b) != (res)) do{                          \
       printf("fail: %s != %s\n", #b, #res);     \

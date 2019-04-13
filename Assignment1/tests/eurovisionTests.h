@@ -12,4 +12,5 @@ bool testRunContest();
 bool testRunAudienceFavorite();
 bool testRunGetFriendlyStates();
 
+
 #endif /* EUROVISIONTESTS_H_ */

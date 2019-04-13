@@ -158,7 +158,7 @@ MapResult mapPut(Map map,MapKeyElement keyElement,MapDataElement dataElement){
           map->dictionary->previous_block = createDictionaryBlock(map,NULL,map->dictionary);
           assert(map->dictionary->previous_block);
           if(!map->dictionary->previous_block) return MAP_OUT_OF_MEMORY;
-          map->dictionary = map->dictionary->previous_block;
+          stepBackward(map);
           return assignValues(map,keyElement,dataElement);
         }
       }
@@ -204,14 +204,14 @@ int mapGetSize(Map map){
 bool mapContains(Map map, MapKeyElement element){
   while(map->CompareKeysFunction(element,map->dictionary->key)>0){
     if(map->dictionary->next_block){
-      map->dictionary = map->dictionary->next_block;
+      stepForward(map);
     }else{
       return false;
     }
   }
   while(map->CompareKeysFunction(element,map->dictionary->key)<0){
     if(map->dictionary->previous_block){
-      map->dictionary = map->dictionary->previous_block;
+      stepBackward(map);
     }else{
       return false;
     }

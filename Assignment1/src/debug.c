@@ -1,5 +1,6 @@
 #include "map.h"
 #include <assert.h>
+#include <string.h>
 
 static MapKeyElement copyKeyInt(MapKeyElement n) {
     if (!n) {
@@ -58,18 +59,25 @@ static void printKeysByOrder(Map map){
   }
 }
 
+static void insertValues(Map map,int* keys,char* data){ //Temporary
+/***************************************************************
+Loops through keys and data arrays and insert them into the map.
+TODO: make it Generic.
+***************************************************************/
+  int len =strlen(data);
+  for (int i=0;i<len;i++){
+    printf("index: %d, key: %d\n",i,keys[i]);
+    mapPut(map,&keys[i],&data[i]);
+  }
+}
+
 int main(){
-  int keys[] = {3,2,1,2};
-  char data[] = {'A','B'};
+  int keys[] = {3,1,1,2};
+  char data[] = {'A','B','C','D'};
   Map map = mapCreate(copyKeyInt,copyDataChar,
                        freeChar,freeInt,compareInts);
-  mapPut(map,&keys[0],data);
+  insertValues(map,keys,data);
   printKeysByOrder(map);
-  mapPut(map,&keys[1],&data[1]);
-  printKeysByOrder(map);
-  mapPut(map,&keys[2],&data[0]);
-  //log();
-  printKeysByOrder(map);
-  //printf("[+] Key:%d\nData:%c\n",keys[0], *(char*)(mapGet(map,keys)));
+
   return 0;
 }

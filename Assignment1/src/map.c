@@ -1,7 +1,8 @@
 #include "map.h"
 #include <assert.h>
 
-//##################################TypeDefs###################################
+//##############################Structs&TypeDefs###############################
+
 typedef enum LocationType {
     ASSIGN_BEFORE,ASSIGN_AFTER,ASSIGN_HERE
 } LocationType;
@@ -31,6 +32,7 @@ struct Map_t{
 };
 
 //##############################InnerFunctions#################################
+
 //Assigns a given key and data to a block.
 static MapResult assignValues(Map map,dictionary block,
                               element key, element data){
@@ -61,7 +63,7 @@ static void goToFirstItem(Map map){
     stepBackward(map);
   }
 }
-
+//Changes the dictionary ptr inside map to points on requested key.
 static dictionary jumpTo (Map map, MapKeyElement key){
   /***********************
   TODO: make sure it works
@@ -81,7 +83,7 @@ static dictionary jumpTo (Map map, MapKeyElement key){
   }
   return map->dictionary;
 }
-
+//Creates new dictionary block.
 static dictionary createDictionaryBlock(Map map,dictionary previous_block
                                         ,dictionary next_block){
   assert(map);
@@ -92,16 +94,14 @@ static dictionary createDictionaryBlock(Map map,dictionary previous_block
   new_block->next_block = next_block;
   return new_block;
 }
-
+//Places new block between two blocks.
 static void placeBetweenKeys(dictionary block){
   if(block->next_block) block->next_block->previous_block = block;
   if(block->previous_block) block->previous_block->next_block = block;
 }
-//finds and return the sorted location for placing a key.
+//Finds and return the sorted location for placing a key.
 static LocationType findSortedPosition(Map map,MapKeyElement key){
-/**************************************
-TODO: FIX when equal.
-**************************************/
+
   assert(key&&map->dictionary);
   compareMapKeyElements compareKeys = map->CompareKeysFunction;
   while(compareKeys(key,map->dictionary->key)>0){
@@ -227,10 +227,9 @@ int mapGetSize(Map map){
 }
 
 bool mapContains(Map map, MapKeyElement element){
-  /************************************************************
-  TODO: 1.Look for bugs.
-        2.check returns.
-  ************************************************************/
+  /*********************
+  TODO: check returns.
+  *********************/
   if(!map||!element) false;
   compareMapKeyElements compareKeys =map->CompareKeysFunction;
   findSortedPosition(map,element);
@@ -240,7 +239,6 @@ bool mapContains(Map map, MapKeyElement element){
     return false;
   }
 }
-
 
 MapDataElement mapGet(Map map, MapKeyElement keyElement){
   dictionary requested_block = jumpTo(map,keyElement);

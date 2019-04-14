@@ -28,6 +28,26 @@ struct Map_t{
 
 //InnerFunctions..
 
+static dictionary jumpTo (Map map, MapKeyElement key){
+  /***********************
+  TODO: make sure it works
+  ***********************/
+  compareMapKeyElements compareKey = map->CompareKeysFunction;
+  //checks if the key is in the dictionary.
+  if(!mapContains(map,keyElement))return NULL;
+
+  //locate the key in the dictionary.
+  while(compareKey(keyElement,map->dictionary->key)>0){
+    assert(map->dictionary->next_block);
+    stepForward(map);
+  }
+  while(compareKey(keyElement,map->dictionary->key)<0){
+    assert(map->dictionary->previous_block);
+    stepBackward(map);
+  }
+  return map->dictionary;
+}
+
 
 //Assigns a given key and data to the current dictionary location.
 static MapResult assignValues(Map map, element key, element data){
@@ -225,18 +245,10 @@ bool mapContains(Map map, MapKeyElement element){
 
 MapDataElement mapGet(Map map, MapKeyElement keyElement){
 
-  compareMapKeyElements compareKey = map->CompareKeysFunction;
-  //checks if the key is in the dictionary.
-  if(!mapContains(map,keyElement))return NULL;
-
-  //locate the key in the dictionary.
-  while(compareKey(keyElement,map->dictionary->key)>0){
-    assert(map->dictionary->next_block);
-    stepForward(map);
+  dictionary requested_block = jumpTo(map,keyElement);
+  if(!block){
+    return NULL;
+  }else{
+  return requested_block->data;
   }
-  while(compareKey(keyElement,map->dictionary->key)<0){
-    assert(map->dictionary->previous_block);
-    stepBackward(map);
-  }
-  return map->dictionary->data;
 }

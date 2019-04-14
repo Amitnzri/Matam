@@ -66,14 +66,13 @@ TODO: make it Generic.
 ***************************************************************/
   int len =strlen(data);
   for (int i=0;i<len;i++){
-    printf("index: %d, key: %d\n",i,keys[i]);
     mapPut(map,&keys[i],&data[i]);
   }
 }
 
 int main(){
   int keys[] = {3,1,1,2};
-  char data[] = {'A','B','C','D'};
+  char data[] = {'A','A','C','D'};
   Map map = mapCreate(copyKeyInt,copyDataChar,
                        freeChar,freeInt,compareInts);
   insertValues(map,keys,data);

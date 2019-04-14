@@ -2,7 +2,7 @@
 #include <assert.h>
 
 //Typedefs..
-typedef void *element;
+typedef void *element; //change name.
 
 //DataTypes..
 typedef struct dictionary_t {
@@ -40,7 +40,7 @@ static MapResult assignValues(Map map, element key, element data){
 
 //Steps to the next key in a given dictionary
 static void stepForward(Map map){
-  assert(map);
+  assert(map&&map->dictionary->next_block);
   if(map->dictionary->next_block){
     map->dictionary = map->dictionary->next_block;
   }
@@ -48,7 +48,7 @@ static void stepForward(Map map){
 
 //Steps back to the previous key in a given dictionary
 static void stepBackward(Map map){
-  assert(map);
+  assert(map&&map->dictionary->previous_block);
   if(map->dictionary->previous_block){
     map->dictionary = map->dictionary->previous_block;
   }
@@ -86,7 +86,7 @@ static dictionary findSortedPosition(Map map,MapKeyElement key){
     if(!map->dictionary->next_block){ //if last item.
       map->dictionary->next_block = createDictionaryBlock(map,map->dictionary,
                                                           NULL);
-      assert(map->dictionary->next_block);
+      assert(map->dictionary->next_block);//TODO: check if need to be removed.
       stepForward(map);
       return map->dictionary;
   }else if(compareKeys(key,map->dictionary->next_block->key)<0){
@@ -103,7 +103,7 @@ static dictionary findSortedPosition(Map map,MapKeyElement key){
     if(!map->dictionary->previous_block){ //if first item.
       map->dictionary->previous_block = createDictionaryBlock(map,NULL,
                                                          map->dictionary);
-      assert(map->dictionary->previous_block);
+      assert(map->dictionary->previous_block; //TODO: same(89).
       stepBackward(map);
       return map->dictionary;
     }else if(compareKeys(key,map->dictionary->previous_block->key)>0){
@@ -154,93 +154,23 @@ MapResult mapPut(Map map,MapKeyElement keyElement,MapKeyElement dataElement){
 TODO: 1.Fix the return values.
       2.change findSorted type.
 *****************************/
+
   //Checks if the map has dictionary already.
   assert(map);
   if(!map) return MAP_NULL_ARGUMENT;
   if(!map->dictionary){
     map->dictionary = createDictionaryBlock(map,NULL,NULL);
+    assert(map->dictionary);
     if(!map->dictionary) return MAP_OUT_OF_MEMORY;
     assignValues(map,keyElement,dataElement);
     return MAP_SUCCESS;
   }else{ //if has items in it already.
     //looking for the location.
-    dictionary sorted_location = findSortedPosition(map,keyElement);
-    if(!sorted_location)return MAP_NULL_ARGUMENT;
+    if(!findSortedPosition(map,keyElement))return MAP_NULL_ARGUMENT;
     assignValues(map,keyElement,dataElement);
     return MAP_SUCCESS;
   }
 
-}
-
-MapResult mapPutObsolute(Map map,MapKeyElement keyElement,MapDataElement dataElement){
-
-  /******************************************************
-  TODO: 1.has a bug when creating new blocks in the middle.
-        2.add checks for NULL.
-        3.change the structure.
-  ******************************************************/
-
-  assert(map&&keyElement&&dataElement);
-  if(!map||!keyElement||!dataElement)return MAP_NULL_ARGUMENT;
-
-  copyMapKeyElements copyKey = map->copyKeyFunction;
-  copyMapKeyElements copyData = map->copyDataFunction;
-  compareMapKeyElements compareKey = map->CompareKeysFunction;
-
-  //Creates new dictionary if this is the first item.
-  if(!map->dictionary){
-    map->dictionary = createDictionaryBlock(map,NULL,NULL); //TODO: check
-    assert(map->dictionary);
-    if(!map->dictionary)return MAP_OUT_OF_MEMORY; //TODO: check if valid
-    createDictionaryBlock(map,NULL,NULL);
-    map->dictionary->key = copyKey(keyElement);
-    map->dictionary->data = copyData(dataElement);
-    //TODO:CHECKS
-    return MAP_SUCCESS;
-  }else{ //The map has items in it.
-
-    //Checks if contains the key.
-    if(!mapContains(map,keyElement)){
-      //Assigns the values in sorted location.
-      while(compareKey(keyElement,map->dictionary->key)>0){
-        if(map->dictionary->next_block){
-          if(compareKey(keyElement,map->dictionary->next_block)<0){
-            //TODO:create
-          }else if(compareKey(keyElement,map->dictionary->next_block)>0){
-            stepForward(map);
-          }
-        }else{
-          map->dictionary->next_block = createDictionaryBlock(map,map->dictionary,NULL);
-          assert(map->dictionary->next_block);
-          if(!map->dictionary->next_block)return MAP_OUT_OF_MEMORY;
-          map->dictionary= map->dictionary->next_block;
-          return assignValues(map,keyElement,dataElement);
-        }
-      }
-      while(compareKey(keyElement,map->dictionary->key)<0){
-        if(map->dictionary->previous_block){
-          if(compareKey(keyElement,map->dictionary->next_block)>0){
-            //TODO: create
-          }else if(compareKey(keyElement,map->dictionary->next_block)<0){
-            stepBackward(map);
-          }
-
-        }else{
-          map->dictionary->previous_block = createDictionaryBlock(map,NULL,map->dictionary);
-          assert(map->dictionary->previous_block);
-          if(!map->dictionary->previous_block) return MAP_OUT_OF_MEMORY;
-          stepBackward(map);
-          return assignValues(map,keyElement,dataElement);
-        }
-      }
-    }else{
-        return assignValues(map,keyElement,dataElement);
-    }
-  }
-  #ifndef NDEBUG
-  printf("[!]ERROR: got to the end of mapPut.\n");
-  #endif
-  return MAP_NULL_ARGUMENT; //Shouldn't get here.
 }
 
 MapKeyElement mapGetFirst(Map map){
@@ -274,14 +204,15 @@ int mapGetSize(Map map){
 }
 
 bool mapContains(Map map, MapKeyElement element){
-  while(map->CompareKeysFunction(element,map->dictionary->key)>0){
+  compareMapKeyElements compareKeys = map->CompareKeysFunction;
+  while(compareKeys(element,map->dictionary->key)>0){
     if(map->dictionary->next_block){
       stepForward(map);
     }else{
       return false;
     }
   }
-  while(map->CompareKeysFunction(element,map->dictionary->key)<0){
+  while(compareKeys(element,map->dictionary->key)<0){
     if(map->dictionary->previous_block){
       stepBackward(map);
     }else{

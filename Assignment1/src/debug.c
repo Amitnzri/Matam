@@ -48,12 +48,13 @@ static void log(){
   printf("[?]Log %d: ",counter);
 }
 
-static void printKeysByOrder(Map map){
+static void printValuesByOrder(Map map){
   assert(map);
   int counter =1;
   MapKeyElement key = mapGetFirst(map);
   while(key){
-    printf("[+]Key %d is: %d\n",counter,*(int*)key);
+    printf("[+]Key %d is: %d | Data: %s\n",
+    counter,*(int*)key,(char*)mapGet(map,key));
     key = mapGetNext(map);
     counter++;
   }
@@ -71,12 +72,12 @@ TODO: make it Generic.
 }
 
 int main(){
-  int keys[] = {3,1,1,2};
+  int keys[] = {3,4,1,2};
   char data[] = {'A','A','C','D'};
   Map map = mapCreate(copyKeyInt,copyDataChar,
                        freeChar,freeInt,compareInts);
   insertValues(map,keys,data);
-  printKeysByOrder(map);
+  printValuesByOrder(map);
 
   return 0;
 }

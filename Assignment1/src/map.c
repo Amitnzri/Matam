@@ -99,8 +99,8 @@ static dictionary createDictionaryBlock(Map map,dictionary previous_block
 }
 
 static void placeBetweenKeys(dictionary block){
-  block->next_block->previous_block = block;
-  block->previous_block->next_block = block;
+  if(block->next_block) block->next_block->previous_block = block;
+  if(block->previous_block) block->previous_block->next_block = block;
 }
 
 //finds and return the sorted location for placing a key.
@@ -161,13 +161,11 @@ Map mapCreate(copyMapDataElements copyDataElement,
 MapResult mapPut(Map map,MapKeyElement keyElement,MapKeyElement dataElement){
 /*****************************
 TODO: 1.Fix the return values.
-      2.change findSorted type.
-      3.Look for bugs.
+      2.Look for bugs.
 *****************************/
-  //Checks if the map has dictionary already.
   assert(map);
   if(!map) return MAP_NULL_ARGUMENT;
-  if(!map->dictionary){
+  if(!map->dictionary){ //Checks if the map has dictionary already.
     map->dictionary = createDictionaryBlock(map,NULL,NULL);
     assert(map->dictionary);
     if(!map->dictionary) return MAP_OUT_OF_MEMORY;
@@ -177,7 +175,6 @@ TODO: 1.Fix the return values.
     dictionary previous_block=NULL;
     dictionary next_block=NULL;
     switch (findSortedPosition(map,keyElement)){
-
       case ASSIGN_AFTER:
         previous_block = map->dictionary;
         if(!map->dictionary->next_block)break;
@@ -196,18 +193,13 @@ TODO: 1.Fix the return values.
         placeBetweenKeys(map->dictionary);
         assignValues(map,map->dictionary,keyElement,dataElement);
         return MAP_SUCCESS; //TODO:check returns
-
-      default:
-        return MAP_NULL_ARGUMENT;
-
+    }
     dictionary new_block = createDictionaryBlock(map,previous_block,next_block);
     if(!new_block) return MAP_OUT_OF_MEMORY;
     placeBetweenKeys(new_block);
     assignValues(map,new_block,keyElement,dataElement);
     return MAP_SUCCESS;
-    }
   }
-  return MAP_NULL_ARGUMENT; //Shouldn't get here.
 }
 
 MapKeyElement mapGetFirst(Map map){

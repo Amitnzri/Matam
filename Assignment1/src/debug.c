@@ -59,17 +59,16 @@ static void printKeysByOrder(Map map){
 }
 
 int main(){
-  int keys[] = {1,3,12,2};
+  int keys[] = {3,2,1,2};
   char data[] = {'A','B'};
   Map map = mapCreate(copyKeyInt,copyDataChar,
                        freeChar,freeInt,compareInts);
   mapPut(map,&keys[0],data);
-  //printKeysByOrder(map);
+  printKeysByOrder(map);
   mapPut(map,&keys[1],&data[1]);
-  //printKeysByOrder(map);
-  mapPut(map,&keys[3],&data[0]);
+  printKeysByOrder(map);
+  mapPut(map,&keys[2],&data[0]);
   //log();
-  printf("[+]Whatt.\n");
   printKeysByOrder(map);
   //printf("[+] Key:%d\nData:%c\n",keys[0], *(char*)(mapGet(map,keys)));
   return 0;

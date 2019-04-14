@@ -79,9 +79,7 @@ static void placeBetweenKeys(dictionary wanted_key){
 
 //finds and return the sorted location for placing a key.
 static dictionary findSortedPosition(Map map,MapKeyElement key){
-  /*********************
-  TODO: fix bugs.
-  *********************/
+
   assert(key&&map->dictionary);
   compareMapKeyElements compareKeys = map->CompareKeysFunction;
   while(compareKeys(key,map->dictionary->key)>0){
@@ -91,7 +89,7 @@ static dictionary findSortedPosition(Map map,MapKeyElement key){
       assert(map->dictionary->next_block);
       stepForward(map);
       return map->dictionary;
-    }else if(compareKeys(key,map->dictionary->next_block)<0){ //TODO: look for bug here.
+  }else if(compareKeys(key,map->dictionary->next_block->key)<0){
       dictionary new_block = createDictionaryBlock(map,
                   map->dictionary,map->dictionary->next_block);
       assert(new_block);
@@ -108,7 +106,7 @@ static dictionary findSortedPosition(Map map,MapKeyElement key){
       assert(map->dictionary->previous_block);
       stepBackward(map);
       return map->dictionary;
-    }else if(compareKeys(key,map->dictionary->previous_block)>0){
+    }else if(compareKeys(key,map->dictionary->previous_block->key)>0){
       dictionary new_block = createDictionaryBlock(map,
                   map->dictionary->previous_block,map->dictionary);
       assert(new_block);
@@ -116,6 +114,7 @@ static dictionary findSortedPosition(Map map,MapKeyElement key){
       stepBackward(map);
       return map->dictionary;
     }
+
     stepBackward(map);
   }
   return map->dictionary; //if the keys are equal.
@@ -153,24 +152,20 @@ Map mapCreate(copyMapDataElements copyDataElement,
 MapResult mapPut(Map map,MapKeyElement keyElement,MapKeyElement dataElement){
 /*****************************
 TODO: 1.Fix the return values.
-      2.Fix bugs.
-      3.change findSorted type.
+      2.change findSorted type.
 *****************************/
   //Checks if the map has dictionary already.
   assert(map);
   if(!map) return MAP_NULL_ARGUMENT;
   if(!map->dictionary){
-    printf("[+]Should be shown once\n");
     map->dictionary = createDictionaryBlock(map,NULL,NULL);
     if(!map->dictionary) return MAP_OUT_OF_MEMORY;
     assignValues(map,keyElement,dataElement);
     return MAP_SUCCESS;
   }else{ //if has items in it already.
     //looking for the location.
-    printf("[+]Should be shown 2 times.\n");
     dictionary sorted_location = findSortedPosition(map,keyElement);
     if(!sorted_location)return MAP_NULL_ARGUMENT;
-    //place it.
     assignValues(map,keyElement,dataElement);
     return MAP_SUCCESS;
   }
@@ -292,7 +287,6 @@ bool mapContains(Map map, MapKeyElement element){
     }else{
       return false;
     }
-
   }
   return true;
 }

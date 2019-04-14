@@ -1,7 +1,7 @@
 #include "map.h"
 #include <assert.h>
 
-//##############################Structs&TypeDefs###############################
+/*##############################Structs&TypeDefs#############################*/
 
 typedef enum LocationType {
     ASSIGN_BEFORE,ASSIGN_AFTER,ASSIGN_HERE
@@ -31,7 +31,7 @@ struct Map_t{
   compareMapKeyElements CompareKeysFunction;
 };
 
-//##############################InnerFunctions#################################
+/*##############################InnerFunctions###############################*/
 
 //Assigns a given key and data to a block.
 static MapResult assignValues(Map map,dictionary block,
@@ -123,7 +123,8 @@ static LocationType findSortedPosition(Map map,MapKeyElement key){
   return ASSIGN_HERE; //if the keys are equal.
 }
 
-//###############################Functions#####################################
+/*###############################Functions###################################*/
+
 Map mapCreate(copyMapDataElements copyDataElement,
               copyMapKeyElements copyKeyElement,
               freeMapDataElements freeDataElement,
@@ -246,3 +247,5 @@ MapDataElement mapGet(Map map, MapKeyElement keyElement){
   return requested_block->data;
 
 }
+
+/*###########################################################################*/

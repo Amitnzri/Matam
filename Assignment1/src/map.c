@@ -1,7 +1,7 @@
 #include "map.h"
 #include <assert.h>
 
-//Typedefs..
+//##################################TypeDefs###################################
 typedef enum LocationType {
     ASSIGN_BEFORE,ASSIGN_AFTER,ASSIGN_HERE
 } LocationType;
@@ -30,11 +30,8 @@ struct Map_t{
   compareMapKeyElements CompareKeysFunction;
 };
 
-//InnerFunctions..
-
-
-
-//Assigns a given key and data to the current dictionary location.
+//##############################InnerFunctions#################################
+//Assigns a given key and data to a block.
 static MapResult assignValues(Map map,dictionary block,
                               element key, element data){
   assert(map&&key&&data);
@@ -43,23 +40,21 @@ static MapResult assignValues(Map map,dictionary block,
   if(!map->dictionary->key ||!map->dictionary->data) return MAP_OUT_OF_MEMORY;
   return MAP_SUCCESS;
 }
-
-//Steps to the next key in a given dictionary
+//Steps to the next key in a given dictionary.
 static void stepForward(Map map){
   assert(map&&map->dictionary->next_block);
   if(map->dictionary->next_block){
     map->dictionary = map->dictionary->next_block;
   }
 }
-
-//Steps back to the previous key in a given dictionary
+//Steps back to the previous key in a given dictionary.
 static void stepBackward(Map map){
   assert(map&&map->dictionary->previous_block);
   if(map->dictionary->previous_block){
     map->dictionary = map->dictionary->previous_block;
   }
 }
-
+//Steps back to the first item.
 static void goToFirstItem(Map map){
   assert(map);
   while(map->dictionary->previous_block){
@@ -102,11 +97,10 @@ static void placeBetweenKeys(dictionary block){
   if(block->next_block) block->next_block->previous_block = block;
   if(block->previous_block) block->previous_block->next_block = block;
 }
-
 //finds and return the sorted location for placing a key.
 static LocationType findSortedPosition(Map map,MapKeyElement key){
 /**************************************
-TODO: 1.move the create function outside.
+TODO: FIX when equal.
 **************************************/
   assert(key&&map->dictionary);
   compareMapKeyElements compareKeys = map->CompareKeysFunction;
@@ -129,7 +123,7 @@ TODO: 1.move the create function outside.
   return ASSIGN_HERE; //if the keys are equal.
 }
 
-//Functions..
+//###############################Functions#####################################
 Map mapCreate(copyMapDataElements copyDataElement,
               copyMapKeyElements copyKeyElement,
               freeMapDataElements freeDataElement,
@@ -235,10 +229,12 @@ int mapGetSize(Map map){
 bool mapContains(Map map, MapKeyElement element){
   /************************************************************
   TODO: 1.Look for bugs.
-        2.make sure that findSorted does not create new blocks.
+        2.check returns.
   ************************************************************/
+  if(!map||!element) false;
+  compareMapKeyElements compareKeys =map->CompareKeysFunction;
   findSortedPosition(map,element);
-  if(map->dictionary->key == element){
+  if(compareKeys(element,map->dictionary->key)==0){
     return true;
   }else{
     return false;
@@ -247,11 +243,8 @@ bool mapContains(Map map, MapKeyElement element){
 
 
 MapDataElement mapGet(Map map, MapKeyElement keyElement){
-
   dictionary requested_block = jumpTo(map,keyElement);
-  if(!requested_block){
-    return NULL;
-  }else{
+  if(!requested_block)return NULL;
   return requested_block->data;
-  }
+
 }

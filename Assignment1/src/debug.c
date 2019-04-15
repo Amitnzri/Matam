@@ -78,6 +78,9 @@ int main(){
                        freeChar,freeInt,compareInts);
   insertValues(map,keys,data);
   printValuesByOrder(map);
+  printf("%s\n","--------------------------" );
+  mapRemove(map,keys);
+  printValuesByOrder(map);
 
   return 0;
 }

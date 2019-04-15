@@ -119,6 +119,13 @@ static LocationType findSortedPosition(Map map,MapKeyElement key){
   return ASSIGN_HERE; //if the keys are equal.
 }
 
+static void connectBlocks(dictionary first, dictionary second){
+
+  assert(first && second);
+  first->next_block = second;
+  second->previous_block = first;
+}
+
 /*###############################Functions###################################*/
 
 Map mapCreate(copyMapDataElements copyDataElement,
@@ -159,8 +166,7 @@ TODO: Fix the return values.
     map->dictionary = createDictionaryBlock(map,NULL,NULL);
     assert(map->dictionary);
     if(!map->dictionary) return MAP_OUT_OF_MEMORY;
-    assignValues(map,map->dictionary,keyElement,dataElement);
-    return MAP_SUCCESS;
+    return assignValues(map,map->dictionary,keyElement,dataElement);
   }else{ //If has items in it already.
     dictionary previous_block=NULL;
     dictionary next_block=NULL;
@@ -188,8 +194,7 @@ TODO: Fix the return values.
     dictionary new_block = createDictionaryBlock(map,previous_block,next_block);
     if(!new_block) return MAP_OUT_OF_MEMORY;
     placeBetweenKeys(new_block);
-    assignValues(map,new_block,keyElement,dataElement);
-    return MAP_SUCCESS;
+    return assignValues(map,new_block,keyElement,dataElement);
   }
 }
 
@@ -242,6 +247,32 @@ MapDataElement mapGet(Map map, MapKeyElement keyElement){
   if(!requested_block)return NULL;
   return requested_block->data;
 
+}
+
+void mapDestroy(Map map){
+  return;
+}
+
+MapResult mapClear(Map map){
+  return MAP_NULL_ARGUMENT;
+}
+
+MapResult mapRemove(Map map, MapKeyElement keyElement){ //TODO:replace תעשה חדש אחי
+
+  assert(map&&map->dictionary);
+  if(!map||!map->dictionary) return MAP_NULL_ARGUMENT;
+
+  dictionary requested_block =jumpTo(map,keyElement);
+  if(!requested_block) return MAP_ITEM_DOES_NOT_EXIST;
+  dictionary previous_block = requested_block->previous_block;
+  dictionary next_block = requested_block->next_block;
+
+  free(map->dictionary->key);
+  free(map->dictionary->data);
+  free(map->dictionary);
+
+  connectBlocks(previous_block,next_block);
+  return MAP_SUCCESS;
 }
 
 /*###########################################################################*/

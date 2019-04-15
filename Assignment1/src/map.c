@@ -3,17 +3,10 @@
 
 /*##############################Structs&TypeDefs#############################*/
 
-typedef enum LocationType {
-    ASSIGN_BEFORE,ASSIGN_AFTER,ASSIGN_HERE
-} LocationType;
-
-typedef void *element; //change name.
-
-//DataTypes..
 typedef struct dictionary_t {
 
-  element key;
-  element data;
+  MapKeyElement key;
+  MapDataElement data;
 
   struct dictionary_t* previous_block;
   struct dictionary_t* next_block;
@@ -31,11 +24,15 @@ struct Map_t{
   compareMapKeyElements CompareKeysFunction;
 };
 
+typedef enum LocationType {
+    ASSIGN_BEFORE,ASSIGN_AFTER,ASSIGN_HERE
+} LocationType;
+
 /*##############################InnerFunctions###############################*/
 
 //Assigns a given key and data to a block.
 static MapResult assignValues(Map map,dictionary block,
-                              element key, element data){
+                              MapKeyElement key, MapDataElement data){
   assert(map&&key&&data);
   block->key = map->copyKeyFunction(key);
   block->data = map->copyKeyFunction(data);
@@ -65,11 +62,9 @@ static void goToFirstItem(Map map){
 }
 //Changes the dictionary ptr inside map to points on requested key.
 static dictionary jumpTo (Map map, MapKeyElement key){
-  /***********************
-  TODO: make sure it works
-  ***********************/
+
   compareMapKeyElements compareKey = map->CompareKeysFunction;
-  //checks if the key is in the dictionary.
+  //check if the key is in the dictionary.
   if(!mapContains(map,key))return NULL;
 
   //locate the key in the dictionary.
@@ -81,6 +76,7 @@ static dictionary jumpTo (Map map, MapKeyElement key){
     assert(map->dictionary->previous_block);
     stepBackward(map);
   }
+  //The key was found,return his block.
   return map->dictionary;
 }
 //Creates new dictionary block.
@@ -90,8 +86,8 @@ static dictionary createDictionaryBlock(Map map,dictionary previous_block
   dictionary new_block = malloc(sizeof(*(new_block)));
   assert(new_block);
   if(!new_block) return NULL;
-  new_block->previous_block = previous_block;
-  new_block->next_block = next_block;
+  new_block->previous_block = previous_block; //Can be NULL.
+  new_block->next_block = next_block; //Can be NULL.
   return new_block;
 }
 //Places new block between two blocks.
@@ -155,21 +151,21 @@ Map mapCreate(copyMapDataElements copyDataElement,
 
 MapResult mapPut(Map map,MapKeyElement keyElement,MapKeyElement dataElement){
 /*****************************
-TODO: 1.Fix the return values.
-      2.Look for bugs.
+TODO: Fix the return values.
 *****************************/
   assert(map);
   if(!map) return MAP_NULL_ARGUMENT;
-  if(!map->dictionary){ //Checks if the map has dictionary already.
+  if(!map->dictionary){ //If the map has no dictionary yet.
     map->dictionary = createDictionaryBlock(map,NULL,NULL);
     assert(map->dictionary);
     if(!map->dictionary) return MAP_OUT_OF_MEMORY;
     assignValues(map,map->dictionary,keyElement,dataElement);
     return MAP_SUCCESS;
-  }else{ //if has items in it already.
+  }else{ //If has items in it already.
     dictionary previous_block=NULL;
     dictionary next_block=NULL;
     switch (findSortedPosition(map,keyElement)){
+
       case ASSIGN_AFTER:
         previous_block = map->dictionary;
         if(!map->dictionary->next_block)break;
@@ -187,7 +183,7 @@ TODO: 1.Fix the return values.
       case ASSIGN_HERE:
         placeBetweenKeys(map->dictionary);
         assignValues(map,map->dictionary,keyElement,dataElement);
-        return MAP_SUCCESS; //TODO:check returns
+        return MAP_SUCCESS;
     }
     dictionary new_block = createDictionaryBlock(map,previous_block,next_block);
     if(!new_block) return MAP_OUT_OF_MEMORY;

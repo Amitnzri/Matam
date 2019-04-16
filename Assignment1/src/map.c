@@ -1,18 +1,7 @@
-#include "map.h"
-#include <assert.h>
-
-//##################################TypeDefs###################################
-typedef enum LocationType {
-    ASSIGN_BEFORE,ASSIGN_AFTER,ASSIGN_HERE
-} LocationType;
-
-typedef void *element; //change name.
-
-//DataTypes..
 typedef struct dictionary_t {
 
-  element key;
-  element data;
+  MapKeyElement key;
+  MapDataElement data;
 
   struct dictionary_t* previous_block;
   struct dictionary_t* next_block;
@@ -30,10 +19,15 @@ struct Map_t{
   compareMapKeyElements CompareKeysFunction;
 };
 
-//##############################InnerFunctions#################################
+typedef enum LocationType {
+    ASSIGN_BEFORE,ASSIGN_AFTER,ASSIGN_HERE
+} LocationType;
+
+/*##############################InnerFunctions###############################*/
+
 //Assigns a given key and data to a block.
 static MapResult assignValues(Map map,dictionary block,
-                              element key, element data){
+                              MapKeyElement key, MapDataElement data){
   assert(map&&key&&data);
   block->key = map->copyKeyFunction(key);
   block->data = map->copyKeyFunction(data);
@@ -61,13 +55,11 @@ static void goToFirstItem(Map map){
     stepBackward(map);
   }
 }
-
+//Changes the dictionary ptr inside map to points on requested key.
 static dictionary jumpTo (Map map, MapKeyElement key){
-  /***********************
-  TODO: make sure it works
-  ***********************/
+
   compareMapKeyElements compareKey = map->CompareKeysFunction;
-  //checks if the key is in the dictionary.
+  //check if the key is in the dictionary.
   if(!mapContains(map,key))return NULL;
 
   //locate the key in the dictionary.
@@ -79,29 +71,28 @@ static dictionary jumpTo (Map map, MapKeyElement key){
     assert(map->dictionary->previous_block);
     stepBackward(map);
   }
+  //The key was found,return his block.
   return map->dictionary;
 }
-
+//Creates new dictionary block.
 static dictionary createDictionaryBlock(Map map,dictionary previous_block
                                         ,dictionary next_block){
   assert(map);
   dictionary new_block = malloc(sizeof(*(new_block)));
   assert(new_block);
   if(!new_block) return NULL;
-  new_block->previous_block = previous_block;
-  new_block->next_block = next_block;
+  new_block->previous_block = previous_block; //Can be NULL.
+  new_block->next_block = next_block; //Can be NULL.
   return new_block;
 }
-
+//Places new block between two blocks.
 static void placeBetweenKeys(dictionary block){
   if(block->next_block) block->next_block->previous_block = block;
   if(block->previous_block) block->previous_block->next_block = block;
 }
-//finds and return the sorted location for placing a key.
+//Finds and return the sorted location for placing a key.
 static LocationType findSortedPosition(Map map,MapKeyElement key){
-/**************************************
-TODO: FIX when equal.
-**************************************/
+
   assert(key&&map->dictionary);
   compareMapKeyElements compareKeys = map->CompareKeysFunction;
   while(compareKeys(key,map->dictionary->key)>0){
@@ -123,7 +114,14 @@ TODO: FIX when equal.
   return ASSIGN_HERE; //if the keys are equal.
 }
 
-//###############################Functions#####################################
+static void connectBlocks(dictionary first, dictionary second){
+  assert(first || second);
+  if(first) first->next_block = second;
+  if(second) second->previous_block = first;
+}
+
+/*###############################Functions###################################*/
+
 Map mapCreate(copyMapDataElements copyDataElement,
               copyMapKeyElements copyKeyElement,
               freeMapDataElements freeDataElement,
@@ -154,21 +152,20 @@ Map mapCreate(copyMapDataElements copyDataElement,
 
 MapResult mapPut(Map map,MapKeyElement keyElement,MapKeyElement dataElement){
 /*****************************
-TODO: 1.Fix the return values.
-      2.Look for bugs.
+TODO: Fix the return values.
 *****************************/
   assert(map);
   if(!map) return MAP_NULL_ARGUMENT;
-  if(!map->dictionary){ //Checks if the map has dictionary already.
+  if(!map->dictionary){ //If the map has no dictionary yet.
     map->dictionary = createDictionaryBlock(map,NULL,NULL);
     assert(map->dictionary);
     if(!map->dictionary) return MAP_OUT_OF_MEMORY;
-    assignValues(map,map->dictionary,keyElement,dataElement);
-    return MAP_SUCCESS;
-  }else{ //if has items in it already.
+    return assignValues(map,map->dictionary,keyElement,dataElement);
+  }else{ //If has items in it already.
     dictionary previous_block=NULL;
     dictionary next_block=NULL;
     switch (findSortedPosition(map,keyElement)){
+
       case ASSIGN_AFTER:
         previous_block = map->dictionary;
         if(!map->dictionary->next_block)break;
@@ -186,13 +183,12 @@ TODO: 1.Fix the return values.
       case ASSIGN_HERE:
         placeBetweenKeys(map->dictionary);
         assignValues(map,map->dictionary,keyElement,dataElement);
-        return MAP_SUCCESS; //TODO:check returns
+        return MAP_SUCCESS;
     }
     dictionary new_block = createDictionaryBlock(map,previous_block,next_block);
     if(!new_block) return MAP_OUT_OF_MEMORY;
     placeBetweenKeys(new_block);
-    assignValues(map,new_block,keyElement,dataElement);
-    return MAP_SUCCESS;
+    return assignValues(map,new_block,keyElement,dataElement);
   }
 }
 
@@ -227,10 +223,9 @@ int mapGetSize(Map map){
 }
 
 bool mapContains(Map map, MapKeyElement element){
-  /************************************************************
-  TODO: 1.Look for bugs.
-        2.check returns.
-  ************************************************************/
+  /*********************
+  TODO: check returns.
+  *********************/
   if(!map||!element) false;
   compareMapKeyElements compareKeys =map->CompareKeysFunction;
   findSortedPosition(map,element);
@@ -241,10 +236,59 @@ bool mapContains(Map map, MapKeyElement element){
   }
 }
 
-
 MapDataElement mapGet(Map map, MapKeyElement keyElement){
   dictionary requested_block = jumpTo(map,keyElement);
   if(!requested_block)return NULL;
   return requested_block->data;
 
+}
+static void DeleteCurrentBlock(Map map){
+/*******************
+TODO: Look for bugs.
+*******************/
+  dictionary requested_block = map->dictionary,
+  ,previous_block = requested_block->previous_block,
+  ,next_block = requested_block->next_block; //TODO: check with convention.
+
+  map->freeKeyFunction(requested_block->key);
+  map->freeDataFunction(requested_block->data);
+
+  if(previous_block || next_block){
+    connectBlocks(previous_block,next_block);
+  }
+  free(requested_block);
+  if(!previous_block&&!next_block) map->dictionary = NULL;
+
+}
+
+MapResult mapRemove(Map map, MapKeyElement keyElement){
+
+  assert(map&&map->dictionary);
+  if(!map||!map->dictionary) return MAP_NULL_ARGUMENT;
+  if(jumpTo(map,keyElement) == NULL) return MAP_ITEM_DOES_NOT_EXIST;
+  DeleteCurrentBlock(map);
+  return MAP_SUCCESS;
+}
+
+MapResult mapClear(Map map){
+/*******************
+TODO: Look for bugs.
+*******************/
+  assert(map);
+  if(!map) return MAP_NULL_ARGUMENT;
+  goToFirstItem(map);
+  while(map->dictionary){
+    DeleteCurrentBlock(map);
+  }
+  return MAP_SUCCESS;
+}
+
+void mapDestroy(Map map){
+/*******************
+TODO: Look for bugs.
+*******************/
+  assert(map);
+  if(!map) return;
+  mapClear(map);
+  free(map);
 }

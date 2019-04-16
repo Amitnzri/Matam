@@ -98,7 +98,6 @@ static void placeBetweenKeys(dictionary block){
 //Finds and return the sorted location for placing a key.
 static LocationType findSortedPosition(Map map,MapKeyElement key){
 
-  assert(key&&map->dictionary);
   compareMapKeyElements compareKeys = map->CompareKeysFunction;
   while(compareKeys(key,map->dictionary->key)>0){
     if(!map->dictionary->next_block){ //if last item.
@@ -234,7 +233,7 @@ bool mapContains(Map map, MapKeyElement element){
   *********************/
   if(!map||!element) false;
   compareMapKeyElements compareKeys =map->CompareKeysFunction;
-  findSortedPosition(map,element);
+  if(findSortedPosition(map,element)!=ASSIGN_HERE) return false; //TODO: beautify
   if(compareKeys(element,map->dictionary->key)==0){
     return true;
   }else{

@@ -49,7 +49,8 @@ static void log(){
 }
 
 static void printValuesByOrder(Map map){
-  assert(map);
+  if(map == NULL){printf("%s\n","[+] No map" );return;}
+  if(mapGetSize(map)==0){printf("%s\n","[+] No dictionary"); return;}
   int counter =1;
   MapKeyElement key = mapGetFirst(map);
   while(key){
@@ -78,6 +79,7 @@ int main(){
                        freeChar,freeInt,compareInts);
   insertValues(map,keys,data);
   printValuesByOrder(map);
-
+  mapDestroy(map);
+  printValuesByOrder(map);
   return 0;
 }

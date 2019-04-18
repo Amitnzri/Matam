@@ -1,3 +1,6 @@
+#include "map.h"
+#include <assert.h>
+
 typedef struct dictionary_t {
 
   MapKeyElement key;
@@ -120,6 +123,28 @@ static void connectBlocks(dictionary first, dictionary second){
   if(second) second->previous_block = first;
 }
 
+static void DeleteCurrentBlock(Map map){
+/*******************X
+TODO: 1.Look for bugs.
+      2.Change return type.
+*******************/
+  if(!map||!map->dictionary) return;
+  dictionary requested_block = map->dictionary
+  ,previous_block = requested_block->previous_block
+  ,next_block = requested_block->next_block; //TODO: check with convention.
+
+  map->freeKeyFunction(requested_block->key);
+  map->freeDataFunction(requested_block->data);
+
+  if(previous_block || next_block){
+    connectBlocks(previous_block,next_block);
+  }
+  free(requested_block);
+  if(!previous_block&&!next_block) {
+    map->dictionary = NULL;
+  }
+}
+
 /*###############################Functions###################################*/
 
 Map mapCreate(copyMapDataElements copyDataElement,
@@ -194,7 +219,7 @@ TODO: Fix the return values.
 
 MapKeyElement mapGetFirst(Map map){
   assert(map);
-  if(!map) return NULL;
+  if(!map||!map->dictionary) return NULL;
   goToFirstItem(map);
   return map->dictionary->key;
 }
@@ -242,24 +267,7 @@ MapDataElement mapGet(Map map, MapKeyElement keyElement){
   return requested_block->data;
 
 }
-static void DeleteCurrentBlock(Map map){
-/*******************
-TODO: Look for bugs.
-*******************/
-  dictionary requested_block = map->dictionary,
-  ,previous_block = requested_block->previous_block,
-  ,next_block = requested_block->next_block; //TODO: check with convention.
 
-  map->freeKeyFunction(requested_block->key);
-  map->freeDataFunction(requested_block->data);
-
-  if(previous_block || next_block){
-    connectBlocks(previous_block,next_block);
-  }
-  free(requested_block);
-  if(!previous_block&&!next_block) map->dictionary = NULL;
-
-}
 
 MapResult mapRemove(Map map, MapKeyElement keyElement){
 
@@ -276,9 +284,14 @@ TODO: Look for bugs.
 *******************/
   assert(map);
   if(!map) return MAP_NULL_ARGUMENT;
+
   goToFirstItem(map);
   while(map->dictionary){
     DeleteCurrentBlock(map);
+    if(!map->dictionary) break;
+    if(map->dictionary->next_block){
+      map->dictionary = map->dictionary->next_block;
+    }
   }
   return MAP_SUCCESS;
 }
@@ -289,6 +302,8 @@ TODO: Look for bugs.
 *******************/
   assert(map);
   if(!map) return;
-  mapClear(map);
+  if(map->dictionary)mapClear(map);
   free(map);
+  map = NULL;
+
 }

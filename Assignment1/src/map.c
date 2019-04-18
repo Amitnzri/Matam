@@ -1,5 +1,9 @@
 #include "map.h"
 #include <assert.h>
+#include <stdarg.h> //TODO: Check if allowed.
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 typedef struct dictionary_t {
 
@@ -28,6 +32,16 @@ typedef enum LocationType {
 
 /*##############################InnerFunctions###############################*/
 
+//Returns false if one of the arguments is NULL.
+static bool checkIfNull(int n,...){
+  va_list arg;
+  va_start(arg,n);
+  for(int i=0;i<n;i++){
+    if(va_arg(arg,int) == 0)return false;
+  }
+  va_end(arg);
+  return true;
+} //TODO: Check if allowed.
 //Assigns a given key and data to a block.
 static MapResult assignValues(Map map,dictionary block,
                               MapKeyElement key, MapDataElement data){
@@ -117,13 +131,13 @@ static LocationType findSortedPosition(Map map,MapKeyElement key){
   }
   return ASSIGN_HERE; //if the keys are equal.
 }
-
+//Connects two blocks to each other.
 static void connectBlocks(dictionary first, dictionary second){
   assert(first || second);
   if(first) first->next_block = second;
   if(second) second->previous_block = first;
 }
-
+//Deletes the current block that a given map is points on.
 static void DeleteCurrentBlock(Map map){
 /*******************X
 TODO: 1.Look for bugs.
@@ -145,7 +159,7 @@ TODO: 1.Look for bugs.
     map->dictionary = NULL;
   }
 }
-
+//Creates a duplicate of a map.
 static MapResult duplicateMap(Map destination,Map source){
 
   assert(destination&&source);
@@ -167,6 +181,7 @@ static MapResult duplicateMap(Map destination,Map source){
   }
   return MAP_SUCCESS;
 }
+
 
 /*###############################Functions###################################*/
 
@@ -195,19 +210,16 @@ Map mapCreate(copyMapDataElements copyDataElement,
   map->freeDataFunction = freeDataElement;
   map->compareKeysFunction = compareKeyElements;
 
-  return map;
-}
+  return map;} //CHECKED.
 
 MapResult mapPut(Map map,MapKeyElement keyElement,MapKeyElement dataElement){
-/*****************************
-TODO: Fix the return values.
-*****************************/
+
   assert(map);
-  if(!map) return MAP_NULL_ARGUMENT;
-  if(!map->dictionary){ //If the map has no dictionary yet.
+  if(map == NULL) return MAP_NULL_ARGUMENT;
+  if(map->dictionary == NULL){ //If the map has no dictionary yet.
     map->dictionary = createDictionaryBlock(map,NULL,NULL);
     assert(map->dictionary);
-    if(!map->dictionary) return MAP_OUT_OF_MEMORY;
+    if(map->dictionary == NULL) return MAP_OUT_OF_MEMORY;
     return assignValues(map,map->dictionary,keyElement,dataElement);
   }else{ //If has items in it already.
     dictionary previous_block=NULL;
@@ -216,14 +228,14 @@ TODO: Fix the return values.
 
       case ASSIGN_AFTER:
         previous_block = map->dictionary;
-        if(!map->dictionary->next_block)break;
+        if(map->dictionary->next_block == NULL)break;
         next_block = map->dictionary->next_block;
         stepForward(map);
         break;
 
       case ASSIGN_BEFORE:
         next_block = map->dictionary;
-        if(!map->dictionary->previous_block)break;
+        if(map->dictionary->previous_block == NULL)break;
         previous_block = map->dictionary->previous_block;
         stepBackward(map);
         break;
@@ -234,30 +246,30 @@ TODO: Fix the return values.
         return MAP_SUCCESS;
     }
     dictionary new_block = createDictionaryBlock(map,previous_block,next_block);
-    if(!new_block) return MAP_OUT_OF_MEMORY;
+    if(new_block == NULL) return MAP_OUT_OF_MEMORY;
     placeBetweenKeys(new_block);
     return assignValues(map,new_block,keyElement,dataElement);
-  }
-}
+  }} //CHECKED.
 
 MapKeyElement mapGetFirst(Map map){
   assert(map);
-  if(!map||!map->dictionary) return NULL;
+  if(map == NULL || map->dictionary == NULL) return NULL;
   goToFirstItem(map);
-  return map->dictionary->key;
-}
+  return map->dictionary->key;} //CHECKED.
 
 MapKeyElement mapGetNext(Map map){
-  if(map->dictionary->next_block){
-    stepForward(map);
-    return map->dictionary->key;
-  }else{
-    return NULL;
-  }
-}
+
+  assert(map);
+  if(map == NULL) return NULL;
+  if(map->dictionary->next_block == NULL) return NULL;
+  stepForward(map);
+  return map->dictionary->key;
+
+} //CHECKED.
 
 int mapGetSize(Map map){
-  if(!map) return -1;
+
+  if(map == NULL) return -1;
   int counter = 0;
   if(map->dictionary){
     counter++;
@@ -267,30 +279,26 @@ int mapGetSize(Map map){
       counter++;
     }
   }
-  return counter;
-}
+  return counter;} //CHECKED.
 
 bool mapContains(Map map, MapKeyElement element){
-  /*********************
-  TODO: check returns.
-  *********************/
-  if(!map||!element) false;
-  compareMapKeyElements compareKeys =map->compareKeysFunction;
+
+  if(map == NULL || element == NULL) false;
+  compareMapKeyElements compareKeys = map->compareKeysFunction;
   findSortedPosition(map,element);
   if(compareKeys(element,map->dictionary->key)==0){
     return true;
   }else{
     return false;
-  }
-}
+  }} //CHECKED.
 
 MapDataElement mapGet(Map map, MapKeyElement keyElement){
+
+  if(map == NULL || keyElement == NULL) return NULL;
   dictionary requested_block = jumpTo(map,keyElement);
-  if(!requested_block)return NULL;
+  if(requested_block == NULL)return NULL;
   return requested_block->data;
-
-}
-
+} //CHECKED.
 
 MapResult mapRemove(Map map, MapKeyElement keyElement){
 
@@ -309,31 +317,29 @@ TODO: Look for bugs.
   if(!map) return MAP_NULL_ARGUMENT;
 
   goToFirstItem(map);
-  while(map->dictionary){
+  while(map->dictionary->next_block){
     DeleteCurrentBlock(map);
-    if(!map->dictionary) break;
     stepForward(map);
-
   }
+  DeleteCurrentBlock(map);
   return MAP_SUCCESS;
 }
 
 void mapDestroy(Map map){
-/*******************
-TODO: Look for bugs.
-*******************/
+
   assert(map);
   if(!map) return;
   if(map->dictionary)mapClear(map);
   free(map);
-  map = NULL;
+
+
 }
 
 Map mapCopy(Map map){
   assert(map);
   if(map == NULL)return NULL;
   Map new_map = malloc(sizeof(*new_map));
-  if(new_map ==NULL)return NULL;
-  if(duplicateMap(new_map,map) == MAP_SUCCESS);
+  if(new_map == NULL)return NULL;
+  if(duplicateMap(new_map,map) != MAP_SUCCESS)return NULL;
   return new_map;
 }

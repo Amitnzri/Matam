@@ -1,6 +1,6 @@
 #ifndef MAP_H_
 #define MAP_H_
-//TODO remove unnecessary includes.
+
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>

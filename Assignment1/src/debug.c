@@ -1,6 +1,7 @@
 #include "map.h"
 #include <assert.h>
 #include <string.h>
+#include <stdarg.h>
 
 static MapKeyElement copyKeyInt(MapKeyElement n) {
     if (!n) {
@@ -76,7 +77,19 @@ TODO: make it Generic.
   return false; \
 } while (0)
 
+static bool checkIfNull(int n,...){
+  va_list arg;
+  va_start(arg,n);
+  for(int i=0;i<n;i++){
+    if(va_arg(arg,int) == 0)return false;
+  }
+  va_end(arg);
+  return true;
+}
+
 int main(){
+
+
   int keys[] = {3,4,1,2};
   char data[] = {'A','A','C','D'};
   Map map = mapCreate(copyKeyInt,copyDataChar,
@@ -89,6 +102,7 @@ int main(){
   Map new_map = mapCopy(map);
   printf("%s\n","--------------------------" );
   printValuesByOrder(new_map);
+
 
   return 0;
 }

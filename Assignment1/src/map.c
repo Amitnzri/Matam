@@ -343,3 +343,7 @@ Map mapCopy(Map map){
   if(duplicateMap(new_map,map) != MAP_SUCCESS)return NULL;
   return new_map;
 }
+
+
+
+checking!!!qaqaqaq!

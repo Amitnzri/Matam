@@ -249,7 +249,9 @@ MapResult mapPut(Map map,MapKeyElement keyElement,MapKeyElement dataElement){
     if(new_block == NULL) return MAP_OUT_OF_MEMORY;
     placeBetweenKeys(new_block);
     return assignValues(map,new_block,keyElement,dataElement);
-  }} //CHECKED.
+  }
+
+} //CHECKED.
 
 MapKeyElement mapGetFirst(Map map){
   assert(map);
@@ -290,15 +292,15 @@ bool mapContains(Map map, MapKeyElement element){
     return true;
   }else{
     return false;
-  }} //CHECKED.
+  }
+} //CHECKED.
 
 MapDataElement mapGet(Map map, MapKeyElement keyElement){
 
   if(map == NULL || keyElement == NULL) return NULL;
   dictionary requested_block = jumpTo(map,keyElement);
   if(requested_block == NULL)return NULL;
-  return requested_block->data;
-} //CHECKED.
+  return requested_block->data;} //CHECKED.
 
 MapResult mapRemove(Map map, MapKeyElement keyElement){
 
@@ -336,6 +338,7 @@ void mapDestroy(Map map){
 }
 
 Map mapCopy(Map map){
+
   assert(map);
   if(map == NULL)return NULL;
   Map new_map = malloc(sizeof(*new_map));

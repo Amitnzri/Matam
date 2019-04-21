@@ -118,7 +118,9 @@ static void freeJudge(Judge judge){
     TODO: Check
     ***********/
     assert(judge);
-    free(judge);
+    if(!judge->name) {
+        free(judge);
+    }
 }
 
 

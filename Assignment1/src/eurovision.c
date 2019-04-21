@@ -95,12 +95,32 @@ static State copyState(State state){
 
 }
 
+static Judge copyJudge(Judge judge){
+    /***********
+    TODO: Check
+    ***********/
+    if(!judge) return NULL;
+    Judge copy = malloc(sizeof(*judge));
+    assert(copy);
+    if(!copy) return NULL;
+    copy->id = judge->id;
+    strcpy(copy->name,judge->name);
+    assert(copy->top_ten);
+    copyIntArray(copy->top_ten,judge->top_ten,TOP_TEN_LEN);
+
+    return copy;
+
+}
+
+
 static freeint(int* n){
   /**********
   TODO: Check
   **********/
   free(n);
 }
+
+
 
 /*****************************Functions**************************************/
 

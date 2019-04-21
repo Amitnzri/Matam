@@ -124,7 +124,7 @@ static void freeJudge(Judge judge){
 
 
 
-static freeint(int* n){
+static void freeint(int* n){
     /**********
     TODO: Check
     **********/

@@ -39,3 +39,16 @@ typedef struct state_t{
 
 
 /*****************************Functions**************************************/
+
+Eurovision eurovisionCreate(){
+  /***********
+  TODO: CHECK
+  ***********/
+  Eurovision eurovision = malloc(sizeof(*eurovision));
+  if(!eurovision) return NULL;
+
+  eurovision->states = NULL;
+  eurovision->judges = NULL;
+  eurovision->votes = NULL;
+  eurovision->audiencePercent = 1;
+}

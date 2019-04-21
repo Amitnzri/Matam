@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <assert.h>
 #include "eurovision.h"
 #include "map.h"
 
@@ -33,7 +34,18 @@ typedef struct state_t{
 
 /*****************************StaticFunctions********************************/
 
-
+int* copyInt (MapKeyElement key){
+  /***********
+  TODO: CHECK
+  ***********/
+  assert(key);
+  if(!key) return NULL;
+  int* copy malloc(sizeof(*copy));
+  assert(copy);
+  if(!copy) return NULL;
+  *copy = *(int*) key;
+  return copy;
+}
 
 
 
@@ -45,6 +57,7 @@ Eurovision eurovisionCreate(){
   TODO: CHECK
   ***********/
   Eurovision eurovision = malloc(sizeof(*eurovision));
+  assert(eurovision);
   if(!eurovision) return NULL;
 
   eurovision->states = NULL;

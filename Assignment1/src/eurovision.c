@@ -35,6 +35,17 @@ typedef struct state_t{
   int score_by_audience;
 }*State;
 
+typedef struct judge_t{
+    /***********
+    TODO: Check
+    ***********/
+    int id;
+    char* name;
+    int top_ten[TOP_TEN_LEN];
+}*Judge;
+
+
+
 
 /*****************************StaticFunctions********************************/
 

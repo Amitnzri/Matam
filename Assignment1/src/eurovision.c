@@ -6,14 +6,29 @@
 
 /*****************************DataSturctures*********************************/
 sturct eurovision_t{
-
-Map states;
-Map judges;
-List Votes;
-int audiencePercent; //set to one by default
+  /***********
+  TODO: CHECK
+  ***********/
+  Map states;
+  Map judges;
+  List Votes;
+  int audiencePercent; //set to one by default
 
 }
 
+typedef sturct state_t{
+  /***********
+  TODO: CHECK
+  ***********/
+  int id;
+  char* name;
+  char* song;
+  int[10] top_ten;
+  Map votes;
+  int score_by_judges;
+  int score_by_audience;
+
+}*State;
 
 
 

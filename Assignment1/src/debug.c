@@ -2,6 +2,8 @@
 #include <assert.h>
 #include <string.h>
 #include <stdarg.h>
+#include <stdlib.h>
+#include <stdio.h>
 
 static MapKeyElement copyKeyInt(MapKeyElement n) {
     if (!n) {
@@ -41,12 +43,6 @@ static void freeChar(MapDataElement n) {
 /** Function to be used by the map for comparing elements */
 static int compareInts(MapKeyElement n1, MapKeyElement n2) {
     return (*(int *) n1 - *(int *) n2);
-}
-
-void log(){
-  static int counter =0;
-  counter ++;
-  printf("[?]Log %d: ",counter);
 }
 
 static void printValuesByOrder(Map map){
@@ -102,7 +98,8 @@ int main(){
   Map new_map = mapCopy(map);
   printf("%s\n","--------------------------" );
   printValuesByOrder(new_map);
-
+  mapDestroy(map);
+  mapDestroy(new_map);
 
   return 0;
 }

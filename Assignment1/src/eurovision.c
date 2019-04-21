@@ -116,6 +116,7 @@ static Judge copyJudge(Judge judge){
 static void freeJudge(Judge judge){
     /***********
     TODO: Check
+    1.free name.
     ***********/
     assert(judge);
     if(!judge->name) {

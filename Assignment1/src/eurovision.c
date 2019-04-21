@@ -92,6 +92,7 @@ static State copyState(State state){
   if(!copy->votes)return NULL;
   copy->score_by_judges = state->score_by_judges;
   copy->score_by_audience =state->score_by_audience;
+  return copy;
 
 }
 

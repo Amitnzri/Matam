@@ -8,6 +8,7 @@
 
 
 /*********************************Defines************************************/
+
 #define TOP_TEN_LEN 10
 
 /*****************************DataSturctures*********************************/
@@ -37,13 +38,16 @@ typedef struct state_t{
 
 /*****************************StaticFunctions********************************/
 
-void copyIntArray(int *destination,int *source, int len){
+static void copyIntArray(int *destination,int *source, int len){
+  /***********
+  TODO: Checks
+  ***********/
   for(int i=0; i<len; i++){
     destination[i] = source[i];
   }
 }
 
-int* copyInt (int* key){
+static int* copyInt (int* key){
   /***********
   TODO: Check
   ***********/
@@ -56,7 +60,7 @@ int* copyInt (int* key){
   return copy;
 }
 
-State copyState(State state){
+static State copyState(State state){
   /***********
   TODO: Check
   ***********/

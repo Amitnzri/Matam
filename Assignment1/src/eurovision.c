@@ -113,6 +113,16 @@ static Judge copyJudge(Judge judge){
 
 }
 
+static void freeJudge(Judge judge){
+    /***********
+    TODO: Check
+    ***********/
+    assert(judge);
+    free(judge);
+}
+
+
+
 
 static freeint(int* n){
     /**********

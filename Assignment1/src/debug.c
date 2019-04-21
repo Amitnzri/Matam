@@ -1,6 +1,9 @@
 #include "map.h"
 #include <assert.h>
 #include <string.h>
+#include <stdarg.h>
+#include <stdlib.h>
+#include <stdio.h>
 
 static MapKeyElement copyKeyInt(MapKeyElement n) {
     if (!n) {
@@ -42,12 +45,6 @@ static int compareInts(MapKeyElement n1, MapKeyElement n2) {
     return (*(int *) n1 - *(int *) n2);
 }
 
-static void log(){
-  static int counter =0;
-  counter ++;
-  printf("[?]Log %d: ",counter);
-}
-
 static void printValuesByOrder(Map map){
   if(map == NULL){printf("%s\n","[+] No map" );return;}
   if(mapGetSize(map)==0){printf("%s\n","[+] No dictionary"); return;}
@@ -72,14 +69,38 @@ TODO: make it Generic.
   }
 }
 
+#define ASSERT_TEST(b) do { \
+  printf("\nAssertion failed at %s:%d %s ",__FILE__,__LINE__,#b); \
+  return false; \
+} while (0)
+
+static bool checkIfNull(int n,...){
+  va_list arg;
+  va_start(arg,n);
+  for(int i=0;i<n;i++){
+    if(va_arg(arg,int) == 0)return false;
+  }
+  va_end(arg);
+  return true;
+}
+
 int main(){
+
+
   int keys[] = {3,4,1,2};
   char data[] = {'A','A','C','D'};
   Map map = mapCreate(copyKeyInt,copyDataChar,
                        freeChar,freeInt,compareInts);
   insertValues(map,keys,data);
   printValuesByOrder(map);
-  mapDestroy(map);
+  printf("%s\n","--------------------------" );
+  //mapRemove(map,keys);
   printValuesByOrder(map);
+  Map new_map = mapCopy(map);
+  printf("%s\n","--------------------------" );
+  printValuesByOrder(new_map);
+  mapDestroy(map);
+  mapDestroy(new_map);
+
   return 0;
 }

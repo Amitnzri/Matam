@@ -43,7 +43,7 @@ static int compareInts(MapKeyElement n1, MapKeyElement n2) {
     return (*(int *) n1 - *(int *) n2);
 }
 
-static void log(){
+void log(){
   static int counter =0;
   counter ++;
   printf("[?]Log %d: ",counter);
@@ -97,7 +97,7 @@ int main(){
   insertValues(map,keys,data);
   printValuesByOrder(map);
   printf("%s\n","--------------------------" );
-  mapRemove(map,keys);
+  //mapRemove(map,keys);
   printValuesByOrder(map);
   Map new_map = mapCopy(map);
   printf("%s\n","--------------------------" );

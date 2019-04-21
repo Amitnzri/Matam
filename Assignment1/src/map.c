@@ -1,7 +1,6 @@
 #include "map.h"
 #include <assert.h>
 #include <stdarg.h> //TODO: Check if allowed.
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 

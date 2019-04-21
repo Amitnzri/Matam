@@ -2,8 +2,7 @@
 #define MAP_H_
 
 #include <stdbool.h>
-#include <stdio.h>
-#include <stdlib.h>
+
 /**
 * Generic Map Container
 *
@@ -38,7 +37,6 @@
 
 /** Type for defining the map */
 typedef struct Map_t *Map;
-
 
 /** Type used for returning error codes from map functions */
 typedef enum MapResult_t {

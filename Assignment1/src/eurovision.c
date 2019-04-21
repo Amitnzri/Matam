@@ -38,6 +38,7 @@ typedef struct state_t{
 
 /*****************************StaticFunctions********************************/
 
+
 static void copyIntArray(int *destination,int *source, int len){
   /***********
   TODO: Checks
@@ -83,7 +84,12 @@ static State copyState(State state){
 
 }
 
-
+static freeint(int* n){
+  /**********
+  TODO: Check
+  **********/
+  free(n);
+}
 
 /*****************************Functions**************************************/
 

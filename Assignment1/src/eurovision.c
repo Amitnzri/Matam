@@ -118,13 +118,15 @@ static void freeJudge(Judge judge){
     TODO: Check
     ***********/
     assert(judge);
-    free(judge);
+    if(!judge->name) {
+        free(judge);
+    }
 }
 
 
 
 
-static freeint(int* n){
+static void freeint(int* n){
     /**********
     TODO: Check
     **********/

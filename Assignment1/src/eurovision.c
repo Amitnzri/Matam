@@ -5,7 +5,7 @@
 
 
 /*****************************DataSturctures*********************************/
-sturct eurovision_t{
+struct eurovision_t{
   /***********
   TODO: CHECK
   ***********/
@@ -13,21 +13,19 @@ sturct eurovision_t{
   Map judges;
   List Votes;
   int audiencePercent; //set to one by default
+};
 
-}
-
-typedef sturct state_t{
+typedef struct state_t{
   /***********
   TODO: CHECK
   ***********/
   int id;
   char* name;
   char* song;
-  int[10] top_ten;
+  int top_ten[10];
   Map votes;
   int score_by_judges;
   int score_by_audience;
-
 }*State;
 
 

@@ -6,12 +6,12 @@
 #include "map.h"
 
 
-
 /*********************************Defines************************************/
 
 #define TOP_TEN_LEN 10
 
 /*****************************DataSturctures*********************************/
+
 struct eurovision_t{
     /***********
     TODO: Check
@@ -44,11 +44,7 @@ typedef struct judge_t{
     int top_ten[TOP_TEN_LEN];
 }*Judge;
 
-
-
-
 /*****************************StaticFunctions********************************/
-
 
 static void copyIntArray(int *destination,int *source, int len){
     /***********
@@ -124,17 +120,12 @@ static void freeJudge(Judge judge){
     }
 }
 
-
-
-
 static void freeint(int* n){
     /**********
     TODO: Check
     **********/
     free(n);
 }
-
-
 
 /*****************************Functions**************************************/
 

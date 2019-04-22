@@ -218,7 +218,6 @@ MapKeyElement mapGetFirst(Map map);
 */
 MapKeyElement mapGetNext(Map map);
 
-
 /**
 * mapClear: Removes all key and data elements from target map.
 * The elements are deallocated using the stored free functions.

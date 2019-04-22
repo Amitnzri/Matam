@@ -49,12 +49,11 @@ static void printValuesByOrder(Map map){
   assert(map);
   int counter =1;
   MapKeyElement key = mapGetFirst(map);
-  while(key){
-    printf("[+]Key %d is: %d | Data: %s\n",
-    counter,*(int*)key,(char*)mapGet(map,key));
-    key = mapGetNext(map);
+  do{
+    printf("[+]Key %d is: %d | Data: %c\n",
+    counter,*(int*)key,*(char*)mapGet(map,key));
     counter++;
-  }
+}while(key = mapGetNext(map));
 }
 
 static void insertValues(Map map,int* keys,char* data){ //Temporary
@@ -63,6 +62,7 @@ Loops through keys and data arrays and insert them into the map.
 TODO: make it Generic.
 ***************************************************************/
   int len =strlen(data);
+  printf("%d\n",len );
   for (int i=0;i<len;i++){
     mapPut(map,&keys[i],&data[i]);
   }
@@ -86,11 +86,12 @@ static bool checkIfNull(int n,...){
 int main(){
 
 
-  int keys[] = {3,3};
-  char data[] = {'A','B'};
+  int keys[] = {3,2,1,7,5,6,4};
+  char data[] = {'A','B','C','E','S','A','l'};
   Map map = mapCreate(copyDataChar,copyKeyInt,
                        freeChar,freeInt,compareInts);
   insertValues(map,keys,data);
+  printValuesByOrder(map);
   mapDestroy(map);
 
   return 0;

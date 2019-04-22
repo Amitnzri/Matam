@@ -121,11 +121,13 @@ static LocationType findSortedPosition(Map map,MapKeyElement key){
   compareMapKeyElements compareKeys = map->compareKeysFunction;
   assert(map->dictionary);
   while(compareKeys(key,map->dictionary->key)>0){
-    if(!map->dictionary->next_block){ //if last item.
+
+    if(map->dictionary->next_block == NULL){//if last item.
       return ASSIGN_AFTER;
+
   }else if(compareKeys(key,map->dictionary->next_block->key)<0){
       return ASSIGN_AFTER;
-    }
+  }
     stepForward(map);
   }
   while(compareKeys(key,map->dictionary->key)<0){
@@ -226,7 +228,6 @@ Map mapCreate(copyMapDataElements copyDataElement,
   return map;} //CHECKED.
 
 MapResult mapPut(Map map,MapKeyElement keyElement,MapKeyElement dataElement){
-
   assert(map);
   if(map == NULL) return MAP_NULL_ARGUMENT;
   if(map->dictionary == NULL){ //If the map has no dictionary yet.
@@ -261,7 +262,8 @@ MapResult mapPut(Map map,MapKeyElement keyElement,MapKeyElement dataElement){
     Dictionary new_block = createDictionaryBlock(map,previous_block,next_block);
     if(new_block == NULL) return MAP_OUT_OF_MEMORY;
     placeBetweenKeys(new_block);
-    return assignValues(map,new_block,keyElement,dataElement);
+    assignValues(map,new_block,keyElement,dataElement);
+    return MAP_SUCCESS;
   }} //CHECKED.
 
 MapKeyElement mapGetFirst(Map map){
@@ -279,6 +281,7 @@ MapKeyElement mapGetNext(Map map){
   return map->dictionary->key;
 
 } //CHECKED.
+
 
 int mapGetSize(Map map){
 
@@ -312,6 +315,7 @@ MapDataElement mapGet(Map map, MapKeyElement keyElement){
   return requested_block->data;
 } //CHECKED.
 
+
 MapResult mapRemove(Map map, MapKeyElement keyElement){
 
   assert(map&&map->dictionary);
@@ -332,7 +336,6 @@ TODO: Look for bugs.
 
   while(map->dictionary->next_block){
     DeleteCurrentBlock(map);
-    stepForward(map);
   }
   DeleteCurrentBlock(map);
   return MAP_SUCCESS;

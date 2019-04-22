@@ -14,7 +14,7 @@ static MapKeyElement copyKeyInt(MapKeyElement n) {
         return NULL;
     }
     *copy = *(int *) n;
-    return copy;
+    return (MapKeyElement) copy;
 }
 
 /** Function to be used for copying a char as a data to the map */
@@ -86,20 +86,12 @@ static bool checkIfNull(int n,...){
 int main(){
 
 
-  int keys[] = {3,4,1,2};
-  char data[] = {'A','A','C','D'};
-  Map map = mapCreate(copyKeyInt,copyDataChar,
+  int keys[] = {3,3};
+  char data[] = {'A','B'};
+  Map map = mapCreate(copyDataChar,copyKeyInt,
                        freeChar,freeInt,compareInts);
   insertValues(map,keys,data);
-  printValuesByOrder(map);
-  printf("%s\n","--------------------------" );
-  //mapRemove(map,keys);
-  printValuesByOrder(map);
-  Map new_map = mapCopy(map);
-  printf("%s\n","--------------------------" );
-  printValuesByOrder(new_map);
   mapDestroy(map);
-  mapDestroy(new_map);
 
   return 0;
 }

@@ -77,14 +77,6 @@ static void goToFirstItem(Map map){
     stepBackward(map);
   }
 }
-
-static void goToLastItem(Map map){
-  assert(map);
-  while(map->dictionary->next_block){
-    stepForward(map);
-  }
-} //Ours
-
 //Changes the dictionary ptr inside map to points on requested key.
 static Dictionary jumpTo (Map map, MapKeyElement key){
 
@@ -233,8 +225,7 @@ Map mapCreate(copyMapDataElements copyDataElement,
   map->freeDataFunction = freeDataElement;
   map->compareKeysFunction = compareKeyElements;
 
-  return map;
-} //CHECKED.
+  return map;} //CHECKED.
 
 MapResult mapPut(Map map,MapKeyElement keyElement,MapKeyElement dataElement){
   assert(map);
@@ -281,28 +272,12 @@ MapKeyElement mapGetFirst(Map map){
   goToFirstItem(map);
   return map->dictionary->key;} //CHECKED.
 
-  MapKeyElement mapGetLast(Map map){
-    assert(map);
-    if(map == NULL || map->dictionary == NULL) return NULL;
-    goToLastItem(map);
-    return map->dictionary->key;} //CHECKED. Ours
-
 MapKeyElement mapGetNext(Map map){
 
   assert(map);
   if(map == NULL) return NULL;
   if(map->dictionary->next_block == NULL) return NULL;
   stepForward(map);
-  return map->dictionary->key;
-
-} //CHECKED.
-
-MapKeyElement mapGetPrevious(Map map){
-
-  assert(map);
-  if(map == NULL) return NULL;
-  if(map->dictionary->previous_block == NULL) return NULL;
-  stepBackward(map);
   return map->dictionary->key;
 
 } //CHECKED.

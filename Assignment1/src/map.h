@@ -207,6 +207,8 @@ MapResult mapRemove(Map map, MapKeyElement keyElement);
 */
 MapKeyElement mapGetFirst(Map map);
 
+MapKeyElement mapGetLast(Map map); //Ours
+
 /**
 *	mapGetNext: Advances the map iterator to the next key element and returns it.
 *	The next key element is any key element not previously returned by the iterator.
@@ -217,6 +219,8 @@ MapKeyElement mapGetFirst(Map map);
 * 	The next key element on the map in case of success
 */
 MapKeyElement mapGetNext(Map map);
+
+MapKeyElement mapGetPrevious(Map map); //Ours
 
 /**
 * mapClear: Removes all key and data elements from target map.

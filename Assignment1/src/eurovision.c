@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <assert.h>
 #include "eurovision.h"
 #include <string.h>
@@ -9,6 +10,8 @@
 /*********************************Defines************************************/
 
 #define TOP_TEN_LEN 10
+#define SPACE 32
+//a-z:97-122, " " =32
 
 /*****************************DataSturctures*********************************/
 
@@ -50,12 +53,13 @@ static void copyIntArray(int *destination,int *source, int len){
     /***********
     TODO: Checks
     ***********/
+    assert(source&&destination);
     for(int i=0; i<len; i++){
     destination[i] = source[i];
     }
 }
 
-static int* copyInt (int* key){
+static MapKeyElement copyInt (MapKeyElement key){
     /***********
     TODO: Check
     ***********/
@@ -64,31 +68,32 @@ static int* copyInt (int* key){
     int* copy = malloc(sizeof(*copy));
     assert(copy);
     if(!copy) return NULL;
-    *copy = *key;
-    return copy;
+    *copy = *(int*)key;
+    return (MapKeyElement) copy;
 }
 
-static State copyState(State state){
+static MapDataElement copyState(MapDataElement state){
     /***********
     TODO: Check
+    1.check types
     ***********/
     if(!state) return NULL;
     State copy = malloc(sizeof(*copy));
     assert(copy);
     if(!copy) return NULL;
-
-    copy->id = state->id;
-    strcpy(copy->name,state->name);
-    strcpy(copy->song,state->song);
+    State source = (State) source;
+    copy->id =  source->id;
+    strcpy(copy->name,source->name);
+    strcpy(copy->song,source->song);
     assert(copy->top_ten);
-    copyIntArray(copy->top_ten,state->top_ten,TOP_TEN_LEN);
+    copyIntArray(copy->top_ten,source->top_ten,TOP_TEN_LEN);
     assert(!copy->votes);
-    copy->votes = mapCopy(state->votes);
+    copy->votes = mapCopy(source->votes);
     assert(copy->votes);
     if(!copy->votes)return NULL;
-    copy->score_by_judges = state->score_by_judges;
-    copy->score_by_audience =state->score_by_audience;
-    return copy;
+    copy->score_by_judges = source->score_by_judges;
+    copy->score_by_audience = source->score_by_audience;
+    return (MapDataElement) copy;
 
 }
 
@@ -120,12 +125,33 @@ static void freeJudge(Judge judge){
     }
 }
 
-static void freeint(int* n){
+static void freeint(MapKeyElement n){
     /**********
     TODO: Check
     **********/
     free(n);
 }
+
+static void freeState(MapDataElement state){return;} //TODO
+
+static int compareIntKeys(MapKeyElement key1,MapKeyElement key2){return 0;} //TODO,Check convention.
+
+static bool checkStateId(int state_id){
+    return (state_id<0) ? (false) : (true);
+}//Checked
+
+static bool checkName(const char *state_name){
+
+    printf("[+]Got:%s\n",state_name);
+    int len = strlen(state_name);
+    for(const char *c = state_name ;c<state_name+len ;c++){
+        printf("Char:%c,%d\n",*c,*c);
+        if((*c<'a'||*c>'z')&&(*c!=SPACE))return false;
+    }
+    return true;
+}//Checked
+
+static State createNewState (int state_id ,const char* state_name,const char* song_name);
 
 /*****************************Functions**************************************/
 
@@ -142,4 +168,37 @@ Eurovision eurovisionCreate(){
     eurovision->votes = NULL;
     eurovision->audiencePercent = 1;
     return eurovision;
+}
+
+EurovisionResult eurovisionAddState(Eurovision eurovision,
+                                    int stateId,
+                                    const char *stateName,
+                                    const char *songName){
+
+    /*********
+    TODO:Check
+    *********/
+    assert(eurovision&&stateId&&stateName&&songName);
+                                                        //Validation Checks
+    if(!eurovision||!stateId||!stateName
+                            ||!songName)return EUROVISION_NULL_ARGUMENT;
+    if(!checkName(stateName)||!checkName(songName))return EUROVISION_INVALID_NAME;
+    if(!checkStateId(stateId)) return EUROVISION_INVALID_ID;
+
+
+    if(!eurovision->states){
+        eurovision->states = mapCreate(copyState,copyInt,freeState
+                                       ,freeint,compareIntKeys);
+        assert(eurovision->states);
+        if(eurovision->states == NULL) return EUROVISION_OUT_OF_MEMORY;
+    } //Creates states dictionary if there isn't one.
+    Map states = eurovision->states;
+
+    if(mapContains(states,&stateId)) return EUROVISION_STATE_ALREADY_EXIST;
+    State new_state = createNewState(stateId,stateName,songName);
+    if(mapPut(states,&stateId,new_state) == MAP_OUT_OF_MEMORY){
+        return EUROVISION_OUT_OF_MEMORY;
+    }else{
+        return EUROVISION_SUCCESS;
+    }
 }

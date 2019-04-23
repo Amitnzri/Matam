@@ -4,8 +4,8 @@ FLAGS_ND = -std=c99 -Wall -pedantic-errors -Werror -DNDEBUG -g
 VALGRIND_FLAGS = valgrind --leak-check=full --track-origins=yes
 OUTPUT_FILE =  run
 
-prog: map.o map.o debug.o
-	gcc map.o debug.o -o run
+prog: map.o map.h debug.o
+	gcc $(FLAGS_ND) map.o debug.o -o $(OUTPUT_FILE)
 
 map.o: map.c map.h
 	gcc map.c -c
@@ -28,3 +28,6 @@ clean:
 	rm -f *.o
 val:
 	$(VALGRIND_FLAGS) ./$(OUTPUT_FILE)
+
+run:
+	./$(OUTPUT_FILE)

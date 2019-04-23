@@ -11,7 +11,6 @@
 
 #define TOP_TEN_LEN 10
 #define SPACE 32
-//a-z:97-122, " " =32
 
 /*****************************DataSturctures*********************************/
 
@@ -32,7 +31,7 @@ typedef struct state_t{
     int id;
     char* name;
     char* song;
-    int top_ten[TOP_TEN_LEN];
+    int* top_ten;
     Map votes;
     int score_by_judges;
     int score_by_audience;
@@ -44,19 +43,32 @@ typedef struct judge_t{
     ***********/
     int id;
     char* name;
-    int top_ten[TOP_TEN_LEN];
+    int* top_ten;
 }*Judge;
 
 /*****************************StaticFunctions********************************/
 
-static void copyIntArray(int *destination,int *source, int len){
+static int* copyIntArray(const int *source, int len){
     /***********
     TODO: Checks
     ***********/
+    int* destination = malloc(sizeof(*destination)* len);
+    if(!destination) return NULL;
     assert(source&&destination);
     for(int i=0; i<len; i++){
     destination[i] = source[i];
     }
+    return destination;
+}
+
+char* copyStr(const char* str){
+/*********
+TODO:CHECK
+*********/
+char* copy = malloc(sizeof(*copy)*strlen(str));
+if(!copy) return NULL;
+strcpy(copy,str);
+return copy;
 }
 
 static MapKeyElement copyInt (MapKeyElement key){
@@ -82,46 +94,57 @@ static MapDataElement copyState(MapDataElement state){
     assert(copy);
     if(!copy) return NULL;
     State source = (State) source;
-    copy->id =  source->id;
-    strcpy(copy->name,source->name);
-    strcpy(copy->song,source->song);
-    assert(copy->top_ten);
-    copyIntArray(copy->top_ten,source->top_ten,TOP_TEN_LEN);
-    assert(!copy->votes);
+
+    copy->name = copyStr(source->name);
+    copy->song = copyStr(source->song);
+    copy->top_ten = copyIntArray(source->top_ten,TOP_TEN_LEN);
     copy->votes = mapCopy(source->votes);
-    assert(copy->votes);
-    if(!copy->votes)return NULL;
+    //if one of the allocation went wrong, free all and return null.
+    if(!copy->name||!copy->song||!copy->top_ten||!copy->votes){
+      free(copy->name);
+      free(copy->song);
+      free(copy->top_ten);
+      free(copy->votes);
+      free(copy);
+      assert(0);
+      return NULL;
+    }
+
+    copy->id = source->id;
     copy->score_by_judges = source->score_by_judges;
     copy->score_by_audience = source->score_by_audience;
+
     return (MapDataElement) copy;
 
 }
 
-static Judge copyJudge(Judge judge){
+static Judge copyJudge(MapDataElement judge){
     /***********
     TODO: Check
     ***********/
     if(!judge) return NULL;
+    Judge source =(Judge) judge;
     Judge copy = malloc(sizeof(*judge));
     assert(copy);
     if(!copy) return NULL;
-    copy->id = judge->id;
-    strcpy(copy->name,judge->name);
+    copy->id = source->id;
+    strcpy(copy->name,source->name);
     assert(copy->top_ten);
-    copyIntArray(copy->top_ten,judge->top_ten,TOP_TEN_LEN);
-
+    copy->top_ten = copyIntArray(source->top_ten,TOP_TEN_LEN);
+    if(!copy->top_ten)return NULL;
     return copy;
 
 }
 
-static void freeJudge(Judge judge){
+static void freeJudge(MapDataElement judge){ //needed void*
     /***********
     TODO: Check
     1.free name.
     ***********/
     assert(judge);
-    if(!judge->name) {
-        free(judge);
+    Judge remove = (Judge) judge;
+    if(!remove->name) {
+        free(remove);
     }
 }
 
@@ -132,9 +155,26 @@ static void freeint(MapKeyElement n){
     free(n);
 }
 
-static void freeState(MapDataElement state){return;} //TODO
+static void freeState(MapDataElement state){
+  /*********
+  TODO:Check
+  *********/
 
-static int compareIntKeys(MapKeyElement key1,MapKeyElement key2){return 0;} //TODO,Check convention.
+  assert(state);
+  if(state == NULL)return;
+  State remove = (State) remove;
+  free(remove->name);
+  free(remove->song);
+  free(remove);
+}
+
+static int compareIntKeys(MapKeyElement key_a,MapKeyElement key_b){
+  /*********
+  TODO:Check
+  *********/
+  assert(key_a&&key_b);
+  return *(int*)key_a - *(int*)key_b;
+}
 
 static bool checkStateId(int state_id){
     return (state_id<0) ? (false) : (true);
@@ -151,7 +191,30 @@ static bool checkName(const char *state_name){
     return true;
 }//Checked
 
-static State createNewState (int state_id ,const char* state_name,const char* song_name);
+static State createNewState (int state_id ,const char* state_name,const char* song_name){
+
+  /*********
+  TODO:Check
+  *********/
+  assert(state_id&&state_name&&song_name);
+
+  State new_state = malloc(sizeof(*new_state));
+  if(new_state == NULL)return NULL;
+
+  new_state->name = copyStr(state_name);
+  new_state->song = copyStr(song_name);
+
+  //if one of the mallocs has failed, free all and return null.
+  if(new_state->name  == NULL || new_state->song  == NULL){
+    free(new_state->name);
+    free(new_state->song);
+    free(new_state);
+    return NULL;
+  }
+
+  new_state->id = state_id;
+  return new_state;
+}
 
 /*****************************Functions**************************************/
 

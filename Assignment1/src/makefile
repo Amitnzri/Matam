@@ -4,8 +4,11 @@ FLAGS_ND = -std=c99 -Wall -pedantic-errors -Werror -DNDEBUG -g
 VALGRIND_FLAGS = valgrind --leak-check=full --track-origins=yes
 OUTPUT_FILE =  run
 
-prog: map.o map.h debug.o
-	gcc $(FLAGS_ND) map.o debug.o -o $(OUTPUT_FILE)
+prog: map.o map.h debug.o eurovision.o eurovision.h
+	gcc $(FLAGS_ND) map.o eurovision.o debug.o -o $(OUTPUT_FILE)
+
+eurovision.o:
+	gcc eurovision.c -c
 
 map.o: map.c map.h
 	gcc map.c -c
@@ -13,9 +16,8 @@ map.o: map.c map.h
 debug.o: map_example_test.c map.h debug.c
 	gcc debug.c -c
 
-cnr: map.o map.h debug.o
-	gcc $(FLAGS_ND) map.o debug.o -o $(OUTPUT_FILE)
-	./run
+cnr: prog
+	./$(OUTPUT_FILE)
 
 cnr2: map.o map.h map_example_test.o test_utilities.h
 	gcc $(FLAGS_ND) map.o map_example_test.o -o $(OUTPUT_FILE)
@@ -29,5 +31,5 @@ clean:
 val:
 	$(VALGRIND_FLAGS) ./$(OUTPUT_FILE)
 
-run:
+run: $(OUTPUT_FILE)
 	./$(OUTPUT_FILE)

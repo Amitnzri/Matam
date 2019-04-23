@@ -182,10 +182,8 @@ static bool checkStateId(int state_id){
 
 static bool checkName(const char *state_name){
 
-    printf("[+]Got:%s\n",state_name);
     int len = strlen(state_name);
     for(const char *c = state_name ;c<state_name+len ;c++){
-        printf("Char:%c,%d\n",*c,*c);
         if((*c<'a'||*c>'z')&&(*c!=SPACE))return false;
     }
     return true;
@@ -241,11 +239,11 @@ EurovisionResult eurovisionAddState(Eurovision eurovision,
     /*********
     TODO:Check
     *********/
-    assert(eurovision&&stateId&&stateName&&songName);
+    assert(eurovision&&stateName&&songName);
                                                         //Validation Checks
-    if(!eurovision||!stateId||!stateName
-                            ||!songName)return EUROVISION_NULL_ARGUMENT;
-    if(!checkName(stateName)||!checkName(songName))return EUROVISION_INVALID_NAME;
+    if(!eurovision||!stateName||!songName)return EUROVISION_NULL_ARGUMENT;
+    if(!checkName(stateName)
+       ||!checkName(songName))return EUROVISION_INVALID_NAME;
     if(!checkStateId(stateId)) return EUROVISION_INVALID_ID;
 
 

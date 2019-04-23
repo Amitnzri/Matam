@@ -10,7 +10,10 @@
 
 
 
-int main(){ //DELETE
+int main(){ 
+
+Eurovision eurovision = eurovisionCreate();
+eurovisionAddState(eurovision,0,"Israel","Home");
 
 return 0;
 }

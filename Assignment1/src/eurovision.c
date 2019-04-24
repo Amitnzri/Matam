@@ -331,7 +331,9 @@ EurovisionResult eurovisionAddJudge(Eurovision eurovision, int judgeId,
     Map judges = eurovision->judges;
 
 
-    if (mapContains(judges, &judgeId)) return EUROVISION_STATE_ALREADY_EXIST;
+    if (mapContains(judges, &judgeId)) {
+        return EUROVISION_JUDGE_ALREADY_EXIST;
+    }
     if (!checkJudgeResults(judgeResults, eurovision->states)){
         return EUROVISION_STATE_NOT_EXIST;
     }

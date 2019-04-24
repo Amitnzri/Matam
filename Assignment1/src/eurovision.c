@@ -86,7 +86,7 @@ static MapKeyElement copyInt (MapKeyElement key){
     return (MapKeyElement) copy;
 }
 
-static Judge copyJudge(MapDataElement judge){
+static MapDataElement copyJudge(MapDataElement judge){
     /***********
     TODO: Check
     ***********/
@@ -96,11 +96,11 @@ static Judge copyJudge(MapDataElement judge){
     assert(copy);
     if(!copy) return NULL;
     copy->id = source->id;
-    copy->name =copyStr(source->name);
-    assert(copy->top_ten);
+    copy->name = copyStr(source->name);
     copy->top_ten = copyIntArray(source->top_ten,TOP_TEN_LEN);
+    assert(copy->top_ten);
     if(!copy->top_ten)return NULL;
-    return copy;
+    return (MapDataElement) copy;
 
 }
 
@@ -116,7 +116,7 @@ static void freeJudge(MapDataElement judge){ //needed void*
     }
 }
 
-static void freeint(MapKeyElement n){
+static void freeInt(MapKeyElement n){
     /**********
     TODO: Check
     **********/
@@ -144,7 +144,7 @@ static int compareIntKeys(MapKeyElement key_a,MapKeyElement key_b){
   return *(int*)key_a - *(int*)key_b;
 }
 
-static bool checkStateId(int state_id){
+static bool checkId(int state_id){
     return (state_id<0) ? (false) : (true);
 }//Checked
 
@@ -158,25 +158,25 @@ static bool checkName(const char *state_name){
 }//Checked
 
 
-static bool checkNegativeValues (int judgeId, int* judgResult){
+static bool checkArrayValues (int len, int* judge_results){
     /***********
     TODO: Check
     ***********/
-    assert(judgeId&&judgResult);
-    if(judgeId<0) return false;
-    for(int i=0;i<TOP_TEN_LEN;i++){
-        if(judgResult[i]<0) return false;
+    assert(judge_results);
+    if(!judge_results) return false;
+    for(int i = 0;i<len;i++){
+        if(!checkId(judge_results[i]))return false;
     }
     return true;
 }
 
-static bool checkJudgeResults(int* juedgeResults, Map states){
+static bool checkJudgeResults(int* judge_results, Map states){
     /***********
     TODO: Check
     ***********/
     if(!states) return false; //if there's no states
     for(int i=0;i<TOP_TEN_LEN;i++){
-        if(!mapContains(juedgeResults[i],states)) return false;
+        if(!mapContains(states,&judge_results[i])) return false;
     }
     return true;
 }
@@ -208,7 +208,7 @@ static State createNewState (int state_id ,const char* state_name,const char* so
   return new_state;
 }
 
-<<<<<<< HEAD
+
 static MapDataElement copyState(MapDataElement state){
     /***********
     TODO: Check
@@ -229,13 +229,12 @@ static MapDataElement copyState(MapDataElement state){
 
 }
 
-=======
-static Judge creartNewJudge(int judge_id,const char *judge_name,
+static Judge createNewJudge(int judge_id,const char *judge_name,
                          int *judge_results){
     /***********
    TODO: Check
    ***********/
-    assert(judge_id&&judge_name&&judge_results);
+    assert(judge_name&&judge_results);
 
     Judge new_judge = malloc(sizeof(*new_judge));
     if(!new_judge) return NULL;
@@ -244,17 +243,17 @@ static Judge creartNewJudge(int judge_id,const char *judge_name,
     new_judge->top_ten = copyIntArray(judge_results,TOP_TEN_LEN);
 
     //if one of the mallocs has failed, free all and return null.
-    if(new_state->name  == NULL || new_judge->top_ten  == NULL){
+    if(new_judge->name  == NULL || new_judge->top_ten  == NULL){
         free(new_judge->name);
         free(new_judge->top_ten);
         free(new_judge);
         return NULL;
     }
 
-    new_judge->id = judge_Id;
-    return judge;
+    new_judge->id = judge_id;
+    return new_judge;
 }
->>>>>>> e601f0f3870d6fa5897941a321d752fc0dd854c3
+
 
 
 /*****************************Functions**************************************/
@@ -287,12 +286,12 @@ EurovisionResult eurovisionAddState(Eurovision eurovision,
     if(!eurovision||!stateName||!songName)return EUROVISION_NULL_ARGUMENT;
     if(!checkName(stateName)
        ||!checkName(songName))return EUROVISION_INVALID_NAME;
-    if(!checkStateId(stateId)) return EUROVISION_INVALID_ID;
+    if(!checkId(stateId)) return EUROVISION_INVALID_ID;
 
 
     if(!eurovision->states){
         eurovision->states = mapCreate(copyState,copyInt,freeState
-                                       ,freeint,compareIntKeys);
+                                       ,freeInt,compareIntKeys);
         assert(eurovision->states);
         if(eurovision->states == NULL) return EUROVISION_OUT_OF_MEMORY;
     } //Creates states dictionary if there isn't one.
@@ -314,12 +313,12 @@ EurovisionResult eurovisionAddJudge(Eurovision eurovision, int judgeId,
     /***********
    TODO: Check
    ***********/
-    assert(eurovision && judgeId && judgeName && judgeResults);
-    if (!eurovision || !judgeId || !judgeName || !judgeResults) return EUROVISION_NULL_ARGUMENT;
+    assert(eurovision && judgeName && judgeResults);
+    if (!eurovision  || !judgeName || !judgeResults) return EUROVISION_NULL_ARGUMENT;
 
     if (!checkName(judgeName)) return EUROVISION_INVALID_NAME;
-    if (!checkNegativeValues(judgeId, judgeResults)) return EUROVISION_INVALID_ID;
-
+    if (!checkArrayValues(TOP_TEN_LEN,judgeResults)) return EUROVISION_INVALID_ID;
+    if (!checkId(judgeId))return EUROVISION_INVALID_ID;
 
     if (!eurovision->judges) {
         eurovision->judges = mapCreate(copyJudge, copyInt, freeJudge, freeInt, compareIntKeys);
@@ -330,11 +329,11 @@ EurovisionResult eurovisionAddJudge(Eurovision eurovision, int judgeId,
     Map judges = eurovision->judges;
 
 
-    if (mapContains(juedges, &judgeId)) return EUROVISION_STATE_ALREADY_EXIST;
-    if (!checkJudgeResults(judgeResults, eurovision->states))
+    if (mapContains(judges, &judgeId)) return EUROVISION_STATE_ALREADY_EXIST;
+    if (!checkJudgeResults(judgeResults, eurovision->states)){
         return EUROVISION_STATE_NOT_EXIST;
-
-    Judge new_judge = creartJudge(judgeId, judgeName, judgeResults);
+    }
+    Judge new_judge = createNewJudge(judgeId, judgeName, judgeResults);
     if (mapPut(judges, &judgeId, new_judge) == MAP_OUT_OF_MEMORY) {
         return EUROVISION_OUT_OF_MEMORY;
     } else {
@@ -342,4 +341,3 @@ EurovisionResult eurovisionAddJudge(Eurovision eurovision, int judgeId,
     }
    // updateScore(eurovision) yet to write
 }
-

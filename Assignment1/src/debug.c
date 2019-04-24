@@ -12,7 +12,9 @@
 
 int main(){
   Eurovision eurovision = eurovisionCreate();
-  int res = eurovisionAddState(eurovision,0,"israel","home");
+  int arr[10]= {0};
+  eurovisionAddState(eurovision,0,"israel","home");
+  int res = eurovisionAddJudge(eurovision,0,"tomer",arr);
   printf("%d\n",res);
 
 

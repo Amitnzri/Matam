@@ -7,6 +7,7 @@ OUTPUT_FILE =  run
 prog: map.o map.h debug.o eurovision.o eurovision.h
 	gcc $(FLAGS_ND) map.o eurovision.o debug.o -o $(OUTPUT_FILE)
 
+
 eurovision.o: eurovision.c
 	gcc eurovision.c -c
 
@@ -28,7 +29,8 @@ map_example_test.o: map.o map.h test_utilities.h map_example_test.c
 
 clean:
 	rm -f *.o
-val:
+val: prog
+
 	$(VALGRIND_FLAGS) ./$(OUTPUT_FILE)
 
 run: $(OUTPUT_FILE)

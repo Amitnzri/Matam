@@ -67,7 +67,7 @@ TODO:CHECK
 *********/
 assert(str);
 if(!str)return NULL;
-char* copy = malloc(sizeof(*copy)*strlen(str));
+char* copy = malloc(sizeof(*copy)*(strlen(str)+1));
 if(!copy) return NULL;
 strcpy(copy,str);
 return copy;

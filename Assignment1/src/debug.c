@@ -16,7 +16,5 @@ int main(){
   int res_state = eurovisionAddState(eurovision,0,"israel","home");
   int res_judge = eurovisionAddJudge(eurovision,0,"tomer",arr);
   printf("%d,%d\n",res_state,res_judge);
-
-
   return 0;
 }

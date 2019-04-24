@@ -265,6 +265,9 @@ static Judge createNewJudge(int judge_id,const char *judge_name,
 }
 
 static int comapeAudienceScore(State state_a, State state_b){
+        /***********
+        TODO: Check
+        ***********/
     assert(state_a&&state_b);
     return (state_a->score_by_audience) - (state_b->score_by_audience);
 }

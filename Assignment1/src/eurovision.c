@@ -421,7 +421,7 @@ EurovisionResult eurovisionRemoveJudge(Eurovision eurovision, int judgeId){
 void eurovisionDestroy(Eurovision eurovision){
     mapDestroy(eurovision->states_map);
     mapDestroy(eurovision->judges_map);
-    //listDistroy(eurovision->scores_table);
+    listDestroy(eurovision->scores_table);
     free (eurovision);
 
 }

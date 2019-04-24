@@ -7,7 +7,7 @@ OUTPUT_FILE =  run
 prog: map.o map.h debug.o eurovision.o eurovision.h
 	gcc $(FLAGS_ND) map.o eurovision.o debug.o -o $(OUTPUT_FILE)
 
-eurovision.o:
+eurovision.o: eurovision.c
 	gcc eurovision.c -c
 
 map.o: map.c map.h

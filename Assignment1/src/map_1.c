@@ -299,6 +299,8 @@ int mapGetSize(Map map){
 
 bool mapContains(Map map, MapKeyElement element){
 
+  assert(map&&element);
+  if(map->dictionary == NULL)return false;
   compareMapKeyElements compareKeys = map->compareKeysFunction;
   findSortedPosition(map,element);
   if(compareKeys(element,map->dictionary->key)==0){

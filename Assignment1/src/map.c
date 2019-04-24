@@ -237,11 +237,10 @@ Map mapCreate(copyMapDataElements copyDataElement,
 } //CHECKED.
 
 MapResult mapPut(Map map,MapKeyElement keyElement,MapKeyElement dataElement){
-  assert(map);
+  assert(map&&keyElement&&dataElement);
   if(map == NULL) return MAP_NULL_ARGUMENT;
   if(map->dictionary == NULL){ //If the map has no dictionary yet.
     map->dictionary = createDictionaryBlock(map,NULL,NULL);
-
     if(map->dictionary == NULL) return MAP_OUT_OF_MEMORY;
     return assignValues(map,map->dictionary,keyElement,dataElement);
   }else{ //If has items in it already.
@@ -323,7 +322,8 @@ int mapGetSize(Map map){
   return counter;} //CHECKED.
 
 bool mapContains(Map map, MapKeyElement element){
-
+  assert(map&&element);
+  if(!map->dictionary)return false;
   compareMapKeyElements compareKeys = map->compareKeysFunction;
   findSortedPosition(map,element);
   if(compareKeys(element,map->dictionary->key)==0){
@@ -377,7 +377,6 @@ void mapDestroy(Map map){
 }
 
 Map mapCopy(Map map){
-  assert(map);
   if(map == NULL)return NULL;
   Map new_map = malloc(sizeof(*new_map));
   if(new_map == NULL)return NULL;

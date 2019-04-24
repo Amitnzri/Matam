@@ -52,9 +52,9 @@ static int* copyIntArray(const int *source, int len){
     /***********
     TODO: Checks
     ***********/
+    if(source == NULL)return NULL;
     int* destination = malloc(sizeof(*destination)* len);
     if(!destination) return NULL;
-    assert(source&&destination);
     for(int i=0; i<len; i++){
     destination[i] = source[i];
     }
@@ -65,6 +65,8 @@ char* copyStr(const char* str){
 /*********
 TODO:CHECK
 *********/
+assert(str);
+if(!str)return NULL;
 char* copy = malloc(sizeof(*copy)*strlen(str));
 if(!copy) return NULL;
 strcpy(copy,str);
@@ -84,40 +86,6 @@ static MapKeyElement copyInt (MapKeyElement key){
     return (MapKeyElement) copy;
 }
 
-static MapDataElement copyState(MapDataElement state){
-    /***********
-    TODO: Check
-    1.check types
-    ***********/
-    if(!state) return NULL;
-    State copy = malloc(sizeof(*copy));
-    assert(copy);
-    if(!copy) return NULL;
-    State source = (State) source;
-
-    copy->name = copyStr(source->name);
-    copy->song = copyStr(source->song);
-    copy->top_ten = copyIntArray(source->top_ten,TOP_TEN_LEN);
-    copy->votes = mapCopy(source->votes);
-    //if one of the allocation went wrong, free all and return null.
-    if(!copy->name||!copy->song||!copy->top_ten||!copy->votes){
-      free(copy->name);
-      free(copy->song);
-      free(copy->top_ten);
-      free(copy->votes);
-      free(copy);
-      assert(0);
-      return NULL;
-    }
-
-    copy->id = source->id;
-    copy->score_by_judges = source->score_by_judges;
-    copy->score_by_audience = source->score_by_audience;
-
-    return (MapDataElement) copy;
-
-}
-
 static Judge copyJudge(MapDataElement judge){
     /***********
     TODO: Check
@@ -128,7 +96,7 @@ static Judge copyJudge(MapDataElement judge){
     assert(copy);
     if(!copy) return NULL;
     copy->id = source->id;
-    strcpy(copy->name,source->name);
+    copy->name =copyStr(source->name);
     assert(copy->top_ten);
     copy->top_ten = copyIntArray(source->top_ten,TOP_TEN_LEN);
     if(!copy->top_ten)return NULL;
@@ -194,8 +162,7 @@ static State createNewState (int state_id ,const char* state_name,const char* so
   /*********
   TODO:Check
   *********/
-  assert(state_id&&state_name&&song_name);
-
+  assert(state_name&&song_name);
   State new_state = malloc(sizeof(*new_state));
   if(new_state == NULL)return NULL;
 
@@ -211,8 +178,32 @@ static State createNewState (int state_id ,const char* state_name,const char* so
   }
 
   new_state->id = state_id;
+  new_state->score_by_judges = 0;
+  new_state->score_by_audience = 0;
   return new_state;
 }
+
+static MapDataElement copyState(MapDataElement state){
+    /***********
+    TODO: Check
+    1.check types
+    ***********/
+    if(!state) return NULL;
+    State source = (State) state;
+    State copy = createNewState(source->id,source->name,source->song);
+    assert(copy);
+    if(!copy) return NULL;
+    copy->top_ten = copyIntArray(source->top_ten,TOP_TEN_LEN); //can be null.
+    copy->votes = mapCopy(source->votes); //can be null.
+
+    copy->score_by_judges = source->score_by_judges;
+    copy->score_by_audience = source->score_by_audience;
+
+    return (MapDataElement) copy;
+
+}
+
+
 
 /*****************************Functions**************************************/
 

@@ -10,10 +10,11 @@
 
 
 
-int main(){ 
+int main(){
+  Eurovision eurovision = eurovisionCreate();
+  int res = eurovisionAddState(eurovision,0,"israel","home");
+  printf("%d\n",res);
 
-Eurovision eurovision = eurovisionCreate();
-eurovisionAddState(eurovision,0,"Israel","Home");
 
-return 0;
+  return 0;
 }

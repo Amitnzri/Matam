@@ -98,8 +98,14 @@ static MapDataElement copyJudge(MapDataElement judge){
     copy->id = source->id;
     copy->name = copyStr(source->name);
     copy->top_ten = copyIntArray(source->top_ten,TOP_TEN_LEN);
-    assert(copy->top_ten);
-    if(!copy->top_ten)return NULL;
+    assert(copy->top_ten&&copy->name);
+    if(!copy->name||!copy->top_ten){
+        free(copy->name);
+        free(copy->top_ten);
+        free(copy);
+        return NULL;
+    }
+
     return (MapDataElement) copy;
 
 }
@@ -110,10 +116,11 @@ static void freeJudge(MapDataElement judge){ //needed void*
     1.free name.
     ***********/
     assert(judge);
+    if(!judge) return;
     Judge remove = (Judge) judge;
-    if(!remove->name) {
-        free(remove);
-    }
+    free(remove->name);
+    free(remove->top_ten);
+    free(judge);
 }
 
 static void freeInt(MapKeyElement n){
@@ -319,6 +326,7 @@ EurovisionResult eurovisionRemoveState(Eurovision eurovision, int stateId){
     *********/
     assert(eurovision);
     if(!eurovision)return EUROVISION_NULL_ARGUMENT;
+    else if(!eurovision->states_map)return EUROVISION_STATE_NOT_EXIST;
     if(!mapContains(eurovision->states_map,&stateId)){
         return EUROVISION_STATE_NOT_EXIST;
     }
@@ -351,27 +359,29 @@ EurovisionResult eurovisionAddJudge(Eurovision eurovision, int judgeId,
     if (!checkArrayValues(TOP_TEN_LEN,judgeResults)) return EUROVISION_INVALID_ID;
     if (!checkId(judgeId))return EUROVISION_INVALID_ID;
 
+
     if (!eurovision->judges_map) {
         eurovision->judges_map = mapCreate(copyJudge, copyInt, freeJudge, freeInt, compareIntKeys);
         assert(eurovision->judges_map);
         if (eurovision->judges_map == NULL) return EUROVISION_OUT_OF_MEMORY;
 
-    } //Creates states dictionary if there isn't one.
+    }//Creates states dictionary if there isn't one.
     Map judges_map = eurovision->judges_map;
+        if (mapContains(judges_map, &judgeId)) {
+            return EUROVISION_JUDGE_ALREADY_EXIST;
+        }
+        if (!checkJudgeResults(judgeResults, eurovision->states_map)){
+            return EUROVISION_STATE_NOT_EXIST;
+        }
+        Judge tmp_judge = createNewJudge(judgeId, judgeName, judgeResults);
 
-
-    if (mapContains(judges_map, &judgeId)) {
-        return EUROVISION_JUDGE_ALREADY_EXIST;
-    }
-    if (!checkJudgeResults(judgeResults, eurovision->states_map)){
-        return EUROVISION_STATE_NOT_EXIST;
-    }
-    Judge new_judge = createNewJudge(judgeId, judgeName, judgeResults);
-    if (mapPut(judges_map, &judgeId, new_judge) == MAP_OUT_OF_MEMORY) {
-        return EUROVISION_OUT_OF_MEMORY;
-    } else {
-        return EUROVISION_SUCCESS;
-    }
+        if (mapPut(judges_map, &judgeId, tmp_judge) == MAP_OUT_OF_MEMORY) {
+            freeJudge(tmp_judge);
+            return EUROVISION_OUT_OF_MEMORY;
+        } else {
+            freeJudge(tmp_judge);
+            return EUROVISION_SUCCESS;
+        }
    // updateScore(eurovision) yet to write
 }
 
@@ -381,11 +391,15 @@ EurovisionResult eurovisionRemoveJudge(Eurovision eurovision, int judgeId){
     *********/
     assert(eurovision);
     if(!eurovision)return EUROVISION_NULL_ARGUMENT;
+    if(!eurovision->judges_map)return EUROVISION_JUDGE_NOT_EXIST;
     if(!mapContains(eurovision->judges_map,&judgeId)){
+        if(mapGetSize(eurovision->judges_map)<1){
+            mapDestroy(eurovision->judges_map);
+        }
         return EUROVISION_JUDGE_NOT_EXIST;
     }
     Judge remove = (Judge) mapGet(eurovision->judges_map,&judgeId);
-    cancelThoseVotes(eurovision->states_map,remove->top_ten,&judgeId);
+    cancelThoseVotes(eurovision->states_map,remove->top_ten,judgeId);
     if(mapGetSize(eurovision->judges_map)<=1){
         mapDestroy(eurovision->judges_map);
     }else{

@@ -12,8 +12,14 @@
 
 int main(){
     Eurovision eurovision = eurovisionCreate();
-  int res_state = eurovisionAddState(eurovision,0,"israel","home");
-  eurovisionRemoveState(eurovision,0);
-  free(eurovision);
+    //eurovisionAddState(eurovision,0,"israel","home");
+    int arr[10] = {1,2,3,4,5,6,7,8,9,10};
+    int res = eurovisionAddJudge(eurovision,0,"amit",arr);
+    printf("DEBUG:%d\n",res );
+    //eurovisionRemoveState(eurovision,1);
+    eurovisionRemoveJudge(eurovision,0);
+    //eurovisionDestroy(eurovision);
+
+    free(eurovision);
   return 0;
 }

@@ -18,8 +18,8 @@ struct eurovision_t{
     /***********
     TODO: Check
     ***********/
-    Map states;
-    Map judges;
+    Map states_map;
+    Map judges_map;
     List votes;
     int audiencePercent; //set to one by default
 };
@@ -130,9 +130,11 @@ static void freeState(MapDataElement state){
 
   assert(state);
   if(state == NULL)return;
-  State remove = (State) remove;
+  State remove = (State) state;
   free(remove->name);
   free(remove->song);
+  if(remove->top_ten)free(remove->top_ten);
+  if(remove->votes)mapDestroy(remove->votes);
   free(remove);
 }
 
@@ -170,13 +172,13 @@ static bool checkArrayValues (int len, int* judge_results){
     return true;
 }
 
-static bool checkJudgeResults(int* judge_results, Map states){
+static bool checkJudgeResults(int* judge_results, Map states_map){
     /***********
     TODO: Check
     ***********/
-    if(!states) return false; //if there's no states
+    if(!states_map) return false; //if there's no states
     for(int i=0;i<TOP_TEN_LEN;i++){
-        if(!mapContains(states,&judge_results[i])) return false;
+        if(!mapContains(states_map,&judge_results[i])) return false;
     }
     return true;
 }
@@ -190,7 +192,6 @@ static State createNewState (int state_id ,const char* state_name,const char* so
   assert(state_name&&song_name);
   State new_state = malloc(sizeof(*new_state));
   if(new_state == NULL)return NULL;
-
   new_state->name = copyStr(state_name);
   new_state->song = copyStr(song_name);
 
@@ -256,7 +257,9 @@ static Judge createNewJudge(int judge_id,const char *judge_name,
     return new_judge;
 }
 
+static void cancelThoseVotes(Map states_map,int state_id){return;}//TODO
 
+static void fireTheVotingJudges(Map judges_map,int state_id){return;}//TODO
 
 /*****************************Functions**************************************/
 
@@ -268,8 +271,8 @@ Eurovision eurovisionCreate(){
     assert(eurovision);
     if(!eurovision) return NULL;
 
-    eurovision->states = NULL;
-    eurovision->judges = NULL;
+    eurovision->states_map = NULL;
+    eurovision->judges_map = NULL;
     eurovision->votes = NULL;
     eurovision->audiencePercent = 1;
     return eurovision;
@@ -291,21 +294,48 @@ EurovisionResult eurovisionAddState(Eurovision eurovision,
     if(!checkId(stateId)) return EUROVISION_INVALID_ID;
 
 
-    if(!eurovision->states){
-        eurovision->states = mapCreate(copyState,copyInt,freeState
+    if(!eurovision->states_map){
+        eurovision->states_map = mapCreate(copyState,copyInt,freeState
                                        ,freeInt,compareIntKeys);
-        assert(eurovision->states);
-        if(eurovision->states == NULL) return EUROVISION_OUT_OF_MEMORY;
+        assert(eurovision->states_map);
+        if(eurovision->states_map == NULL) return EUROVISION_OUT_OF_MEMORY;
     } //Creates states dictionary if there isn't one.
-    Map states = eurovision->states;
+    Map states_map = eurovision->states_map;
 
-    if(mapContains(states,&stateId)) return EUROVISION_STATE_ALREADY_EXIST;
-    State new_state = createNewState(stateId,stateName,songName);
-    if(mapPut(states,&stateId,new_state) == MAP_OUT_OF_MEMORY){
+    if(mapContains(states_map,&stateId)) return EUROVISION_STATE_ALREADY_EXIST;
+    State tmp_state = createNewState(stateId,stateName,songName); //
+    if(mapPut(states_map,&stateId,tmp_state) == MAP_OUT_OF_MEMORY){
+        freeState(tmp_state);
         return EUROVISION_OUT_OF_MEMORY;
     }else{
+        freeState(tmp_state);
         return EUROVISION_SUCCESS;
     }
+}
+
+EurovisionResult eurovisionRemoveState(Eurovision eurovision, int stateId){
+    /*********
+    TODO:Check
+    *********/
+    assert(eurovision);
+    if(!eurovision)return EUROVISION_NULL_ARGUMENT;
+    if(!mapContains(eurovision->states_map,&stateId)){
+        return EUROVISION_STATE_NOT_EXIST;
+    }
+
+    if(mapGetSize(eurovision->states_map)<=1){
+        mapDestroy(eurovision->states_map);
+    }else{
+        State remove = (State) mapGet(eurovision->states_map,&stateId);
+        if(remove->votes){
+            cancelThoseVotes(eurovision->states_map,stateId);
+            fireTheVotingJudges(eurovision->judges_map,stateId);
+        }
+        mapRemove(eurovision->states_map,&stateId);
+    }
+
+    return EUROVISION_SUCCESS;
+
 }
 
 
@@ -322,23 +352,23 @@ EurovisionResult eurovisionAddJudge(Eurovision eurovision, int judgeId,
     if (!checkArrayValues(TOP_TEN_LEN,judgeResults)) return EUROVISION_INVALID_ID;
     if (!checkId(judgeId))return EUROVISION_INVALID_ID;
 
-    if (!eurovision->judges) {
-        eurovision->judges = mapCreate(copyJudge, copyInt, freeJudge, freeInt, compareIntKeys);
-        assert(eurovision->judges);
-        if (eurovision->judges == NULL) return EUROVISION_OUT_OF_MEMORY;
+    if (!eurovision->judges_map) {
+        eurovision->judges_map = mapCreate(copyJudge, copyInt, freeJudge, freeInt, compareIntKeys);
+        assert(eurovision->judges_map);
+        if (eurovision->judges_map == NULL) return EUROVISION_OUT_OF_MEMORY;
 
     } //Creates states dictionary if there isn't one.
-    Map judges = eurovision->judges;
+    Map judges_map = eurovision->judges_map;
 
 
-    if (mapContains(judges, &judgeId)) {
+    if (mapContains(judges_map, &judgeId)) {
         return EUROVISION_JUDGE_ALREADY_EXIST;
     }
-    if (!checkJudgeResults(judgeResults, eurovision->states)){
+    if (!checkJudgeResults(judgeResults, eurovision->states_map)){
         return EUROVISION_STATE_NOT_EXIST;
     }
     Judge new_judge = createNewJudge(judgeId, judgeName, judgeResults);
-    if (mapPut(judges, &judgeId, new_judge) == MAP_OUT_OF_MEMORY) {
+    if (mapPut(judges_map, &judgeId, new_judge) == MAP_OUT_OF_MEMORY) {
         return EUROVISION_OUT_OF_MEMORY;
     } else {
         return EUROVISION_SUCCESS;

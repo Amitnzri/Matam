@@ -337,6 +337,7 @@ EurovisionResult eurovisionRemoveState(Eurovision eurovision, int stateId){
     }
     if(mapGetSize(eurovision->states_map)<=1){
         mapDestroy(eurovision->states_map);
+        eurovision->states_map=NULL;
     }else{
         mapRemove(eurovision->states_map,&stateId);
     }
@@ -395,6 +396,7 @@ EurovisionResult eurovisionRemoveJudge(Eurovision eurovision, int judgeId){
     if(!mapContains(eurovision->judges_map,&judgeId)){
         if(mapGetSize(eurovision->judges_map)<1){
             mapDestroy(eurovision->judges_map);
+            eurovision->judges_map=NULL;
         }
         return EUROVISION_JUDGE_NOT_EXIST;
     }
@@ -402,6 +404,7 @@ EurovisionResult eurovisionRemoveJudge(Eurovision eurovision, int judgeId){
     cancelThoseVotes(eurovision->states_map,remove->top_ten,judgeId);
     if(mapGetSize(eurovision->judges_map)<=1){
         mapDestroy(eurovision->judges_map);
+        eurovision->judges_map=NULL;
     }else{
         mapRemove(eurovision->judges_map,&judgeId);
     }

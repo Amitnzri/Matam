@@ -257,9 +257,9 @@ static Judge createNewJudge(int judge_id,const char *judge_name,
     return new_judge;
 }
 
-static void cancelThoseVotes(Map states_map,int state_id){return;}//TODO
+static void cancelThoseVotes(Map states,int* top_ten,int state_id){return;}//TODO
 
-static void fireTheVotingJudges(Map judges_map,int state_id){return;}//TODO
+static void fireTheVotingJudges(Map states,int* top_ten,int state_id){return;}//TODO
 
 /*****************************Functions**************************************/
 
@@ -322,15 +322,14 @@ EurovisionResult eurovisionRemoveState(Eurovision eurovision, int stateId){
     if(!mapContains(eurovision->states_map,&stateId)){
         return EUROVISION_STATE_NOT_EXIST;
     }
-
+    State remove = (State) mapGet(eurovision->states_map,&stateId);
+    if(remove->votes){
+        cancelThoseVotes(eurovision->states_map,remove->top_ten,stateId);
+        fireTheVotingJudges(eurovision->states_map,remove->top_ten,stateId);
+    }
     if(mapGetSize(eurovision->states_map)<=1){
         mapDestroy(eurovision->states_map);
     }else{
-        State remove = (State) mapGet(eurovision->states_map,&stateId);
-        if(remove->votes){
-            cancelThoseVotes(eurovision->states_map,stateId);
-            fireTheVotingJudges(eurovision->judges_map,stateId);
-        }
         mapRemove(eurovision->states_map,&stateId);
     }
 
@@ -374,4 +373,23 @@ EurovisionResult eurovisionAddJudge(Eurovision eurovision, int judgeId,
         return EUROVISION_SUCCESS;
     }
    // updateScore(eurovision) yet to write
+}
+
+EurovisionResult eurovisionRemoveJudge(Eurovision eurovision, int judgeId){
+    /*********
+    TODO:Check
+    *********/
+    assert(eurovision);
+    if(!eurovision)return EUROVISION_NULL_ARGUMENT;
+    if(!mapContains(eurovision->judges_map,&judgeId)){
+        return EUROVISION_JUDGE_NOT_EXIST;
+    }
+    Judge remove = (Judge) mapGet(eurovision->judges_map,&judgeId);
+    cancelThoseVotes(eurovision->states_map,remove->top_ten,&judgeId);
+    if(mapGetSize(eurovision->judges_map)<=1){
+        mapDestroy(eurovision->judges_map);
+    }else{
+        mapRemove(eurovision->judges_map,&judgeId);
+    }
+    return EUROVISION_SUCCESS;
 }

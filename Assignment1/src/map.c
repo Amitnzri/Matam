@@ -31,6 +31,7 @@ typedef enum LocationType {
 
 /*##############################InnerFunctions###############################*/
 
+/*
 //Returns false if one of the arguments is NULL.
 static bool checkIfNull(int n,...){
   va_list arg;
@@ -42,6 +43,7 @@ static bool checkIfNull(int n,...){
   return true;
 } //TODO: Check if allowed.
 //Assigns a given key and data to a block.
+*/
 static MapResult assignValues(Map map,Dictionary block,
                               MapKeyElement key, MapDataElement data){
   assert(map&&key&&data);

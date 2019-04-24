@@ -20,7 +20,7 @@ struct eurovision_t{
     ***********/
     Map states_map;
     Map judges_map;
-    List votes;
+    List scores_table;
     int audiencePercent; //set to one by default
 };
 
@@ -273,7 +273,7 @@ Eurovision eurovisionCreate(){
 
     eurovision->states_map = NULL;
     eurovision->judges_map = NULL;
-    eurovision->votes = NULL;
+    eurovision->scores_table = NULL;
     eurovision->audiencePercent = 1;
     return eurovision;
 }
@@ -392,4 +392,12 @@ EurovisionResult eurovisionRemoveJudge(Eurovision eurovision, int judgeId){
         mapRemove(eurovision->judges_map,&judgeId);
     }
     return EUROVISION_SUCCESS;
+}
+
+void eurovisionDestroy(Eurovision eurovision){
+    mapDestroy(eurovision->states_map);
+    mapDestroy(eurovision->judges_map);
+    //listDistroy(eurovision->scores_table);
+    free (eurovision);
+
 }

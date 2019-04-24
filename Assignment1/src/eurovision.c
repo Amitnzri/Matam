@@ -157,6 +157,31 @@ static bool checkName(const char *state_name){
     return true;
 }//Checked
 
+
+static bool checkNegativeValues (int judgeId, int* judgResult){
+    /***********
+    TODO: Check
+    ***********/
+    assert(judgeId&&judgResult);
+    if(judgeId<0) return false;
+    for(int i=0;i<TOP_TEN_LEN;i++){
+        if(judgResult[i]<0) return false;
+    }
+    return true;
+}
+
+static bool checkJudgeResults(int* juedgeResults, Map states){
+    /***********
+    TODO: Check
+    ***********/
+    if(!states) return false; //if there's no states
+    for(int i=0;i<TOP_TEN_LEN;i++){
+        if(!mapContains(juedgeResults[i],states)) return false;
+    }
+    return true;
+}
+
+
 static State createNewState (int state_id ,const char* state_name,const char* song_name){
 
   /*********
@@ -183,6 +208,7 @@ static State createNewState (int state_id ,const char* state_name,const char* so
   return new_state;
 }
 
+<<<<<<< HEAD
 static MapDataElement copyState(MapDataElement state){
     /***********
     TODO: Check
@@ -203,6 +229,32 @@ static MapDataElement copyState(MapDataElement state){
 
 }
 
+=======
+static Judge creartNewJudge(int judge_id,const char *judge_name,
+                         int *judge_results){
+    /***********
+   TODO: Check
+   ***********/
+    assert(judge_id&&judge_name&&judge_results);
+
+    Judge new_judge = malloc(sizeof(*new_judge));
+    if(!new_judge) return NULL;
+
+    new_judge->name = copyStr(judge_name);
+    new_judge->top_ten = copyIntArray(judge_results,TOP_TEN_LEN);
+
+    //if one of the mallocs has failed, free all and return null.
+    if(new_state->name  == NULL || new_judge->top_ten  == NULL){
+        free(new_judge->name);
+        free(new_judge->top_ten);
+        free(new_judge);
+        return NULL;
+    }
+
+    new_judge->id = judge_Id;
+    return judge;
+}
+>>>>>>> e601f0f3870d6fa5897941a321d752fc0dd854c3
 
 
 /*****************************Functions**************************************/
@@ -254,3 +306,40 @@ EurovisionResult eurovisionAddState(Eurovision eurovision,
         return EUROVISION_SUCCESS;
     }
 }
+
+
+EurovisionResult eurovisionAddJudge(Eurovision eurovision, int judgeId,
+                                    const char *judgeName,
+                                    int *judgeResults) {
+    /***********
+   TODO: Check
+   ***********/
+    assert(eurovision && judgeId && judgeName && judgeResults);
+    if (!eurovision || !judgeId || !judgeName || !judgeResults) return EUROVISION_NULL_ARGUMENT;
+
+    if (!checkName(judgeName)) return EUROVISION_INVALID_NAME;
+    if (!checkNegativeValues(judgeId, judgeResults)) return EUROVISION_INVALID_ID;
+
+
+    if (!eurovision->judges) {
+        eurovision->judges = mapCreate(copyJudge, copyInt, freeJudge, freeInt, compareIntKeys);
+        assert(eurovision->judges);
+        if (eurovision->judges == NULL) return EUROVISION_OUT_OF_MEMORY;
+
+    } //Creates states dictionary if there isn't one.
+    Map judges = eurovision->judges;
+
+
+    if (mapContains(juedges, &judgeId)) return EUROVISION_STATE_ALREADY_EXIST;
+    if (!checkJudgeResults(judgeResults, eurovision->states))
+        return EUROVISION_STATE_NOT_EXIST;
+
+    Judge new_judge = creartJudge(judgeId, judgeName, judgeResults);
+    if (mapPut(judges, &judgeId, new_judge) == MAP_OUT_OF_MEMORY) {
+        return EUROVISION_OUT_OF_MEMORY;
+    } else {
+        return EUROVISION_SUCCESS;
+    }
+   // updateScore(eurovision) yet to write
+}
+

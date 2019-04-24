@@ -264,6 +264,13 @@ static Judge createNewJudge(int judge_id,const char *judge_name,
     return new_judge;
 }
 
+static int comapeAudienceScore(State state_a, State state_b){
+        /***********
+        TODO: Check
+        ***********/
+    assert(state_a&&state_b);
+    return (state_a->score_by_audience) - (state_b->score_by_audience);
+}
 static void cancelThoseVotes(Map states,int* top_ten,int state_id){return;}//TODO
 
 static void fireTheVotingJudges(Map states,int* top_ten,int state_id){return;}//TODO

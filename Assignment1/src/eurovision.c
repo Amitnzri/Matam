@@ -203,7 +203,8 @@ static State createNewState (int state_id ,const char* state_name,const char* so
   }
 
   new_state->id = state_id;
-  new_state->top_ten= NULL;
+  new_state->top_ten = NULL;
+  new_state->votes = NULL;
   new_state->score_by_judges = 0;
   new_state->score_by_audience = 0;
   return new_state;

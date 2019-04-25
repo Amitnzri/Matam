@@ -171,7 +171,7 @@ static bool checkName(const char *state_name){
     return true;
 }//Checked
 //Ckecks if  an array of ID numbers is valid.
-static bool checkArrayValues (int len, int* judge_results){
+static bool checkArrayValues(int len, int* judge_results){
     /***********
     TODO: Check
     ***********/
@@ -198,7 +198,7 @@ static bool checkJudgeResults(int* judge_results, Map states_map){
     return true;
 }
 //Creates a new state.
-static State createNewState (int state_id ,const char* state_name,const char* song_name){
+static State createNewState(int state_id ,const char* state_name,const char* song_name){
 
   /*********
   TODO:Check
@@ -326,8 +326,9 @@ TODO:Check
     while(judge_id)
     {
         Judge judge = mapGet(judges_map,judge_id);
-        int* top_ten =judge->top_ten;
+        int* top_ten = judge->top_ten;
         if(checkIfArrayContainsID(top_ten,state_id)){
+            cancelOwnVotes(eurovision->states_map,top_ten,JUDGE);
             mapRemove(judges_map,judge_id);
             judge_id = mapGetFirst(judges_map);
         }else{

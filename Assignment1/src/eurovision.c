@@ -7,7 +7,7 @@
 #include "map.h"
 
 
-/*****************************Defines&Typedefs********************************/
+/*****************************Defines&Typedefs*******************************/
 
 #define TOP_TEN_LEN 10
 #define SPACE 32
@@ -198,7 +198,8 @@ static bool checkJudgeResults(int* judge_results, Map states_map){
     return true;
 }
 //Creates a new state.
-static State createNewState(int state_id ,const char* state_name,const char* song_name){
+static State createNewState(int state_id ,const char* state_name,
+                            const char* song_name){
 
   /*********
   TODO:Check
@@ -336,10 +337,8 @@ TODO:Check
         }
     }
 }
-//Cancels Other states vote to the removed country.
-static void cancelOtherStatesVotes(Map states_map,int state_id){return;}
 //Adds votes to states.
-static EurovisionResult addVotesToStates(Map State,int* top_ten){return;}
+static EurovisionResult addVotesToStates(Map states_map,int* top_ten,Voter who_voted){return;}
 //Sets array's value to NONE.
 static void resetArray(int* arr){
     for(int i=0;i<TOP_TEN_LEN;i++){
@@ -389,7 +388,26 @@ static EurovisionResult updateTopTen(Map votes_map,int* top_ten){
     }while(state_id <= last_id); //Move to the next State.
       return EUROVISION_SUCCESS;
   }
-
+//Cancels votes of other states to removed State.
+static void cancelOtherStatesVotes(Map states_map,int removed_state){
+      assert(states_map);
+      MapKeyElement state_id = mapGetFirst(states_map);
+      //Scans every state in the map and checks his votes.
+      while(state_id)
+      {
+          State state = mapGet(states_map,state_id);
+          if(state->votes){
+              if(mapContains(state->votes,&state_id))
+              {
+                  mapRemove(state->votes,&removed_state);
+                  cancelOwnVotes(states_map,state->top_ten,STATE);
+                  updateTopTen(state->votes,state->top_ten);
+                  addVotesToStates(states_map,state->top_ten,STATE);
+              }
+          }
+          state_id = mapGetNext(states_map);
+      }
+  }
 /*****************************Functions**************************************/
 
 Eurovision eurovisionCreate(void){
@@ -506,7 +524,7 @@ EurovisionResult eurovisionAddJudge(Eurovision eurovision, int judgeId,
             return EUROVISION_OUT_OF_MEMORY;
         } else {
             freeJudge(tmp_judge);
-            addVotesToStates(eurovision->states_map,judgeResults);
+            addVotesToStates(eurovision->states_map,judgeResults,JUDGE);
             return EUROVISION_SUCCESS;
         }
    // updateScore(eurovision) yet to write

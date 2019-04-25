@@ -47,7 +47,7 @@ typedef struct judge_t{
 }*Judge;
 
 /*****************************StaticFunctions********************************/
-
+//Copies an int array.
 static int* copyIntArray(const int *source, int len){
     /***********
     TODO: Checks
@@ -60,7 +60,7 @@ static int* copyIntArray(const int *source, int len){
     }
     return destination;
 }
-
+//Copies a string.
 char* copyStr(const char* str){
 /*********
 TODO:CHECK
@@ -72,7 +72,7 @@ if(!copy) return NULL;
 strcpy(copy,str);
 return copy;
 }
-
+//Copies an int.
 static MapKeyElement copyInt (MapKeyElement key){
     /***********
     TODO: Check
@@ -85,7 +85,7 @@ static MapKeyElement copyInt (MapKeyElement key){
     *copy = *(int*)key;
     return (MapKeyElement) copy;
 }
-
+//Copies a judge.
 static MapDataElement copyJudge(MapDataElement judge){
     /***********
     TODO: Check
@@ -109,7 +109,7 @@ static MapDataElement copyJudge(MapDataElement judge){
     return (MapDataElement) copy;
 
 }
-
+//Free judge allocation.
 static void freeJudge(MapDataElement judge){ //needed void*
     /***********
     TODO: Check
@@ -122,14 +122,14 @@ static void freeJudge(MapDataElement judge){ //needed void*
     free(remove->top_ten);
     free(judge);
 }
-
+//Free int allocation.
 static void freeInt(MapKeyElement n){
     /**********
     TODO: Check
     **********/
     free(n);
 }
-
+//Free state allocation.
 static void freeState(MapDataElement state){
   /*********
   TODO:Check
@@ -144,7 +144,7 @@ static void freeState(MapDataElement state){
   if(remove->votes)mapDestroy(remove->votes);
   free(remove);
 }
-
+//Comapares two int keys.
 static int compareIntKeys(MapKeyElement key_a,MapKeyElement key_b){
   /*********
   TODO:Check
@@ -152,11 +152,11 @@ static int compareIntKeys(MapKeyElement key_a,MapKeyElement key_b){
   assert(key_a&&key_b);
   return *(int*)key_a - *(int*)key_b;
 }
-
+//Checks if ID is valid.
 static bool checkId(int state_id){
     return (state_id<0) ? (false) : (true);
 }//Checked
-
+//Checks if name is valid.
 static bool checkName(const char *state_name){
 
     int len = strlen(state_name);
@@ -165,7 +165,7 @@ static bool checkName(const char *state_name){
     }
     return true;
 }//Checked
-
+//Ckecks if  an array of ID numbers is valid.
 static bool checkArrayValues (int len, int* judge_results){
     /***********
     TODO: Check
@@ -177,7 +177,7 @@ static bool checkArrayValues (int len, int* judge_results){
     }
     return true;
 }
-
+//Checks if judges votes are valid.
 static bool checkJudgeResults(int* judge_results, Map states_map){
     /***********
     TODO: Check
@@ -188,7 +188,7 @@ static bool checkJudgeResults(int* judge_results, Map states_map){
     }
     return true;
 }
-
+//Creates a new state.
 static State createNewState (int state_id ,const char* state_name,const char* song_name){
 
   /*********
@@ -215,7 +215,7 @@ static State createNewState (int state_id ,const char* state_name,const char* so
   new_state->score_by_audience = 0;
   return new_state;
 }
-
+//Copies a state.
 static MapDataElement copyState(MapDataElement state){
     /***********
     TODO: Check
@@ -235,7 +235,7 @@ static MapDataElement copyState(MapDataElement state){
     return (MapDataElement) copy;
 
 }
-
+//Creates a new Judge.
 static Judge createNewJudge(int judge_id,const char *judge_name,
                          int *judge_results){
     /***********
@@ -260,7 +260,7 @@ static Judge createNewJudge(int judge_id,const char *judge_name,
     new_judge->id = judge_id;
     return new_judge;
 }
-
+//Compare scores by the audience score.
 static int comapeAudienceScore(State state_a, State state_b){
         /***********
         TODO: Check
@@ -268,25 +268,25 @@ static int comapeAudienceScore(State state_a, State state_b){
     assert(state_a&&state_b);
     return (state_a->score_by_audience) - (state_b->score_by_audience);
 }
-
+//Cancels all votes of removed state.
 static void cancelThoseVotes(Map states,int* top_ten,int state_id){return;}//TODO
-
+//Removes a judge and his votes if he voted to a removed state.
 static void fireTheVotingJudges(Map states,int* top_ten,int state_id){return;}//TODO
-
+//Adds votes to states.
 static EurovisionResult addVotesToStates(Map State,int* top_ten){return;}
-
+//Sets array's value to NONE.
 static void resetArray(int arr){
     for(int i=0;i<TOP_TEN_LEN;i++){
         arr[i] = NONE;
     }
 }
-
+//Swaps two given values.
 static void swap(int* a,int* b){
   int tmp = *a;
   *a = *b;
   *b = tmp;
 }
-
+//Updates the top_ten array.
 static EurovisionResult updateTopTen(Map votes_map,int* top_ten){
     /*********
     TODO:Check

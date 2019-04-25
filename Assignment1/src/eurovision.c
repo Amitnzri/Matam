@@ -290,27 +290,29 @@ static void swap(int* a,int* b){
 static EurovisionResult updateTopTen(Map votes_map,int* top_ten){
     /*********
     TODO:Check
+    TEST TOMORROW
     *********/
     if(!vote_map){
         return NULL;
     }
-    if(!top_ten){
+    if(!top_ten){ //Create new array if there isn't one.
         top_ten = malloc(sizeof(*top_ten)*TOP_TEN_LEN);
-        resetArray(top_ten);
+        resetArray(top_ten);//Set all array's values to NONE.
         if (!top_ten) return EUROVISION_NULL_ARGUMENT;
     }
     MapKeyElement state_id = mapGetFirst(votes_map);
-    do{
+    do{//Scan the map
         int score = *(int*) mapGet(votes_map);
         for(int i=TOP_TEN_LEN;i>0;i--){
             if(top_ten[i]==NONE){
                 top_ten[i] = score;
                 break;
             }else{
+                //Look for a new place for the replaced state.
                 if(score>top_ten[i]) swap(&score,&top_ten[i]);
             }
         }
-      }while(mapGetNext(votes_map));
+      }while(mapGetNext(votes_map)); //Move to the next State.
   }
 
 /*****************************Functions**************************************/

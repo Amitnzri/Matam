@@ -7,11 +7,17 @@
 #include "map.h"
 
 
-/*********************************Defines************************************/
+/*****************************Defines&Typedefs********************************/
 
 #define TOP_TEN_LEN 10
 #define SPACE 32
 #define NONE -1
+
+typedef enum {
+    JUDGE,
+    STATE
+}Voter;
+
 /*****************************DataSturctures*********************************/
 
 struct eurovision_t{
@@ -146,16 +152,15 @@ static void freeState(MapDataElement state){
 }
 //Comapares two int keys.
 static int compareIntKeys(MapKeyElement key_a,MapKeyElement key_b){
-  /*********
-  TODO:Check
-  *********/
-  assert(key_a&&key_b);
-  return *(int*)key_a - *(int*)key_b;
+
+    assert(key_a&&key_b);
+    return *(int*)key_a - *(int*)key_b;
 }
 //Checks if ID is valid.
 static bool checkId(int state_id){
+
     return (state_id<0) ? (false) : (true);
-}//Checked
+} //Checked
 //Checks if name is valid.
 static bool checkName(const char *state_name){
 
@@ -265,15 +270,41 @@ static Judge createNewJudge(int judge_id,const char *judge_name,
     return new_judge;
 }
 //Compare scores by the audience score.
-static int comapeAudienceScore(State state_a, State state_b){
+static int compareAudienceScore(State state_a, State state_b){
         /***********
         TODO: Check
         ***********/
     assert(state_a&&state_b);
     return (state_a->score_by_audience) - (state_b->score_by_audience);
 }
+//Converts the location from the voting table to points.
+static int convertPlaceToPoints(int i){
+    return (i<2) ? (12-2*i) : (10-i);
+}//Checked
 //Cancels all votes of removed state.
-static void cancelThoseVotes(Map states,int* top_ten,int state_id){return;}//TODO
+static void cancelThoseVotes(Map states_map,int* top_ten,Voter who_voted){
+/*********
+TODO:Check
+*********/
+assert(states_map&&top_ten);
+for(int i=0;i<TOP_TEN_LEN;i++){
+    State state = mapGet(states_map,top_ten[i]);
+
+    switch (who_voted) {
+        case JUDGE:
+            state->score_by_judges -= convertPlaceToPoints(i);
+            assert(state->score_by_judge>=0);
+            break;
+
+        case STATE:
+            state->score_by_states -= convertPlaceToPoints(i);
+            assert(state->score_by_states>=0);
+            break;
+    }
+}
+
+
+}
 //Removes a judge and his votes if he voted to a removed state.
 static void fireTheVotingJudges(Map states,int* top_ten,int state_id){return;}//TODO
 //Adds votes to states.
@@ -392,7 +423,7 @@ EurovisionResult eurovisionRemoveState(Eurovision eurovision, int stateId){
     }
     State remove = (State) mapGet(eurovision->states_map,&stateId);
     if(remove->votes){
-        cancelThoseVotes(eurovision->states_map,remove->top_ten,stateId);
+        cancelThoseVotes(eurovision->states_map,remove->top_ten);
         fireTheVotingJudges(eurovision->states_map,remove->top_ten,stateId);
     }
     if(mapGetSize(eurovision->states_map)<=1){
@@ -461,7 +492,7 @@ EurovisionResult eurovisionRemoveJudge(Eurovision eurovision, int judgeId){
         return EUROVISION_JUDGE_NOT_EXIST;
     }
     Judge remove = (Judge) mapGet(eurovision->judges_map,&judgeId);
-    cancelThoseVotes(eurovision->states_map,remove->top_ten,judgeId);
+    cancelThoseVotes(eurovision->states_map,remove->top_ten);
     if(mapGetSize(eurovision->judges_map)<=1){
         mapDestroy(eurovision->judges_map);
         eurovision->judges_map=NULL;

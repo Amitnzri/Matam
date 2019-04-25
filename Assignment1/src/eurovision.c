@@ -279,6 +279,7 @@ static int compareAudienceScore(State state_a, State state_b){
 }
 //Converts the location from the voting table to points.
 static int convertPlaceToPoints(int i){
+    assert(0<=i && i<TOP_TEN_LEN);
     return (i<2) ? (12-2*i) : (10-i);
 }//Checked
 //Cancels all votes of removed state.
@@ -305,8 +306,37 @@ for(int i=0;i<TOP_TEN_LEN;i++){
 
 
 }
+//Checks if topTen array contains a given state id.
+static bool checkIfArrayContainsID(int* top_ten,int state_id){
+    for (int i=0;i<TOP_TEN_LEN;i++){
+        if(top_ten[i]== state_id)return false;
+    }
+    return true;
+}
 //Removes a judge and his votes if he voted to a removed state.
-static void fireTheVotingJudges(Map states,int* top_ten,int state_id){return;}//TODO
+static void fireTheVotingJudges(Eurovision eurovision,int state_id){
+/*********
+TODO:Check
+*********/
+    assert(eurovision);
+    Map judges_map = eurovision->judges_map;
+    if(!judges_map)return;
+    MapKeyElement judge_id = mapGetFirst(judges_map);
+    //Scans every judge in the map and checks his votes.
+    while(judge_id)
+    {
+        Judge judge = mapGet(judges_map,judge_id);
+        int* top_ten =judge->top_ten;
+        if(checkIfArrayContainsID(top_ten,state_id)){
+            mapRemove(judges_map,judge_id);
+            judges_id = mapGetFirst(judges_map);
+        }else{
+            judge_id = mapGetNext(judges_map);
+        }
+    }
+}
+//Cancels Other states vote to the removed country.
+static void cancelOtherStatesVotes(Map states_map,int state_id){return;}
 //Adds votes to states.
 static EurovisionResult addVotesToStates(Map State,int* top_ten){return;}
 //Sets array's value to NONE.
@@ -422,10 +452,11 @@ EurovisionResult eurovisionRemoveState(Eurovision eurovision, int stateId){
         return EUROVISION_STATE_NOT_EXIST;
     }
     State remove = (State) mapGet(eurovision->states_map,&stateId);
-    if(remove->votes){
-        cancelThoseVotes(eurovision->states_map,remove->top_ten);
-        fireTheVotingJudges(eurovision->states_map,remove->top_ten,stateId);
-    }
+
+    if(remove->votes) cancelThoseVotes(eurovision->states_map,remove->top_ten);
+    if(remove->score_by_judge>0) fireTheVotingJudges(eurovision,stateId);
+    if(remove->score_by_states>0) cancelOtherStatesVotes(eurovision>states_map,
+                                                         stateId);
     if(mapGetSize(eurovision->states_map)<=1){
         mapDestroy(eurovision->states_map);
         eurovision->states_map=NULL;

@@ -283,7 +283,7 @@ static int convertPlaceToPoints(int i){
     return (i<2) ? (12-2*i) : (10-i);
 }//Checked
 //Cancels all votes of removed state.
-static void cancelThoseVotes(Map states_map,int* top_ten,Voter who_voted){
+static void cancelOwnVotes(Map states_map,int* top_ten,Voter who_voted){
 /*********
 TODO:Check
 *********/
@@ -453,7 +453,7 @@ EurovisionResult eurovisionRemoveState(Eurovision eurovision, int stateId){
     }
     State remove = (State) mapGet(eurovision->states_map,&stateId);
 
-    if(remove->votes) cancelThoseVotes(eurovision->states_map,
+    if(remove->votes) cancelOwnVotes(eurovision->states_map,
                                        remove->top_ten,STATE);
     if(remove->score_by_judges>0) fireTheVotingJudges(eurovision,stateId);
     if(remove->score_by_audience>0) cancelOtherStatesVotes(eurovision->states_map,
@@ -526,7 +526,7 @@ EurovisionResult eurovisionRemoveJudge(Eurovision eurovision, int judgeId){
         return EUROVISION_JUDGE_NOT_EXIST;
     }
     Judge remove = (Judge) mapGet(eurovision->judges_map,&judgeId);
-    cancelThoseVotes(eurovision->states_map,remove->top_ten,JUDGE);
+    cancelOwnVotes(eurovision->states_map,remove->top_ten,JUDGE);
     if(mapGetSize(eurovision->judges_map)<=1){
         mapDestroy(eurovision->judges_map);
         eurovision->judges_map=NULL;

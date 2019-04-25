@@ -12,6 +12,9 @@
 #define TOP_TEN_LEN 10
 #define SPACE 32
 #define NONE -1
+#define SINGLE_VOTE 1
+#define PLUSE +
+#define MINUSE -
 
 typedef enum {
     JUDGE,
@@ -566,3 +569,37 @@ void eurovisionDestroy(Eurovision eurovision){
     free (eurovision);
 
 }
+
+EurovisionResult eurovisionAddVote (Eurovision eurovision, int stateGiver, int stateTaker) {
+    /*********
+    TODO:Check
+    *********/
+    assert(eurovision);
+    if (!eurovision) return EUROVISION_NULL_ARGUMENT;
+    if ((!checkId(stateGiver)) || (!checkId(stateTaker))) return EUROVISION_INVALID_ID;
+    if (!mapContains(eurovision->states_map, &stateGiver) || !mapContains(eurovision->states_map, &stateTaker))
+        return EUROVISION_STATE_NOT_EXIST;
+    if (stateGiver == stateTaker) return EUROVISION_SAME_STATE;
+    State voter_state = mapGet(eurovision->states_map, &stateGiver);
+    if (!voter_state->votes) {
+        voter_state->votes = mapCreate(copyInt, copyInt, freeInt, freeInt, compareIntKeys);
+        if (!voter_state->votes) return EUROVISION_OUT_OF_MEMORY;
+    }
+    Map votes_map = voter_state->votes;
+    if (!mapContains(votes_map, &stateTaker)){
+        int single_vote = SINGLE_VOTE;
+        mapPut(votes_map, &stateTaker,&single_vote);
+    }else{
+        int tmp_votes;
+        tmp_votes = *(int*) mapGet(votes_map, &stateTaker);
+        tmp_votes += SINGLE_VOTE;
+        mapPut(votes_map,&stateTaker,&tmp_votes);
+    }
+
+    addOrRemoveOwnVotes(eurovision->states_map,voter_state->top_ten,STATE,MINUSE);
+    updateTopTen(votes_map,voter_state->top_ten);
+    addOrRemoveOwnVotes((eurovision->states_map,voter_state->top_ten,STATE,PLUSE));
+
+    return EUROVISION_SUCCESS;
+}
+

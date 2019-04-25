@@ -268,6 +268,8 @@ static void cancelThoseVotes(Map states,int* top_ten,int state_id){return;}//TOD
 
 static void fireTheVotingJudges(Map states,int* top_ten,int state_id){return;}//TODO
 
+static void addVotesToStates(Map State,int* top_ten){return;}
+
 /*****************************Functions**************************************/
 
 Eurovision eurovisionCreate(){

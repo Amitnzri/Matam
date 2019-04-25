@@ -11,7 +11,7 @@
 
 #define TOP_TEN_LEN 10
 #define SPACE 32
-
+#define NONE -1
 /*****************************DataSturctures*********************************/
 
 struct eurovision_t{
@@ -166,7 +166,6 @@ static bool checkName(const char *state_name){
     return true;
 }//Checked
 
-
 static bool checkArrayValues (int len, int* judge_results){
     /***********
     TODO: Check
@@ -189,7 +188,6 @@ static bool checkJudgeResults(int* judge_results, Map states_map){
     }
     return true;
 }
-
 
 static State createNewState (int state_id ,const char* state_name,const char* song_name){
 
@@ -217,7 +215,6 @@ static State createNewState (int state_id ,const char* state_name,const char* so
   new_state->score_by_audience = 0;
   return new_state;
 }
-
 
 static MapDataElement copyState(MapDataElement state){
     /***********
@@ -271,15 +268,54 @@ static int comapeAudienceScore(State state_a, State state_b){
     assert(state_a&&state_b);
     return (state_a->score_by_audience) - (state_b->score_by_audience);
 }
+
 static void cancelThoseVotes(Map states,int* top_ten,int state_id){return;}//TODO
 
 static void fireTheVotingJudges(Map states,int* top_ten,int state_id){return;}//TODO
 
-static void addVotesToStates(Map State,int* top_ten){return;}
+static EurovisionResult addVotesToStates(Map State,int* top_ten){return;}
+
+static void resetArray(int arr){
+    for(int i=0;i<TOP_TEN_LEN;i++){
+        arr[i] = NONE;
+    }
+}
+
+static void swap(int* a,int* b){
+  int tmp = *a;
+  *a = *b;
+  *b = tmp;
+}
+
+static EurovisionResult updateTopTen(Map votes_map,int* top_ten){
+    /*********
+    TODO:Check
+    *********/
+    if(!vote_map){
+        return NULL;
+    }
+    if(!top_ten){
+        top_ten = malloc(sizeof(*top_ten)*TOP_TEN_LEN);
+        resetArray(top_ten);
+        if (!top_ten) return EUROVISION_NULL_ARGUMENT;
+    }
+    MapKeyElement state_id = mapGetFirst(votes_map);
+    do{
+        int score = *(int*) mapGet(votes_map);
+        for(int i=TOP_TEN_LEN;i>0;i--){
+            if(top_ten[i]==NONE){
+                top_ten[i] = score;
+                break;
+            }else{
+                if(score>top_ten[i]) swap(&score,&top_ten[i]);
+            }
+        }
+      }while(mapGetNext(votes_map));
+  }
 
 /*****************************Functions**************************************/
 
-Eurovision eurovisionCreate(){
+Eurovision eurovisionCreate(void){
     /***********
     TODO: Check
     ***********/
@@ -355,7 +391,6 @@ EurovisionResult eurovisionRemoveState(Eurovision eurovision, int stateId){
 
 }
 
-
 EurovisionResult eurovisionAddJudge(Eurovision eurovision, int judgeId,
                                     const char *judgeName,
                                     int *judgeResults) {
@@ -390,6 +425,7 @@ EurovisionResult eurovisionAddJudge(Eurovision eurovision, int judgeId,
             return EUROVISION_OUT_OF_MEMORY;
         } else {
             freeJudge(tmp_judge);
+            addVotesToStates(eurovision->states_map);
             return EUROVISION_SUCCESS;
         }
    // updateScore(eurovision) yet to write
@@ -421,6 +457,7 @@ EurovisionResult eurovisionRemoveJudge(Eurovision eurovision, int judgeId){
 }
 
 void eurovisionDestroy(Eurovision eurovision){
+
     mapDestroy(eurovision->states_map);
     mapDestroy(eurovision->judges_map);
     listDestroy(eurovision->scores_table);

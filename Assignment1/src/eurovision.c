@@ -185,6 +185,10 @@ static bool checkJudgeResults(int* judge_results, Map states_map){
     if(!states_map) return false; //if there's no states
     for(int i=0;i<TOP_TEN_LEN;i++){
         if(!mapContains(states_map,&judge_results[i])) return false;
+        for(int j=0;j<TOP_TEN_LEN;j++){ //Checks for duplications
+            if(j==i) continue;
+            if(judge_results[i]==judge_results[j]) return false;
+        }
     }
     return true;
 }
@@ -275,7 +279,7 @@ static void fireTheVotingJudges(Map states,int* top_ten,int state_id){return;}//
 //Adds votes to states.
 static EurovisionResult addVotesToStates(Map State,int* top_ten){return;}
 //Sets array's value to NONE.
-static void resetArray(int arr){
+static void resetArray(int* arr){
     for(int i=0;i<TOP_TEN_LEN;i++){
         arr[i] = NONE;
     }
@@ -292,27 +296,36 @@ static EurovisionResult updateTopTen(Map votes_map,int* top_ten){
     TODO:Check
     TEST TOMORROW
     *********/
-    if(!vote_map){
-        return NULL;
+    assert(top_ten);
+    if(!votes_map || !top_ten){
+        return EUROVISION_NULL_ARGUMENT;
     }
-    if(!top_ten){ //Create new array if there isn't one.
-        top_ten = malloc(sizeof(*top_ten)*TOP_TEN_LEN);
-        resetArray(top_ten);//Set all array's values to NONE.
-        if (!top_ten) return EUROVISION_NULL_ARGUMENT;
-    }
-    MapKeyElement state_id = mapGetFirst(votes_map);
+    resetArray(top_ten);
+    int last_id = *(int*) mapGetLast(votes_map);
+    int state_id = *(int*)mapGetFirst(votes_map);
+    int state_score;
+
     do{//Scan the map
-        int score = *(int*) mapGet(votes_map);
-        for(int i=TOP_TEN_LEN;i>0;i--){
-            if(top_ten[i]==NONE){
-                top_ten[i] = score;
+        state_score = *(int*) mapGet(votes_map,&state_id);
+        int tmp = state_id;
+        for(int i=0;i<TOP_TEN_LEN;i++){
+            if(top_ten[i] == NONE || top_ten[i] == state_id){
+                top_ten[i] = state_id;
                 break;
             }else{
                 //Look for a new place for the replaced state.
-                if(score>top_ten[i]) swap(&score,&top_ten[i]);
+                if(state_score>top_ten[i]){
+
+                    swap(&state_id,&top_ten[i]);
+                    state_score = *(int*) mapGet(votes_map,&state_id);
+               }
             }
         }
-      }while(mapGetNext(votes_map)); //Move to the next State.
+
+      if(last_id == *(int*)mapGet(votes_map,&tmp))break; //Move back to the previous states.
+      state_id = *(int*)mapGetNext(votes_map);
+    }while(state_id <= last_id); //Move to the next State.
+      return EUROVISION_SUCCESS;
   }
 
 /*****************************Functions**************************************/

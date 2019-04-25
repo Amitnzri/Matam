@@ -264,6 +264,13 @@ static Judge createNewJudge(int judge_id,const char *judge_name,
     return new_judge;
 }
 
+static int comapeAudienceScore(State state_a, State state_b){
+        /***********
+        TODO: Check
+        ***********/
+    assert(state_a&&state_b);
+    return (state_a->score_by_audience) - (state_b->score_by_audience);
+}
 static void cancelThoseVotes(Map states,int* top_ten,int state_id){return;}//TODO
 
 static void fireTheVotingJudges(Map states,int* top_ten,int state_id){return;}//TODO
@@ -339,6 +346,7 @@ EurovisionResult eurovisionRemoveState(Eurovision eurovision, int stateId){
     }
     if(mapGetSize(eurovision->states_map)<=1){
         mapDestroy(eurovision->states_map);
+        eurovision->states_map=NULL;
     }else{
         mapRemove(eurovision->states_map,&stateId);
     }
@@ -397,6 +405,7 @@ EurovisionResult eurovisionRemoveJudge(Eurovision eurovision, int judgeId){
     if(!mapContains(eurovision->judges_map,&judgeId)){
         if(mapGetSize(eurovision->judges_map)<1){
             mapDestroy(eurovision->judges_map);
+            eurovision->judges_map=NULL;
         }
         return EUROVISION_JUDGE_NOT_EXIST;
     }
@@ -404,6 +413,7 @@ EurovisionResult eurovisionRemoveJudge(Eurovision eurovision, int judgeId){
     cancelThoseVotes(eurovision->states_map,remove->top_ten,judgeId);
     if(mapGetSize(eurovision->judges_map)<=1){
         mapDestroy(eurovision->judges_map);
+        eurovision->judges_map=NULL;
     }else{
         mapRemove(eurovision->judges_map,&judgeId);
     }
@@ -413,7 +423,7 @@ EurovisionResult eurovisionRemoveJudge(Eurovision eurovision, int judgeId){
 void eurovisionDestroy(Eurovision eurovision){
     mapDestroy(eurovision->states_map);
     mapDestroy(eurovision->judges_map);
-    //listDistroy(eurovision->scores_table);
+    listDestroy(eurovision->scores_table);
     free (eurovision);
 
 }

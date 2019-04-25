@@ -345,7 +345,7 @@ TODO: Look for bugs.
 
 void mapDestroy(Map map){
 
-  assert(map);
+
   if(!map) return;
   if(map->dictionary)mapClear(map);
   free(map);

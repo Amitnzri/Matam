@@ -31,6 +31,7 @@ typedef enum LocationType {
 
 /*##############################InnerFunctions###############################*/
 
+/*
 //Returns false if one of the arguments is NULL.
 static bool checkIfNull(int n,...){
   va_list arg;
@@ -42,6 +43,7 @@ static bool checkIfNull(int n,...){
   return true;
 } //TODO: Check if allowed.
 //Assigns a given key and data to a block.
+*/
 static MapResult assignValues(Map map,Dictionary block,
                               MapKeyElement key, MapDataElement data){
   assert(map&&key&&data);
@@ -77,6 +79,7 @@ static void goToFirstItem(Map map){
     stepBackward(map);
   }
 }
+
 //Changes the dictionary ptr inside map to points on requested key.
 static Dictionary jumpTo (Map map, MapKeyElement key){
 
@@ -225,14 +228,14 @@ Map mapCreate(copyMapDataElements copyDataElement,
   map->freeDataFunction = freeDataElement;
   map->compareKeysFunction = compareKeyElements;
 
-  return map;} //CHECKED.
+  return map;
+} //CHECKED.
 
 MapResult mapPut(Map map,MapKeyElement keyElement,MapKeyElement dataElement){
-  assert(map);
+  assert(map&&keyElement&&dataElement);
   if(map == NULL) return MAP_NULL_ARGUMENT;
   if(map->dictionary == NULL){ //If the map has no dictionary yet.
     map->dictionary = createDictionaryBlock(map,NULL,NULL);
-
     if(map->dictionary == NULL) return MAP_OUT_OF_MEMORY;
     return assignValues(map,map->dictionary,keyElement,dataElement);
   }else{ //If has items in it already.
@@ -282,6 +285,15 @@ MapKeyElement mapGetNext(Map map){
 
 } //CHECKED.
 
+MapKeyElement mapGetPrevious(Map map){
+
+  assert(map);
+  if(map == NULL) return NULL;
+  if(map->dictionary->previous_block == NULL) return NULL;
+  stepBackward(map);
+  return map->dictionary->key;
+
+} //CHECKED.
 
 int mapGetSize(Map map){
 
@@ -295,19 +307,20 @@ int mapGetSize(Map map){
       counter++;
     }
   }
-  return counter;} //CHECKED.
+  return counter;
+} //CHECKED.
 
 bool mapContains(Map map, MapKeyElement element){
-
   assert(map&&element);
-  if(map->dictionary == NULL)return false;
+  if(!map->dictionary)return false;
   compareMapKeyElements compareKeys = map->compareKeysFunction;
   findSortedPosition(map,element);
   if(compareKeys(element,map->dictionary->key)==0){
     return true;
   }else{
     return false;
-  }} //CHECKED.
+  }
+} //CHECKED.
 
 MapDataElement mapGet(Map map, MapKeyElement keyElement){
 
@@ -316,7 +329,6 @@ MapDataElement mapGet(Map map, MapKeyElement keyElement){
   if(requested_block == NULL)return NULL;
   return requested_block->data;
 } //CHECKED.
-
 
 MapResult mapRemove(Map map, MapKeyElement keyElement){
 
@@ -345,7 +357,6 @@ TODO: Look for bugs.
 
 void mapDestroy(Map map){
 
-
   if(!map) return;
   if(map->dictionary)mapClear(map);
   free(map);
@@ -354,7 +365,6 @@ void mapDestroy(Map map){
 }
 
 Map mapCopy(Map map){
-  assert(map);
   if(map == NULL)return NULL;
   Map new_map = malloc(sizeof(*new_map));
   if(new_map == NULL)return NULL;

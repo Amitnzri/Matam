@@ -425,12 +425,18 @@ static void cancelOtherStatesVotes(Map states_map,int removed_state){
           state_id = mapGetNext(states_map);
       }
   }
+
+
 //Calculates final score
-static double calculateScore(double audince_percent, double judges_percent, State state){
-    /***********
-     TODO: Check
-     ***********/
-    return (state->score_by_audience)*audince_percent +(state->score_by_judges)*judges_percent;
+static double calculateFinalScore(double audience_percent, State state){
+    assert(state);
+    int num_of_states = state->contest_values->num_of_states;
+    int num_of_judges = state->contest_values->num_of_judges;
+    double state_averge = (double)(state->score_by_audience)/num_of_states;
+    double judges_averge = (double)(state->score_by_judges)/num_of_judges;
+
+    return audience_percent*state_averge+(1-audience_percent)*judges_averge;
+
 }
 
 //Compares Two states by their final score.
@@ -443,10 +449,9 @@ static double compareFinalScore(ListElement element_a, ListElement element_b) {
     State state_a = (State) element_a;
     State state_b = (State) element_b;
 
-    double audience_percent = (double)(state_a->audiencePercent) / 100;
-    double judges_percent = (1 - audience_percent);
-    double score_a = calculateScore(audience_percent, judges_percent, state_a);
-    double score_b = calculateScore(audience_percent, judges_percent, state_b);
+    double audience_percent = (double)(state_a->contest_values->audience_percent) / 100;
+    double score_a = calculateFinalScore(audience_percent,state_a);
+    double score_b = calculateFinalScore(audience_percent,state_b);
 
     return score_a - score_b;
 }

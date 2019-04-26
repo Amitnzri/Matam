@@ -256,7 +256,7 @@ static MapDataElement copyState(MapDataElement state){
 
 }
 //Creates shallow copy to a state.
-static ListElement copyState_shallow(CopyListElement state_ptr){
+static ListElement copyStateShallow(CopyListElement state_ptr){
     assert(state_ptr);
     return state_ptr;
 }

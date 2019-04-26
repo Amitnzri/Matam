@@ -278,11 +278,13 @@ static Judge createNewJudge(int judge_id,const char *judge_name,
     return new_judge;
 }
 //Compare scores by the audience score.
-static int compareAudienceScore(State state_a, State state_b){
+static int compareAudienceScore(ListElement element_a, ListElement element_b){
         /***********
         TODO: Check
         ***********/
     assert(state_a&&state_b);
+    State state_a = (State) element_a;
+    State state_b = (State) element_b;
     return (state_a->score_by_audience) - (state_b->score_by_audience);
 }
 

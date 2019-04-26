@@ -255,8 +255,16 @@ static MapDataElement copyState(MapDataElement state){
     return (MapDataElement) copy;
 
 }
-//Copies a state Address.
-//static ListElement copyState_ptr(CopyListElement state_ptr)(ListElement)
+//Creates shallow copy to a state.
+static ListElement copyState_shallow(CopyListElement state_ptr){
+    assert(state_ptr);
+    return state_ptr;
+}
+//Do Nothing.
+//the list holds shallow copies so we dont want to let it remove states.
+static void freeListState(FreeListElement state_ptr){
+    return;
+}
 //Creates a new Judge.
 static Judge createNewJudge(int judge_id,const char *judge_name,
                          int *judge_results){
@@ -634,7 +642,7 @@ if(!states_map ||!mapContains(states_map,&stateGiver)
    ||!mapContains(states_map,&stateTaker))return EUROVISION_STATE_NOT_EXIST;
 State giver_state = (State) mapGet(states_map,&stateGiver);
 if(giver_state->votes){
-    int* num_of_votes = (int*) mapGet(giver_state->votes,stateTaker);
+    int* num_of_votes = (int*) mapGet(giver_state->votes,&stateTaker);
     if(num_of_votes && *num_of_votes>0) *num_of_votes--;
 }
 return EUROVISION_SUCCESS;

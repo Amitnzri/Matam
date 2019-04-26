@@ -5,6 +5,7 @@
 #include "eurovision.h"
 #include <string.h>
 #include "map.h"
+#include <list.h>
 
 
 /*****************************Defines&Typedefs*******************************/
@@ -284,6 +285,8 @@ static int compareAudienceScore(State state_a, State state_b){
     assert(state_a&&state_b);
     return (state_a->score_by_audience) - (state_b->score_by_audience);
 }
+
+
 //Converts the location from the voting table to points.
 static int convertPlaceToPoints(int i){
     assert(0<=i && i<TOP_TEN_LEN);
@@ -401,6 +404,13 @@ static void cancelOtherStatesVotes(Map states_map,int removed_state){
           state_id = mapGetNext(states_map);
       }
   }
+
+static int compareFinalScore(ListElement score_a, ListElement score_b){
+    /***********
+     TODO: Check
+     ***********/
+    return *(int*)score_a - *(int*)score_b;
+}
 /*****************************Functions**************************************/
 
 Eurovision eurovisionCreate(void){

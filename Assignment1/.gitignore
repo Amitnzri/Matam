@@ -1,5 +1,5 @@
 my_tests/
-tests/
+
 *.o
 run
 map_new.c

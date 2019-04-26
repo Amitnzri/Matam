@@ -5,7 +5,7 @@
 #include "eurovision.h"
 #include <string.h>
 #include "map.h"
-#include "list.h"
+
 
 
 /*****************************Defines&Typedefs*******************************/
@@ -27,6 +27,12 @@ typedef enum {
 
 /*****************************DataSturctures*********************************/
 
+typedef struct contest_values_t{
+    int audience_percent;
+    int num_of_judges;
+    int num_of_states;
+}*ContestValues;
+
 struct eurovision_t{
     /***********
     TODO: Check
@@ -34,7 +40,7 @@ struct eurovision_t{
     Map states_map;
     Map judges_map;
     List scores_table;
-    int audiencePercent; //set to one by default
+    ContestValues values; //set to one by default
 };
 
 typedef struct state_t{
@@ -46,7 +52,7 @@ typedef struct state_t{
     char* song;
     int* top_ten;
     Map votes;
-    int* audiencePercent;
+    ContestValues values;
     int score_by_judges;
     int score_by_audience;
 }*State;
@@ -59,6 +65,8 @@ typedef struct judge_t{
     char* name;
     int* top_ten;
 }*Judge;
+
+
 
 /*****************************StaticFunctions********************************/
 //Copies an int array.
@@ -206,7 +214,7 @@ static bool checkJudgeResults(int* judge_results, Map states_map){
     return true;
 }
 //Creates a new state.
-static State createNewState(int state_id,int* audiencePercent,const char* state_name,
+static State createNewState(int state_id,ContestValues values,const char* state_name,
                             const char* song_name){
 
   /*********
@@ -229,7 +237,7 @@ static State createNewState(int state_id,int* audiencePercent,const char* state_
   new_state->id = state_id;
   new_state->top_ten = NULL;
   new_state->votes = NULL;
-  new_state->audiencePercent = audiencePercent;
+  new_state->values = values;
   new_state->score_by_judges = 0;
   new_state->score_by_audience = 0;
   return new_state;
@@ -242,7 +250,7 @@ static MapDataElement copyState(MapDataElement state){
     ***********/
     if(!state) return NULL;
     State source = (State) state;
-    State copy = createNewState(source->id,source->audiencePercent
+    State copy = createNewState(source->id,source->values
                                 ,source->name,source->song);
     assert(copy);
     if(!copy) return NULL;
@@ -433,11 +441,17 @@ Eurovision eurovisionCreate(void){
     Eurovision eurovision = malloc(sizeof(*eurovision));
     assert(eurovision);
     if(!eurovision) return NULL;
-
+    eurovision->values = malloc(sizeof(*eurovision->values));
+    if(!eurovision->values){
+        free(eurovision);
+        return NULL;
+    }
+    eurovision->values->audience_percent =1;
+    eurovision->values->num_of_states =0;
+    eurovision->values->num_of_judges =0;
     eurovision->states_map = NULL;
     eurovision->judges_map = NULL;
     eurovision->scores_table = NULL;
-    eurovision->audiencePercent = 1;
     return eurovision;
 }
 
@@ -466,13 +480,14 @@ EurovisionResult eurovisionAddState(Eurovision eurovision,
     Map states_map = eurovision->states_map;
 
     if(mapContains(states_map,&stateId)) return EUROVISION_STATE_ALREADY_EXIST;
-    State tmp_state = createNewState(stateId,&eurovision->audiencePercent
+    State tmp_state = createNewState(stateId,eurovision->values
                                     ,stateName,songName); //
     if(mapPut(states_map,&stateId,tmp_state) == MAP_OUT_OF_MEMORY){
         freeState(tmp_state);
         return EUROVISION_OUT_OF_MEMORY;
     }else{
         freeState(tmp_state);
+        eurovision->values->num_of_states++;
         return EUROVISION_SUCCESS;
     }
 }
@@ -500,7 +515,7 @@ EurovisionResult eurovisionRemoveState(Eurovision eurovision, int stateId){
     }else{
         mapRemove(eurovision->states_map,&stateId);
     }
-
+    eurovision->values->num_of_states--;
     return EUROVISION_SUCCESS;
 
 }
@@ -543,6 +558,7 @@ EurovisionResult eurovisionAddJudge(Eurovision eurovision, int judgeId,
         } else {
             freeJudge(tmp_judge);
             addOrRemoveOwnVotes(eurovision->states_map,judgeResults,JUDGE,ADD);
+            eurovision->values->num_of_judges++;
             return EUROVISION_SUCCESS;
         }
    // updateScore(eurovision) yet to write
@@ -570,6 +586,7 @@ EurovisionResult eurovisionRemoveJudge(Eurovision eurovision, int judgeId){
     }else{
         mapRemove(eurovision->judges_map,&judgeId);
     }
+    eurovision->values->num_of_judges--;
     return EUROVISION_SUCCESS;
 }
 
@@ -577,6 +594,7 @@ void eurovisionDestroy(Eurovision eurovision){
 
     mapDestroy(eurovision->states_map);
     mapDestroy(eurovision->judges_map);
+    free(eurovision->values);
     listDestroy(eurovision->scores_table);
     free (eurovision);
 
@@ -647,3 +665,14 @@ if(giver_state->votes){
 }
 return EUROVISION_SUCCESS;
 }
+
+/*List eurovisionRunAudienceFavorite(Eurovision eurovision){
+    assert(eurovision);
+    if(!eurovision)return NULL;
+    if(!eurovision->scores_table){
+        eurovision->scores_table = listCreate(copyStateShallow,freeListState);
+        if(!eurovision->scores_table) return NULL;
+    }
+    listClear();
+    updateList(eurovision->scores_table);
+}*/

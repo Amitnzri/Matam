@@ -298,7 +298,7 @@ TODO:Check
 assert(states_map&&top_ten);
 for(int i=0;i<TOP_TEN_LEN;i++){
     State state = mapGet(states_map,&top_ten[i]);
-
+    if(!state) continue;
     switch (who_voted) {
         case JUDGE:
             state->score_by_judges += convertPlaceToPoints(i)*sign;
@@ -346,15 +346,10 @@ TODO:Check
 }
 //Sets array's value to NONE.
 static void resetArray(int* arr){
+    assert(arr);
     for(int i=0;i<TOP_TEN_LEN;i++){
         arr[i] = NONE;
     }
-}
-//Swaps two given values.
-static void swap(int* a,int* b){
-  int tmp = *a;
-  *a = *b;
-  *b = tmp;
 }
 //Updates the top_ten array.
 static EurovisionResult updateTopTen(Map votes_map,int* top_ten){
@@ -580,8 +575,15 @@ EurovisionResult eurovisionAddVote (Eurovision eurovision,int stateGiver,
     if (stateGiver == stateTaker) return EUROVISION_SAME_STATE;
     State voter_state = mapGet(eurovision->states_map, &stateGiver);
     if (!voter_state->votes) {
-        voter_state->votes = mapCreate(copyInt, copyInt, freeInt, freeInt, compareIntKeys);
+        voter_state->votes =mapCreate(copyInt, copyInt, freeInt, freeInt,
+                                                        compareIntKeys);
         if (!voter_state->votes) return EUROVISION_OUT_OF_MEMORY;
+        voter_state->top_ten=malloc(sizeof(*voter_state->top_ten)*TOP_TEN_LEN);
+        if(!voter_state->top_ten){
+            mapDestroy(voter_state->votes);
+            return EUROVISION_OUT_OF_MEMORY;
+        }
+        resetArray(voter_state->top_ten);
     }
     Map votes_map = voter_state->votes;
     if (!mapContains(votes_map, &stateTaker)){

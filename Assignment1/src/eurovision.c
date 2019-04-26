@@ -256,13 +256,13 @@ static MapDataElement copyState(MapDataElement state){
 
 }
 //Creates shallow copy to a state.
-static ListElement copyStateShallow(CopyListElement state_ptr){
+static ListElement copyStateShallow(ListElement state_ptr){
     assert(state_ptr);
     return state_ptr;
 }
-//Do Nothing.
-//the list holds shallow copies so we dont want to let it remove states.
-static void freeListState(FreeListElement state_ptr){
+//Does Nothing.The list holds shallow copies so we dont want to let it
+//remove states.
+static void freeListState(ListElement state_ptr){
     return;
 }
 //Creates a new Judge.

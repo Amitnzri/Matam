@@ -1,8 +1,10 @@
 #include "map.h"
 #include <assert.h>
-#include <stdarg.h> //TODO: Check if allowed.
+//#include <stdarg.h> TODO: Check if allowed.
 #include <stdio.h>
 #include <stdlib.h>
+
+/*****************************Defines&Typedefs*******************************/
 
 typedef struct dictionary_t {
 
@@ -29,7 +31,7 @@ typedef enum LocationType {
     ASSIGN_BEFORE,ASSIGN_AFTER,ASSIGN_HERE
 } LocationType;
 
-/*##############################InnerFunctions###############################*/
+/****************************InnerFunctions**********************************/
 
 /*
 //Returns false if one of the arguments is NULL.
@@ -79,13 +81,6 @@ static void goToFirstItem(Map map){
     stepBackward(map);
   }
 }
-
-static void goToLastItem(Map map){
-  assert(map);
-  while(map->dictionary->next_block){
-    stepForward(map);
-  }
-} //Ours
 
 //Changes the dictionary ptr inside map to points on requested key.
 static Dictionary jumpTo (Map map, MapKeyElement key){
@@ -208,7 +203,7 @@ static MapResult duplicateMap(Map destination,Map source){
 }
 
 
-/*###############################Functions###################################*/
+/********************************Functions***********************************/
 
 Map mapCreate(copyMapDataElements copyDataElement,
               copyMapKeyElements copyKeyElement,
@@ -282,12 +277,6 @@ MapKeyElement mapGetFirst(Map map){
   goToFirstItem(map);
   return map->dictionary->key;} //CHECKED.
 
-  MapKeyElement mapGetLast(Map map){
-    assert(map);
-    if(map == NULL || map->dictionary == NULL) return NULL;
-    goToLastItem(map);
-    return map->dictionary->key;} //CHECKED. Ours
-
 MapKeyElement mapGetNext(Map map){
 
   assert(map);
@@ -308,7 +297,6 @@ MapKeyElement mapGetPrevious(Map map){
 
 } //CHECKED.
 
-
 int mapGetSize(Map map){
 
   if(map == NULL) return -1;
@@ -321,7 +309,8 @@ int mapGetSize(Map map){
       counter++;
     }
   }
-  return counter;} //CHECKED.
+  return counter;
+} //CHECKED.
 
 bool mapContains(Map map, MapKeyElement element){
   assert(map&&element);
@@ -332,7 +321,8 @@ bool mapContains(Map map, MapKeyElement element){
     return true;
   }else{
     return false;
-  }} //CHECKED.
+  }
+} //CHECKED.
 
 MapDataElement mapGet(Map map, MapKeyElement keyElement){
 
@@ -341,7 +331,6 @@ MapDataElement mapGet(Map map, MapKeyElement keyElement){
   if(requested_block == NULL)return NULL;
   return requested_block->data;
 } //CHECKED.
-
 
 MapResult mapRemove(Map map, MapKeyElement keyElement){
 

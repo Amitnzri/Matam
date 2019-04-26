@@ -4,15 +4,20 @@ FLAGS_ND = -std=c99 -Wall -pedantic-errors -Werror -DNDEBUG -g
 VALGRIND_FLAGS = valgrind --leak-check=full --track-origins=yes
 OUTPUT_FILE =  run
 
-prog: map.o map.h debug.o eurovision.o eurovision.h libmtm.a
-	gcc $(FLAGS_ND) map.o eurovision.o libmtm.a debug.o -o $(OUTPUT_FILE)
+prog: map.o map.h eurovision.o eurovision.h ../tests/eurovisionTests.o ../tests/eurovisionTests.h ../tests/eurovisionTestsMain.o list.h libmtm.a
+	gcc $(FLAGS_ND) map.o eurovision.o ../tests/eurovisionTests.o ../tests/eurovisionTestsMain.o libmtm.a -o $(OUTPUT_FILE)
 
+eurovisionTests.o: ../tests/eurovisionTests.c ../tests/eurovisionTests.h
+	gcc $(FLAGS_ND) ../tests/eurovisionTests.c -c
+
+eurovisionTestsMain.o: ../tests/eurovisionTestsMain.c ../tests/eurovisionTests.h
+	gcc $(FLAG_ND) ../tests/eurovisionTestsMain.c -c
 
 eurovision.o: eurovision.c
-	gcc eurovision.c -c
+	gcc $(FLAGS_ND) eurovision.c -c
 
 map.o: map.c map.h
-	gcc map.c -c
+	gcc $(FLAGS_ND) map.c -c
 
 debug.o: map_example_test.c map.h debug.c
 	gcc debug.c -c
@@ -25,7 +30,7 @@ cnr2: map.o map.h map_example_test.o test_utilities.h
 	./$(OUTPUT_FILE)
 
 map_example_test.o: map.o map.h test_utilities.h map_example_test.c
-	gcc map_example_test.c -c
+	gcc $(FLAGS_ND) map_example_test.c -c
 
 clean:
 	rm -f *.o

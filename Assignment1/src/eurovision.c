@@ -7,7 +7,6 @@
 #include "map.h"
 
 
-
 /*****************************Defines&Typedefs*******************************/
 
 #define TOP_TEN_LEN 10
@@ -83,7 +82,7 @@ static int* copyIntArray(const int *source, int len){
     return destination;
 }
 //Copies a string.
-char* copyStr(const char* str){
+static char* copyStr(const char* str){
 /*********
 TODO:CHECK
 *********/
@@ -151,6 +150,14 @@ static void freeInt(MapKeyElement n){
     **********/
     free(n);
 }
+//Copy for str for the list.
+static ListElement copyName(ListElement str){
+    return (ListElement) copyStr((char*)str);
+}
+//free str for list.
+static void freeStr(ListElement str){
+    free(str);
+}
 //Free state allocation.
 static void freeState(MapDataElement state){
   /*********
@@ -214,8 +221,8 @@ static bool checkJudgeResults(int* judge_results, Map states_map){
     return true;
 }
 //Creates a new state.
-static State createNewState(int state_id,ContestValues contest_values,const char* state_name,
-                            const char* song_name){
+static State createNewState(int state_id,ContestValues contest_values,
+                            const char* state_name,const char* song_name){
 
   /*********
   TODO:Check
@@ -393,7 +400,7 @@ static EurovisionResult updateTopTen(Map votes_map,int* top_ten){
                 index_state_votes = *(int*) mapGet(votes_map,&top_ten[i]);
             }
             int state_votes = *(int*) mapGet(votes_map,state_id);
-            if(state_votes == 0 || state_votes == index_state_votes){
+            if(state_votes == 0 || state_votes <= index_state_votes){
                 state_id = (int*) mapGetNext(votes_map);
                 break;
             }else if(state_votes > index_state_votes){
@@ -425,8 +432,6 @@ static void cancelOtherStatesVotes(Map states_map,int removed_state){
           state_id = mapGetNext(states_map);
       }
   }
-
-
 //Calculates final score
 static double calculateFinalScore(double audience_percent, State state){
     assert(state);
@@ -438,9 +443,8 @@ static double calculateFinalScore(double audience_percent, State state){
     return audience_percent*state_averge+(1-audience_percent)*judges_averge;
 
 }
-
 //Compares Two states by their final score.
-static double compareFinalScore(ListElement element_a, ListElement element_b) {
+static int compareFinalScore(ListElement element_a, ListElement element_b) {
     /***********
      TODO: Check
      ***********/
@@ -448,14 +452,13 @@ static double compareFinalScore(ListElement element_a, ListElement element_b) {
 
     State state_a = (State) element_a;
     State state_b = (State) element_b;
-
     double audience_percent = (double)(state_a->contest_values->audience_percent) / 100;
     double score_a = calculateFinalScore(audience_percent,state_a);
     double score_b = calculateFinalScore(audience_percent,state_b);
 
-    return score_a - score_b;
+    return  (int)(score_a - score_b);
 }
-
+//Updates the scores table.
 static List updateScoreTable(List scores_table,Map states_map,
                              ContestValues contest_values){
 
@@ -466,10 +469,10 @@ static List updateScoreTable(List scores_table,Map states_map,
     //Check if the list is updated.
     if(listGetSize(scores_table) != contest_values->num_of_states){
         listClear(scores_table);
-        State copy_state = (State) mapGetFirst(states_map);
-        while(copy_state){
-            listInsertFirst(scores_table,copy_state);
-            copy_state = (State) mapGetNext(states_map);
+        int* state_id = (int*) mapGetFirst(states_map);
+        while(state_id){
+            listInsertFirst(scores_table,mapGet(states_map,state_id));
+            state_id = (int*) mapGetNext(states_map);
         }
     }
     //Check the size again for safety.
@@ -479,7 +482,18 @@ static List updateScoreTable(List scores_table,Map states_map,
     }
     return scores_table;
 }
-
+//Creates a List of names.
+static List createWinnersNamesList(List scores_table){
+    assert(scores_table);
+    List states_names_list = listCreate(copyName,freeStr);
+    if(!states_names_list) return NULL;
+    State state = (State) listGetFirst(scores_table);
+    while(state){
+        listInsertLast(states_names_list,state->name);
+        state = (State) listGetNext(scores_table);
+    }
+    return states_names_list;
+}
 /*****************************Functions**************************************/
 
 Eurovision eurovisionCreate(void){
@@ -494,7 +508,7 @@ Eurovision eurovisionCreate(void){
         free(eurovision);
         return NULL;
     }
-    eurovision->contest_values->audience_percent =1;
+    eurovision->contest_values->audience_percent = 100;
     eurovision->contest_values->num_of_states =0;
     eurovision->contest_values->num_of_judges =0;
     eurovision->states_map = NULL;
@@ -546,6 +560,7 @@ EurovisionResult eurovisionRemoveState(Eurovision eurovision, int stateId){
     *********/
     assert(eurovision);
     if(!eurovision)return EUROVISION_NULL_ARGUMENT;
+        if(!checkId(stateId)) return EUROVISION_INVALID_ID;
     else if(!eurovision->states_map)return EUROVISION_STATE_NOT_EXIST;
     if(!mapContains(eurovision->states_map,&stateId)){
         return EUROVISION_STATE_NOT_EXIST;
@@ -618,6 +633,7 @@ EurovisionResult eurovisionRemoveJudge(Eurovision eurovision, int judgeId){
     *********/
     assert(eurovision);
     if(!eurovision)return EUROVISION_NULL_ARGUMENT;
+    if(!checkId(judgeId)) return EUROVISION_INVALID_ID;
     if(!eurovision->judges_map)return EUROVISION_JUDGE_NOT_EXIST;
     if(!mapContains(eurovision->judges_map,&judgeId)){
         if(mapGetSize(eurovision->judges_map)<1){
@@ -700,16 +716,16 @@ EurovisionResult eurovisionRemoveVote (Eurovision eurovision, int stateGiver,
 TODO:Check
 *********/
 assert(eurovision);
-if(!eurovision) EUROVISION_NULL_ARGUMENT;
+if(!eurovision) return EUROVISION_NULL_ARGUMENT;
 Map states_map = eurovision->states_map;
 if(stateGiver == stateTaker) return EUROVISION_SAME_STATE;
-if(!checkId(stateGiver),!checkId(stateTaker))EUROVISION_INVALID_ID;
+if(!checkId(stateGiver)||!checkId(stateTaker))return EUROVISION_INVALID_ID;
 if(!states_map ||!mapContains(states_map,&stateGiver)
    ||!mapContains(states_map,&stateTaker))return EUROVISION_STATE_NOT_EXIST;
 State giver_state = (State) mapGet(states_map,&stateGiver);
 if(giver_state->votes){
     int* num_of_votes = (int*) mapGet(giver_state->votes,&stateTaker);
-    if(num_of_votes && *num_of_votes>0) *num_of_votes--;
+    if(num_of_votes && *num_of_votes>0) (*num_of_votes)--;
 }
 return EUROVISION_SUCCESS;
 }
@@ -721,4 +737,18 @@ List eurovisionRunAudienceFavorite(Eurovision eurovision){
     if(!eurovision->scores_table) return NULL;
     listSort(eurovision->scores_table,compareAudienceScore);
     return createWinnersNamesList(eurovision->scores_table);
+}
+
+List eurovisionRunContest (Eurovision eurovision, int audiencePercent){
+    assert(eurovision);
+    eurovision->contest_values->audience_percent =audiencePercent;
+    eurovision->scores_table = updateScoreTable(eurovision->scores_table,
+                            eurovision->states_map,eurovision->contest_values);
+    if(!eurovision->scores_table) return NULL;
+    listSort(eurovision->scores_table,compareFinalScore);
+    return createWinnersNamesList(eurovision->scores_table);
+}
+
+List eurovisionRunGetFriendlyStates(Eurovision eurovision){//TODO
+    return NULL;
 }

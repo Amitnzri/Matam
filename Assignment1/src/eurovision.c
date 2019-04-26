@@ -5,7 +5,7 @@
 #include "eurovision.h"
 #include <string.h>
 #include "map.h"
-#include <list.h>
+#include "list.h"
 
 
 /*****************************Defines&Typedefs*******************************/
@@ -46,6 +46,7 @@ typedef struct state_t{
     char* song;
     int* top_ten;
     Map votes;
+    int* audiencePercent;
     int score_by_judges;
     int score_by_audience;
 }*State;
@@ -205,7 +206,7 @@ static bool checkJudgeResults(int* judge_results, Map states_map){
     return true;
 }
 //Creates a new state.
-static State createNewState(int state_id ,const char* state_name,
+static State createNewState(int state_id,int* audiencePercent,const char* state_name,
                             const char* song_name){
 
   /*********
@@ -228,6 +229,7 @@ static State createNewState(int state_id ,const char* state_name,
   new_state->id = state_id;
   new_state->top_ten = NULL;
   new_state->votes = NULL;
+  new_state->audiencePercent = audiencePercent;
   new_state->score_by_judges = 0;
   new_state->score_by_audience = 0;
   return new_state;
@@ -240,7 +242,8 @@ static MapDataElement copyState(MapDataElement state){
     ***********/
     if(!state) return NULL;
     State source = (State) state;
-    State copy = createNewState(source->id,source->name,source->song);
+    State copy = createNewState(source->id,source->audiencePercent
+                                ,source->name,source->song);
     assert(copy);
     if(!copy) return NULL;
     copy->top_ten = copyIntArray(source->top_ten,TOP_TEN_LEN); //can be null.
@@ -252,6 +255,8 @@ static MapDataElement copyState(MapDataElement state){
     return (MapDataElement) copy;
 
 }
+//Copies a state Address.
+//static ListElement copyState_ptr(CopyListElement state_ptr)(ListElement)
 //Creates a new Judge.
 static Judge createNewJudge(int judge_id,const char *judge_name,
                          int *judge_results){
@@ -282,13 +287,11 @@ static int compareAudienceScore(ListElement element_a, ListElement element_b){
         /***********
         TODO: Check
         ***********/
-    assert(state_a&&state_b);
+    assert(element_a&&element_b);
     State state_a = (State) element_a;
     State state_b = (State) element_b;
     return (state_a->score_by_audience) - (state_b->score_by_audience);
 }
-
-
 //Converts the location from the voting table to points.
 static int convertPlaceToPoints(int i){
     assert(0<=i && i<TOP_TEN_LEN);
@@ -406,7 +409,7 @@ static void cancelOtherStatesVotes(Map states_map,int removed_state){
           state_id = mapGetNext(states_map);
       }
   }
-
+//Compares Two states by their final score.
 static int compareFinalScore(ListElement score_a, ListElement score_b){
     /***********
      TODO: Check
@@ -455,7 +458,8 @@ EurovisionResult eurovisionAddState(Eurovision eurovision,
     Map states_map = eurovision->states_map;
 
     if(mapContains(states_map,&stateId)) return EUROVISION_STATE_ALREADY_EXIST;
-    State tmp_state = createNewState(stateId,stateName,songName); //
+    State tmp_state = createNewState(stateId,&eurovision->audiencePercent
+                                    ,stateName,songName); //
     if(mapPut(states_map,&stateId,tmp_state) == MAP_OUT_OF_MEMORY){
         freeState(tmp_state);
         return EUROVISION_OUT_OF_MEMORY;

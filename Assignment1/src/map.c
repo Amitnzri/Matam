@@ -31,7 +31,6 @@ typedef enum LocationType {
 
 /*##############################InnerFunctions###############################*/
 
-/*
 //Returns false if one of the arguments is NULL.
 static bool checkIfNull(int n,...){
   va_list arg;
@@ -43,7 +42,6 @@ static bool checkIfNull(int n,...){
   return true;
 } //TODO: Check if allowed.
 //Assigns a given key and data to a block.
-*/
 static MapResult assignValues(Map map,Dictionary block,
                               MapKeyElement key, MapDataElement data){
   assert(map&&key&&data);
@@ -79,14 +77,6 @@ static void goToFirstItem(Map map){
     stepBackward(map);
   }
 }
-
-static void goToLastItem(Map map){
-  assert(map);
-  while(map->dictionary->next_block){
-    stepForward(map);
-  }
-} //Ours
-
 //Changes the dictionary ptr inside map to points on requested key.
 static Dictionary jumpTo (Map map, MapKeyElement key){
 
@@ -235,14 +225,14 @@ Map mapCreate(copyMapDataElements copyDataElement,
   map->freeDataFunction = freeDataElement;
   map->compareKeysFunction = compareKeyElements;
 
-  return map;
-} //CHECKED.
+  return map;} //CHECKED.
 
 MapResult mapPut(Map map,MapKeyElement keyElement,MapKeyElement dataElement){
-  assert(map&&keyElement&&dataElement);
+  assert(map);
   if(map == NULL) return MAP_NULL_ARGUMENT;
   if(map->dictionary == NULL){ //If the map has no dictionary yet.
     map->dictionary = createDictionaryBlock(map,NULL,NULL);
+
     if(map->dictionary == NULL) return MAP_OUT_OF_MEMORY;
     return assignValues(map,map->dictionary,keyElement,dataElement);
   }else{ //If has items in it already.
@@ -282,28 +272,12 @@ MapKeyElement mapGetFirst(Map map){
   goToFirstItem(map);
   return map->dictionary->key;} //CHECKED.
 
-  MapKeyElement mapGetLast(Map map){
-    assert(map);
-    if(map == NULL || map->dictionary == NULL) return NULL;
-    goToLastItem(map);
-    return map->dictionary->key;} //CHECKED. Ours
-
 MapKeyElement mapGetNext(Map map){
 
   assert(map);
   if(map == NULL) return NULL;
   if(map->dictionary->next_block == NULL) return NULL;
   stepForward(map);
-  return map->dictionary->key;
-
-} //CHECKED.
-
-MapKeyElement mapGetPrevious(Map map){
-
-  assert(map);
-  if(map == NULL) return NULL;
-  if(map->dictionary->previous_block == NULL) return NULL;
-  stepBackward(map);
   return map->dictionary->key;
 
 } //CHECKED.
@@ -324,8 +298,9 @@ int mapGetSize(Map map){
   return counter;} //CHECKED.
 
 bool mapContains(Map map, MapKeyElement element){
+
   assert(map&&element);
-  if(!map->dictionary)return false;
+  if(map->dictionary == NULL)return false;
   compareMapKeyElements compareKeys = map->compareKeysFunction;
   findSortedPosition(map,element);
   if(compareKeys(element,map->dictionary->key)==0){
@@ -370,6 +345,7 @@ TODO: Look for bugs.
 
 void mapDestroy(Map map){
 
+
   if(!map) return;
   if(map->dictionary)mapClear(map);
   free(map);
@@ -378,6 +354,7 @@ void mapDestroy(Map map){
 }
 
 Map mapCopy(Map map){
+  assert(map);
   if(map == NULL)return NULL;
   Map new_map = malloc(sizeof(*new_map));
   if(new_map == NULL)return NULL;

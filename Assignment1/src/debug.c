@@ -59,13 +59,17 @@ static EurovisionResult updateTopTen(Map votes_map,int* top_ten){
     resetArray(top_ten);
     int* state_id = (int*) mapGetFirst(votes_map);
     while(state_id){
-        int num_of_votes = *(int*) mapGet(votes_map,state_id);
         for(int i=0;i<TOP_TEN_LEN;i++){
-            if(num_of_votes > top_ten[i]){
+            int index_state_votes = NONE;
+            if(top_ten[i]!=NONE){
+                index_state_votes = *(int*) mapGet(votes_map,&top_ten[i]);
+            }
+            int state_votes = *(int*) mapGet(votes_map,state_id);
+            if(state_votes > index_state_votes){
                 top_ten[i] = *state_id;
                 state_id = (int*) mapGetFirst(votes_map);
                 break;
-            }else if(num_of_votes == top_ten[i]){
+            }else if(state_votes == index_state_votes){
 
                 state_id = (int*) mapGetNext(votes_map);
                 break;

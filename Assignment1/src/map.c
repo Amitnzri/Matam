@@ -1,8 +1,10 @@
 #include "map.h"
 #include <assert.h>
-#include <stdarg.h> //TODO: Check if allowed.
+//#include <stdarg.h> TODO: Check if allowed.
 #include <stdio.h>
 #include <stdlib.h>
+
+/*****************************Defines&Typedefs*******************************/
 
 typedef struct dictionary_t {
 
@@ -29,7 +31,7 @@ typedef enum LocationType {
     ASSIGN_BEFORE,ASSIGN_AFTER,ASSIGN_HERE
 } LocationType;
 
-/*##############################InnerFunctions###############################*/
+/****************************InnerFunctions**********************************/
 
 /*
 //Returns false if one of the arguments is NULL.
@@ -201,7 +203,7 @@ static MapResult duplicateMap(Map destination,Map source){
 }
 
 
-/*###############################Functions###################################*/
+/********************************Functions***********************************/
 
 Map mapCreate(copyMapDataElements copyDataElement,
               copyMapKeyElements copyKeyElement,

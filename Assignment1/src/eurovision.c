@@ -165,7 +165,7 @@ static int compareIntKeys(MapKeyElement key_a,MapKeyElement key_b){
 //Checks if ID is valid.
 static bool checkId(int state_id){
 
-    return (state_id<0) ? (false) : (true);
+    return (state_id<0) ? (false) : (true); //TODO:check if can use stdargs
 } //Checked
 //Checks if name is valid.
 static bool checkName(const char *state_name){
@@ -369,13 +369,12 @@ static EurovisionResult updateTopTen(Map votes_map,int* top_ten){
                 index_state_votes = *(int*) mapGet(votes_map,&top_ten[i]);
             }
             int state_votes = *(int*) mapGet(votes_map,state_id);
-            if(state_votes > index_state_votes){
+            if(state_votes == 0 || state_votes == index_state_votes){
+                state_id = (int*) mapGetNext(votes_map);
+                break;
+            }else if(state_votes > index_state_votes){
                 top_ten[i] = *state_id;
                 state_id = (int*) mapGetFirst(votes_map);
-                break;
-            }else if(state_votes == index_state_votes){
-
-                state_id = (int*) mapGetNext(votes_map);
                 break;
             }
         }
@@ -468,9 +467,9 @@ EurovisionResult eurovisionRemoveState(Eurovision eurovision, int stateId){
 
     if(remove->votes) addOrRemoveOwnVotes(eurovision->states_map,
                                        remove->top_ten,STATE,SUBTRACT);
-    if(remove->score_by_judges>0) fireTheVotingJudges(eurovision,stateId);
-    if(remove->score_by_audience>0) cancelOtherStatesVotes(eurovision->states_map,
-                                                         stateId);
+    if(remove->score_by_judges>0)fireTheVotingJudges(eurovision,stateId);
+    if(remove->score_by_audience>0)cancelOtherStatesVotes(eurovision->states_map
+                                                         ,stateId);
     if(mapGetSize(eurovision->states_map)<=1){
         mapDestroy(eurovision->states_map);
         eurovision->states_map=NULL;
@@ -499,7 +498,8 @@ EurovisionResult eurovisionAddJudge(Eurovision eurovision, int judgeId,
     if (!checkId(judgeId))return EUROVISION_INVALID_ID;
 
     if (!eurovision->judges_map) {
-        eurovision->judges_map = mapCreate(copyJudge, copyInt, freeJudge, freeInt, compareIntKeys);
+        eurovision->judges_map = mapCreate(copyJudge, copyInt, freeJudge,
+                                           freeInt, compareIntKeys);
         assert(eurovision->judges_map);
         if (eurovision->judges_map == NULL) return EUROVISION_OUT_OF_MEMORY;
 
@@ -602,4 +602,24 @@ EurovisionResult eurovisionAddVote (Eurovision eurovision,int stateGiver,
     addOrRemoveOwnVotes(eurovision->states_map,voter_state->top_ten,STATE,ADD);
 
     return EUROVISION_SUCCESS;
+}
+
+EurovisionResult eurovisionRemoveVote (Eurovision eurovision, int stateGiver,
+                                                              int stateTaker){
+/*********
+TODO:Check
+*********/
+assert(eurovision);
+if(!eurovision) EUROVISION_NULL_ARGUMENT;
+Map states_map = eurovision->states_map;
+if(stateGiver == stateTaker) return EUROVISION_SAME_STATE;
+if(!checkId(stateGiver),!checkId(stateTaker))EUROVISION_INVALID_ID;
+if(!states_map ||!mapContains(states_map,&stateGiver)
+   ||!mapContains(states_map,&stateTaker))return EUROVISION_STATE_NOT_EXIST;
+State giver_state = (State) mapGet(states_map,&stateGiver);
+if(giver_state->votes){
+    int* num_of_votes = (int*) mapGet(giver_state->votes,stateTaker);
+    if(num_of_votes && *num_of_votes>0) *num_of_votes--;
+}
+return EUROVISION_SUCCESS;
 }

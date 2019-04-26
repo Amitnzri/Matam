@@ -451,6 +451,29 @@ static double compareFinalScore(ListElement element_a, ListElement element_b) {
     return score_a - score_b;
 }
 
+static List updateScoreTable(List scores_table,Map states_map,
+                             ContestValues contest_values){
+
+    if(!scores_table){
+        scores_table = listCreate(copyStateShallow,freeListState);
+        if(!scores_table) return NULL;
+    }
+    //Check if the list is updated.
+    if(listGetSize(scores_table) != contest_values->num_of_states){
+        listClear(scores_table);
+        State copy_state = (State) mapGetFirst(states_map);
+        while(copy_state){
+            listInsertFirst(scores_table,copy_state);
+            copy_state = (State) mapGetNext(states_map);
+        }
+    }
+    //Check the size again for safety.
+    if(listGetSize(scores_table)!= contest_values->num_of_states){
+        listDestroy(scores_table);
+        return NULL;
+    }
+    return scores_table;
+}
 
 /*****************************Functions**************************************/
 
@@ -686,13 +709,11 @@ if(giver_state->votes){
 return EUROVISION_SUCCESS;
 }
 
-/*List eurovisionRunAudienceFavorite(Eurovision eurovision){
+List eurovisionRunAudienceFavorite(Eurovision eurovision){
     assert(eurovision);
-    if(!eurovision)return NULL;
-    if(!eurovision->scores_table){
-        eurovision->scores_table = listCreate(copyStateShallow,freeListState);
-        if(!eurovision->scores_table) return NULL;
-    }
-    listClear();
-    updateList(eurovision->scores_table);
-}*/
+    eurovision->scores_table = updateScoreTable(eurovision->scores_table,
+                            eurovision->states_map,eurovision->contest_values);
+    if(!eurovision->scores_table) return NULL;
+    listSort(eurovision->scores_table,compareAudienceScore);
+    return createWinnersNamesList(eurovision->scores_table);
+}

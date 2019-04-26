@@ -102,6 +102,7 @@ int main(){
     }
 
     printf("Code:%d\n",res);
+    free(top_ten);
     mapDestroy(votes_simulation);
 
   return 0;

@@ -13,8 +13,6 @@
 #define SPACE 32
 #define NONE -1
 #define SINGLE_VOTE 1
-#define PLUSE +
-#define MINUSE -
 
 typedef enum {
     JUDGE,
@@ -530,7 +528,7 @@ EurovisionResult eurovisionAddJudge(Eurovision eurovision, int judgeId,
             return EUROVISION_OUT_OF_MEMORY;
         } else {
             freeJudge(tmp_judge);
-            addVotesToStates(eurovision->states_map,judgeResults,JUDGE);
+            addOrRemoveOwnVotes(eurovision->states_map,judgeResults,JUDGE,ADD);
             return EUROVISION_SUCCESS;
         }
    // updateScore(eurovision) yet to write
@@ -596,10 +594,9 @@ EurovisionResult eurovisionAddVote (Eurovision eurovision, int stateGiver, int s
         mapPut(votes_map,&stateTaker,&tmp_votes);
     }
 
-    addOrRemoveOwnVotes(eurovision->states_map,voter_state->top_ten,STATE,MINUSE);
+    addOrRemoveOwnVotes(eurovision->states_map,voter_state->top_ten,STATE,SUBTRACT);
     updateTopTen(votes_map,voter_state->top_ten);
-    addOrRemoveOwnVotes((eurovision->states_map,voter_state->top_ten,STATE,PLUSE));
+    addOrRemoveOwnVotes(eurovision->states_map,voter_state->top_ten,STATE,ADD);
 
     return EUROVISION_SUCCESS;
 }
-

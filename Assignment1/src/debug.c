@@ -51,39 +51,29 @@ static void swap(int* a,int* b){
 static EurovisionResult updateTopTen(Map votes_map,int* top_ten){
     /*********
     TODO:Check
-    TEST TOMORROW
     *********/
     assert(top_ten);
     if(!votes_map || !top_ten){
         return EUROVISION_NULL_ARGUMENT;
     }
     resetArray(top_ten);
-    int last_id = *(int*) mapGetLast(votes_map);
-    int state_id = *(int*)mapGetFirst(votes_map);
-    int state_score;
-
-    do{//Scan the map
-        state_score = *(int*) mapGet(votes_map,&state_id);
-        int tmp = state_id;
+    int* state_id = (int*) mapGetFirst(votes_map);
+    while(state_id){
+        int num_of_votes = *(int*) mapGet(votes_map,state_id);
         for(int i=0;i<TOP_TEN_LEN;i++){
-            if(top_ten[i] == NONE || top_ten[i] == state_id){
-                top_ten[i] = state_id;
+            if(num_of_votes > top_ten[i]){
+                top_ten[i] = *state_id;
+                state_id = (int*) mapGetFirst(votes_map);
                 break;
-            }else{
-                //Look for a new place for the replaced state.
-                if(state_score>top_ten[i]){
+            }else if(num_of_votes == top_ten[i]){
 
-                    swap(&state_id,&top_ten[i]);
-                    state_score = *(int*) mapGet(votes_map,&state_id);
-               }
+                state_id = (int*) mapGetNext(votes_map);
+                break;
             }
         }
-
-      if(last_id == *(int*)mapGet(votes_map,&tmp))break; //Move back to the previous states.
-      state_id = *(int*)mapGetNext(votes_map);
-    }while(state_id <= last_id); //Move to the next State.
+    }
       return EUROVISION_SUCCESS;
-  }
+}
 
 
 

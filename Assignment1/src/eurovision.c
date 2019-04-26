@@ -290,7 +290,8 @@ static int convertPlaceToPoints(int i){
     return (i<2) ? (12-2*i) : (10-i);
 }//Checked
 //Add or Remove all votes from TopTen Array.
-static void addOrRemoveOwnVotes(Map states_map,int* top_ten,Voter who_voted,Operation sign){
+static void addOrRemoveOwnVotes(Map states_map,int* top_ten,Voter who_voted,
+                                                            Operation sign){
 /*********
 TODO:Check
 *********/
@@ -359,39 +360,29 @@ static void swap(int* a,int* b){
 static EurovisionResult updateTopTen(Map votes_map,int* top_ten){
     /*********
     TODO:Check
-    TEST TOMORROW
     *********/
     assert(top_ten);
     if(!votes_map || !top_ten){
         return EUROVISION_NULL_ARGUMENT;
     }
     resetArray(top_ten);
-    int last_id = *(int*) mapGetLast(votes_map);
-    int state_id = *(int*)mapGetFirst(votes_map);
-    int state_score;
-
-    do{//Scan the map
-        state_score = *(int*) mapGet(votes_map,&state_id);
-        int tmp = state_id;
+    int* state_id = (int*) mapGetFirst(votes_map);
+    while(state_id){
+        int num_of_votes = *(int*) mapGet(votes_map,state_id);
         for(int i=0;i<TOP_TEN_LEN;i++){
-            if(top_ten[i] == NONE || top_ten[i] == state_id){
-                top_ten[i] = state_id;
+            if(num_of_votes > top_ten[i]){
+                top_ten[i] = *state_id;
+                state_id = (int*) mapGetFirst(votes_map);
                 break;
-            }else{
-                //Look for a new place for the replaced state.
-                if(state_score>top_ten[i]){
+            }else if(num_of_votes == top_ten[i]){
 
-                    swap(&state_id,&top_ten[i]);
-                    state_score = *(int*) mapGet(votes_map,&state_id);
-               }
+                state_id = (int*) mapGetNext(votes_map);
+                break;
             }
         }
-
-      if(last_id == *(int*)mapGet(votes_map,&tmp))break; //Move back to the previous states.
-      state_id = *(int*)mapGetNext(votes_map);
-    }while(state_id <= last_id); //Move to the next State.
+    }
       return EUROVISION_SUCCESS;
-  }
+}
 //Cancels votes of other states to removed State.
 static void cancelOtherStatesVotes(Map states_map,int removed_state){
       assert(states_map);
@@ -568,15 +559,20 @@ void eurovisionDestroy(Eurovision eurovision){
 
 }
 
-EurovisionResult eurovisionAddVote (Eurovision eurovision, int stateGiver, int stateTaker) {
+EurovisionResult eurovisionAddVote (Eurovision eurovision,int stateGiver,
+                                                           int stateTaker){
     /*********
     TODO:Check
     *********/
     assert(eurovision);
     if (!eurovision) return EUROVISION_NULL_ARGUMENT;
-    if ((!checkId(stateGiver)) || (!checkId(stateTaker))) return EUROVISION_INVALID_ID;
-    if (!mapContains(eurovision->states_map, &stateGiver) || !mapContains(eurovision->states_map, &stateTaker))
+    if ((!checkId(stateGiver)) || (!checkId(stateTaker))){
+         return EUROVISION_INVALID_ID;
+    }
+    if (!mapContains(eurovision->states_map,&stateGiver)||
+        !mapContains(eurovision->states_map,&stateTaker)){
         return EUROVISION_STATE_NOT_EXIST;
+    }
     if (stateGiver == stateTaker) return EUROVISION_SAME_STATE;
     State voter_state = mapGet(eurovision->states_map, &stateGiver);
     if (!voter_state->votes) {
@@ -588,13 +584,14 @@ EurovisionResult eurovisionAddVote (Eurovision eurovision, int stateGiver, int s
         int single_vote = SINGLE_VOTE;
         mapPut(votes_map, &stateTaker,&single_vote);
     }else{
-        int tmp_votes;
-        tmp_votes = *(int*) mapGet(votes_map, &stateTaker);
-        tmp_votes += SINGLE_VOTE;
-        mapPut(votes_map,&stateTaker,&tmp_votes);
+        int vote_update;
+        vote_update = *(int*) mapGet(votes_map, &stateTaker);
+        vote_update += SINGLE_VOTE;
+        mapPut(votes_map,&stateTaker,&vote_update);
     }
 
-    addOrRemoveOwnVotes(eurovision->states_map,voter_state->top_ten,STATE,SUBTRACT);
+    addOrRemoveOwnVotes(eurovision->states_map,voter_state->top_ten,STATE,
+                                                                    SUBTRACT);
     updateTopTen(votes_map,voter_state->top_ten);
     addOrRemoveOwnVotes(eurovision->states_map,voter_state->top_ten,STATE,ADD);
 

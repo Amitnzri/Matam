@@ -54,7 +54,7 @@ typedef struct state_t{
     ContestValues contest_values;
     int score_by_judges;
     int score_by_states;
-}*State;
+}*State; //state.c
 
 typedef struct judge_t{
     /***********
@@ -63,7 +63,7 @@ typedef struct judge_t{
     int id;
     char* name;
     int* top_ten;
-}*Judge;
+}*Judge; //judge.c
 
 
 
@@ -460,7 +460,7 @@ static double calculateFinalScore(float audience_percent, State state){
     int num_of_states = state->contest_values->num_of_states;
     int num_of_judges = state->contest_values->num_of_judges;
 
-    double state_averge = (double)(state->score_by_states)/num_of_states;
+    double state_averge = (double)(state->score_by_states)/(num_of_states-1);
     double judges_averge = (double)(state->score_by_judges)/num_of_judges;
     return ((audience_percent*state_averge)+(1-audience_percent)*judges_averge);
 

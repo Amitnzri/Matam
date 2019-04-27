@@ -1,4 +1,4 @@
-#include "map.h"
+#include "../headers/map.h"
 #include <assert.h>
 //#include <stdarg.h> TODO: Check if allowed.
 #include <stdio.h>

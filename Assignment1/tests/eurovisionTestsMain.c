@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "eurovisionTests.h"
+#include "../headers/eurovisionTests.h"
 
 #define TEST(t)                                                                \
   do {                                                                         \

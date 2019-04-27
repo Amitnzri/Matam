@@ -2,9 +2,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <assert.h>
-#include "eurovision.h"
+#include "../headers/eurovision.h"
 #include <string.h>
-#include "map.h"
+#include "../headers/map.h"
 
 
 /*****************************Defines&Typedefs*******************************/

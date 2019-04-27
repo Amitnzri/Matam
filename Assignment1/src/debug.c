@@ -1,5 +1,5 @@
-#include "map.h"
-#include "eurovision.h"
+#include "../headers/map.h"
+#include "../headers/eurovision.h"
 #include <assert.h>
 #include <string.h>
 #include <stdarg.h>

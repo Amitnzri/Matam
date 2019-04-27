@@ -3,9 +3,9 @@
 #include <string.h>
 #include <stdbool.h>
 #include <assert.h>
-#include "../src/list.h"
-#include "../src/eurovision.h"
-#include "eurovisionTests.h"
+#include "../headers/list.h"
+#include "../headers/eurovision.h"
+#include "../headers/eurovisionTests.h"
 
 #define POINTS_OPTIONS_NUMBER 10
 

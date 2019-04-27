@@ -4,7 +4,7 @@ FLAGS_ND = -std=c99 -Wall -pedantic-errors -Werror -DNDEBUG -g
 VALGRIND_FLAGS = valgrind --leak-check=full --track-origins=yes
 OUTPUT_FILE =  run
 
-prog: map.o map.h eurovision.o eurovision.h eurovisionTests.o ../testseurovisionTests.h eurovisionTestsMain.o list.h
+prog: map.o map.h eurovision.o eurovision.h eurovisionTests.o ../tests/eurovisionTests.h eurovisionTestsMain.o list.h
 	gcc $(FLAGS_ND) map.o eurovision.o eurovisionTests.o eurovisionTestsMain.o libmtm.a -o $(OUTPUT_FILE)
 
 mac: map.o map.h eurovision.o eurovision.h eurovisionTests.o ../tests/eurovisionTests.h eurovisionTestsMain.o list.h

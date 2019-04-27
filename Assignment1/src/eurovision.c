@@ -313,7 +313,11 @@ static int compareAudienceScore(ListElement element_a, ListElement element_b){
     assert(element_a&&element_b);
     State state_a = (State) element_a;
     State state_b = (State) element_b;
-    return (state_a->score_by_audience) - (state_b->score_by_audience);
+    if((state_a->score_by_audience) - (state_b->score_by_audience) !=0){
+    return ((state_b->score_by_audience) - (state_a->score_by_audience));
+    }else{
+        return ((state_a->id) -(state_b->id));
+    }
 }
 //Converts the location from the voting table to points.
 static int convertPlaceToPoints(int i){
@@ -456,7 +460,7 @@ static int compareFinalScore(ListElement element_a, ListElement element_b) {
     double score_a = calculateFinalScore(audience_percent,state_a);
     double score_b = calculateFinalScore(audience_percent,state_b);
 
-    return  (int)(score_a - score_b);
+    return  (int)(score_b - score_a);
 }
 //Updates the scores table.
 static List updateScoreTable(List scores_table,Map states_map,
@@ -489,6 +493,7 @@ static List createWinnersNamesList(List scores_table){
     if(!states_names_list) return NULL;
     State state = (State) listGetFirst(scores_table);
     while(state){
+        printf("%s %d\n",state->name,state->score_by_audience);
         listInsertLast(states_names_list,state->name);
         state = (State) listGetNext(scores_table);
     }
@@ -716,18 +721,42 @@ EurovisionResult eurovisionRemoveVote (Eurovision eurovision, int stateGiver,
 TODO:Check
 *********/
 assert(eurovision);
-if(!eurovision) return EUROVISION_NULL_ARGUMENT;
-Map states_map = eurovision->states_map;
-if(stateGiver == stateTaker) return EUROVISION_SAME_STATE;
-if(!checkId(stateGiver)||!checkId(stateTaker))return EUROVISION_INVALID_ID;
-if(!states_map ||!mapContains(states_map,&stateGiver)
-   ||!mapContains(states_map,&stateTaker))return EUROVISION_STATE_NOT_EXIST;
-State giver_state = (State) mapGet(states_map,&stateGiver);
-if(giver_state->votes){
-    int* num_of_votes = (int*) mapGet(giver_state->votes,&stateTaker);
-    if(num_of_votes && *num_of_votes>0) (*num_of_votes)--;
+if (!eurovision) return EUROVISION_NULL_ARGUMENT;
+if ((!checkId(stateGiver)) || (!checkId(stateTaker))){
+     return EUROVISION_INVALID_ID;
 }
+if (!mapContains(eurovision->states_map,&stateGiver)||
+    !mapContains(eurovision->states_map,&stateTaker)){
+    return EUROVISION_STATE_NOT_EXIST;
+}
+if (stateGiver == stateTaker) return EUROVISION_SAME_STATE;
+State voter_state = mapGet(eurovision->states_map, &stateGiver);
+if (!voter_state->votes) {
+    voter_state->votes =mapCreate(copyInt, copyInt, freeInt, freeInt,
+                                                    compareIntKeys);
+    if (!voter_state->votes) return EUROVISION_OUT_OF_MEMORY;
+    voter_state->top_ten=malloc(sizeof(*voter_state->top_ten)*TOP_TEN_LEN);
+    if(!voter_state->top_ten){
+        mapDestroy(voter_state->votes);
+        return EUROVISION_OUT_OF_MEMORY;
+    }
+    resetArray(voter_state->top_ten);
+}
+Map votes_map = voter_state->votes;
+if(mapContains(votes_map, &stateTaker)){
+    int vote_update;
+    vote_update = *(int*) mapGet(votes_map, &stateTaker);
+    if(vote_update>0)vote_update -= SINGLE_VOTE;
+    mapPut(votes_map,&stateTaker,&vote_update);
+}
+
+addOrRemoveOwnVotes(eurovision->states_map,voter_state->top_ten,STATE,
+                                                                SUBTRACT);
+updateTopTen(votes_map,voter_state->top_ten);
+addOrRemoveOwnVotes(eurovision->states_map,voter_state->top_ten,STATE,ADD);
+
 return EUROVISION_SUCCESS;
+
 }
 
 List eurovisionRunAudienceFavorite(Eurovision eurovision){

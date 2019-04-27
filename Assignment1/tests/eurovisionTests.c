@@ -3,8 +3,8 @@
 #include <string.h>
 #include <stdbool.h>
 #include <assert.h>
-#include "../src/list.h"
-#include "../src/eurovision.h"
+#include "../list.h"
+#include "../eurovision.h"
 #include "eurovisionTests.h"
 
 #define POINTS_OPTIONS_NUMBER 10
@@ -274,6 +274,7 @@ bool testRunContest() {
   setupEurovisionStates(eurovision);
   setupEurovisionJudges(eurovision);
   setupEurovisionVotes2(eurovision);
+
   List ranking = eurovisionRunContest(eurovision, 40);
   CHECK(listGetSize(ranking), 16);
   char *current = (char*)listGetFirst(ranking);
@@ -301,20 +302,16 @@ bool testRunAudienceFavorite() {
   List ranking = eurovisionRunAudienceFavorite(eurovision);
   CHECK(listGetSize(ranking), 16);
   char *current = (char*)listGetFirst(ranking);
-  printf("OUR:%s\n",current);
   CHECK(strcmp(current, "russia"), 0);
   current = (char*)listGetNext(ranking);
-  printf("OUR:%s\n",current);
   CHECK(strcmp(current, "moldova"), 0);
   current = (char*)listGetNext(ranking);
-    printf("OUR:%s\n",current);
   CHECK(strcmp(current, "spain"), 0);
   current = (char*)listGetNext(ranking);
-    printf("OUR:%s\n",current);
   CHECK(strcmp(current, "croatia"), 0);
   current = (char*)listGetNext(ranking);
-    printf("OUR:%s\n",current);
   CHECK(strcmp(current, "cyprus"), 0);
+
   listDestroy(ranking);
   eurovisionDestroy(eurovision);
   return true;

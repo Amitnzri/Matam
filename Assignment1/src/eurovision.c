@@ -53,7 +53,7 @@ typedef struct state_t{
     Map votes;
     ContestValues contest_values;
     int score_by_judges;
-    int score_by_audience;
+    int score_by_states;
 }*State;
 
 typedef struct judge_t{
@@ -246,7 +246,7 @@ static State createNewState(int state_id,ContestValues contest_values,
   new_state->votes = NULL;
   new_state->contest_values = contest_values;
   new_state->score_by_judges = 0;
-  new_state->score_by_audience = 0;
+  new_state->score_by_states = 0;
   return new_state;
 }
 //Copies a state.
@@ -265,7 +265,7 @@ static MapDataElement copyState(MapDataElement state){
     copy->votes = mapCopy(source->votes); //can be null.
 
     copy->score_by_judges = source->score_by_judges;
-    copy->score_by_audience = source->score_by_audience;
+    copy->score_by_states = source->score_by_states;
 
     return (MapDataElement) copy;
 
@@ -313,8 +313,8 @@ static int compareAudienceScore(ListElement element_a, ListElement element_b){
     assert(element_a&&element_b);
     State state_a = (State) element_a;
     State state_b = (State) element_b;
-    if((state_a->score_by_audience) - (state_b->score_by_audience) !=0){
-    return ((state_b->score_by_audience) - (state_a->score_by_audience));
+    if((state_a->score_by_states) - (state_b->score_by_states) !=0){
+    return ((state_b->score_by_states) - (state_a->score_by_states));
     }else{
         return ((state_a->id) -(state_b->id));
     }
@@ -341,8 +341,8 @@ for(int i=0;i<TOP_TEN_LEN;i++){
             break;
 
         case STATE:
-            state->score_by_audience += convertPlaceToPoints(i)*sign;
-            assert(state->score_by_audience>=0);
+            state->score_by_states += convertPlaceToPoints(i)*sign;
+            assert(state->score_by_states>=0);
             break;
     }
 }
@@ -441,7 +441,7 @@ static double calculateFinalScore(double audience_percent, State state){
     assert(state);
     int num_of_states = state->contest_values->num_of_states;
     int num_of_judges = state->contest_values->num_of_judges;
-    double state_averge = (double)(state->score_by_audience)/num_of_states;
+    double state_averge = (double)(state->score_by_states)/num_of_states;
     double judges_averge = (double)(state->score_by_judges)/num_of_judges;
 
     return audience_percent*state_averge+(1-audience_percent)*judges_averge;
@@ -493,7 +493,7 @@ static List createWinnersNamesList(List scores_table){
     if(!states_names_list) return NULL;
     State state = (State) listGetFirst(scores_table);
     while(state){
-        printf("%s %d\n",state->name,state->score_by_audience);
+        printf("%s %d\n",state->name,state->score_by_states);
         listInsertLast(states_names_list,state->name);
         state = (State) listGetNext(scores_table);
     }
@@ -575,7 +575,7 @@ EurovisionResult eurovisionRemoveState(Eurovision eurovision, int stateId){
     if(remove->votes) addOrRemoveOwnVotes(eurovision->states_map,
                                        remove->top_ten,STATE,SUBTRACT);
     if(remove->score_by_judges>0)fireTheVotingJudges(eurovision,stateId);
-    if(remove->score_by_audience>0)cancelOtherStatesVotes(eurovision->states_map
+    if(remove->score_by_states>0)cancelOtherStatesVotes(eurovision->states_map
                                                          ,stateId);
     if(mapGetSize(eurovision->states_map)<=1){
         mapDestroy(eurovision->states_map);

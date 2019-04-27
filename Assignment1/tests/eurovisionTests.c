@@ -137,8 +137,8 @@ static void setupEurovisionVotes(Eurovision eurovision) {
 static void setupEurovisionVotes2(Eurovision eurovision) {
   giveVotes(eurovision, 1, 2, 20);
   giveVotes(eurovision, 1, 3, 18);
-  giveVotes(eurovision, 1, 5, 16);
-  giveVotes(eurovision, 1, 4, 14);
+  giveVotes(eurovision, 1, 4, 16);//swap
+  giveVotes(eurovision, 1, 5, 14);//swap
   giveVotes(eurovision, 1, 6, 12);
   giveVotes(eurovision, 1, 7, 10);
   giveVotes(eurovision, 1, 8, 8);

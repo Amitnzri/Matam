@@ -459,9 +459,10 @@ static double calculateFinalScore(float audience_percent, State state){
     assert(state);
     int num_of_states = state->contest_values->num_of_states;
     int num_of_judges = state->contest_values->num_of_judges;
+
     double state_averge = (double)(state->score_by_states)/num_of_states;
     double judges_averge = (double)(state->score_by_judges)/num_of_judges;
-    return (audience_percent*state_averge+(1-audience_percent)*judges_averge);
+    return ((audience_percent*state_averge)+(1-audience_percent)*judges_averge);
 
 }
 //Compares Two states by their final score.
@@ -473,12 +474,11 @@ static int compareFinalScore(ListElement element_a, ListElement element_b) {
 
     State state_a = (State) element_a;
     State state_b = (State) element_b;
-    float audience_percent = (float)(state_a->contest_values->audience_percent) / 100;
-    double score_a = calculateFinalScore(audience_percent,state_a);
-    double score_b = calculateFinalScore(audience_percent,state_b);
-    if((int)(score_b - score_a)!=0)return (int)(score_b - score_a);
-    return (state_b->id- state_a->id);
-
+    float audience_percent = (float)(state_a->contest_values->audience_percent)/100;
+    double final_score_a = calculateFinalScore(audience_percent,state_a);
+    double final_score_b = calculateFinalScore(audience_percent,state_b);
+    if(final_score_a == final_score_b) return (state_b->id-state_a->id);
+    return (final_score_b>final_score_a) ? (1) : (-1);
 }
 //Updates the scores table.
 static List updateScoreTable(List scores_table,Map states_map,

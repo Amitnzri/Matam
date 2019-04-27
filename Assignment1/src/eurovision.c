@@ -459,8 +459,10 @@ static int compareFinalScore(ListElement element_a, ListElement element_b) {
     double audience_percent = (double)(state_a->contest_values->audience_percent) / 100;
     double score_a = calculateFinalScore(audience_percent,state_a);
     double score_b = calculateFinalScore(audience_percent,state_b);
+    if((int)(score_b - score_a)!=0)return (int)(score_b - score_a);
+    return (state_b->id- state_a->id);
 
-    return  (int)(score_b - score_a);
+
 }
 //Updates the scores table.
 static List updateScoreTable(List scores_table,Map states_map,

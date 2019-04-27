@@ -495,7 +495,7 @@ static List createWinnersNamesList(List scores_table){
     if(!states_names_list) return NULL;
     State state = (State) listGetFirst(scores_table);
     while(state){
-        printf("%s %d\n",state->name,state->score_by_states);
+        printf("%s %d %d\n",state->name,state->score_by_states,state->score_by_judges); //DEBUG
         listInsertLast(states_names_list,state->name);
         state = (State) listGetNext(scores_table);
     }

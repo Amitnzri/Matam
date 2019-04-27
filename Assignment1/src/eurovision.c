@@ -330,24 +330,22 @@ static void addOrRemoveOwnVotes(Map states_map,int* top_ten,Voter who_voted,
 /*********
 TODO:Check
 *********/
-assert(states_map&&top_ten);
-for(int i=0;i<TOP_TEN_LEN;i++){
-    State state = mapGet(states_map,&top_ten[i]);
-    if(!state) continue;
-    switch (who_voted) {
-        case JUDGE:
-            state->score_by_judges += convertPlaceToPoints(i)*sign;
-            assert(state->score_by_judges>=0);
-            break;
+    assert(states_map&&top_ten);
+    for(int i=0;i<TOP_TEN_LEN;i++){
+        State state = mapGet(states_map,&top_ten[i]);
+        if(!state) continue;
+        switch (who_voted) {
+            case JUDGE:
+                state->score_by_judges += convertPlaceToPoints(i)*sign;
+                assert(state->score_by_judges>=0);
+                break;
 
-        case STATE:
-            state->score_by_states += convertPlaceToPoints(i)*sign;
-            assert(state->score_by_states>=0);
-            break;
+            case STATE:
+                state->score_by_states += convertPlaceToPoints(i)*sign;
+                assert(state->score_by_states>=0);
+                break;
+        }
     }
-}
-
-
 }
 //Checks if topTen array contains a given state id.
 static bool checkIfArrayContainsID(int* top_ten,int state_id){
@@ -398,19 +396,39 @@ static EurovisionResult updateTopTen(Map votes_map,int* top_ten){
     resetArray(top_ten);
     int* state_id = (int*) mapGetFirst(votes_map);
     while(state_id){
-        for(int i=0;i<TOP_TEN_LEN;i++){
+        for(int i=0;i<TOP_TEN_LEN;i++){ //Scans the array.
             int index_state_votes = NONE;
-            if(top_ten[i]!=NONE){
+            if(top_ten[i]!=NONE){ //if There is a state in the index location.
                 index_state_votes = *(int*) mapGet(votes_map,&top_ten[i]);
             }
             int state_votes = *(int*) mapGet(votes_map,state_id);
-            if(state_votes == 0 || state_votes <= index_state_votes){
+            if(state_votes>index_state_votes&&state_votes!=0){
+                if(top_ten[i]==NONE) {
+                    top_ten[i] = *state_id;
+                    state_id = (int*)mapGetNext(votes_map);
+                    break;
+                }else{
+                    top_ten[i]=*state_id;
+                    state_id = (int*) mapGetFirst(votes_map);
+                    break;
+                }
+            }else if(state_votes==index_state_votes){
+                //Same Countries
+                if(*state_id == top_ten[i]){
                 state_id = (int*) mapGetNext(votes_map);
                 break;
-            }else if(state_votes > index_state_votes){
-                top_ten[i] = *state_id;
-                state_id = (int*) mapGetFirst(votes_map);
-                break;
+                }
+                //Different Countries.
+                else if(*state_id<top_ten[i]){
+                    top_ten[i] =*state_id;
+                    state_id = (int*) mapGetFirst(votes_map);
+                    break;
+                }else{
+                    if(i!= TOP_TEN_LEN-1)continue;
+                }
+            }
+            if(i == TOP_TEN_LEN-1){ //Got to the end of the array.
+            state_id = (int*) mapGetNext(votes_map);
             }
         }
     }
@@ -437,14 +455,13 @@ static void cancelOtherStatesVotes(Map states_map,int removed_state){
       }
   }
 //Calculates final score
-static double calculateFinalScore(double audience_percent, State state){
+static double calculateFinalScore(float audience_percent, State state){
     assert(state);
     int num_of_states = state->contest_values->num_of_states;
     int num_of_judges = state->contest_values->num_of_judges;
     double state_averge = (double)(state->score_by_states)/num_of_states;
     double judges_averge = (double)(state->score_by_judges)/num_of_judges;
-
-    return audience_percent*state_averge+(1-audience_percent)*judges_averge;
+    return (audience_percent*state_averge+(1-audience_percent)*judges_averge);
 
 }
 //Compares Two states by their final score.
@@ -456,12 +473,11 @@ static int compareFinalScore(ListElement element_a, ListElement element_b) {
 
     State state_a = (State) element_a;
     State state_b = (State) element_b;
-    double audience_percent = (double)(state_a->contest_values->audience_percent) / 100;
+    float audience_percent = (float)(state_a->contest_values->audience_percent) / 100;
     double score_a = calculateFinalScore(audience_percent,state_a);
     double score_b = calculateFinalScore(audience_percent,state_b);
     if((int)(score_b - score_a)!=0)return (int)(score_b - score_a);
     return (state_b->id- state_a->id);
-
 
 }
 //Updates the scores table.
@@ -495,7 +511,6 @@ static List createWinnersNamesList(List scores_table){
     if(!states_names_list) return NULL;
     State state = (State) listGetFirst(scores_table);
     while(state){
-        printf("%s %d %d\n",state->name,state->score_by_states,state->score_by_judges); //DEBUG
         listInsertLast(states_names_list,state->name);
         state = (State) listGetNext(scores_table);
     }
@@ -688,10 +703,10 @@ EurovisionResult eurovisionAddVote (Eurovision eurovision,int stateGiver,
     if (stateGiver == stateTaker) return EUROVISION_SAME_STATE;
     State voter_state = mapGet(eurovision->states_map, &stateGiver);
     if (!voter_state->votes) {
-        voter_state->votes =mapCreate(copyInt, copyInt, freeInt, freeInt,
+        voter_state->votes = mapCreate(copyInt, copyInt, freeInt, freeInt,
                                                         compareIntKeys);
         if (!voter_state->votes) return EUROVISION_OUT_OF_MEMORY;
-        voter_state->top_ten=malloc(sizeof(*voter_state->top_ten)*TOP_TEN_LEN);
+        voter_state->top_ten= malloc(sizeof(*voter_state->top_ten)*TOP_TEN_LEN);
         if(!voter_state->top_ten){
             mapDestroy(voter_state->votes);
             return EUROVISION_OUT_OF_MEMORY;
@@ -701,7 +716,7 @@ EurovisionResult eurovisionAddVote (Eurovision eurovision,int stateGiver,
     Map votes_map = voter_state->votes;
     if (!mapContains(votes_map, &stateTaker)){
         int single_vote = SINGLE_VOTE;
-        mapPut(votes_map, &stateTaker,&single_vote);
+        mapPut(votes_map,&stateTaker,&single_vote);
     }else{
         int vote_update;
         vote_update = *(int*) mapGet(votes_map, &stateTaker);

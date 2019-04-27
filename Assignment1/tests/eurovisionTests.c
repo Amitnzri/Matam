@@ -16,19 +16,19 @@
       return false;                             \
     } while(0)
 
+#define CHECK_WITH_LIST(b,res,list)             \
+  if((b) != (res)) do{                          \
+      printf("fail: %s != %s\n", #b, #res);     \
+      listDestroy(list);                        \
+      eurovisionDestroy(eurovision);            \
+      return false;                             \
+    } while(0)
+
 #define CHECK_WITH_FREE(b,res,f)                \
   if((b) != (res)) do{                          \
       printf("fail: %s != %s\n", #b, #res);     \
       eurovisionDestroy(eurovision);            \
       free(f);                                  \
-      return false;                             \
-    } while(0)
-
-#define CHECK_WITH_LIST(b,res,list)                \
-  if((b) != (res)) do{                          \
-      printf("fail: %s != %s\n", #b, #res);     \
-      eurovisionDestroy(eurovision);            \
-      listDestroy(list);                                  \
       return false;                             \
     } while(0)
 
@@ -308,17 +308,17 @@ bool testRunAudienceFavorite() {
   setupEurovisionVotes2(eurovision);
 
   List ranking = eurovisionRunAudienceFavorite(eurovision);
-  CHECK_WITH_LIST(listGetSize(ranking), 16,ranking);
+  CHECK(listGetSize(ranking), 16);
   char *current = (char*)listGetFirst(ranking);
-  CHECK_WITH_LIST(strcmp(current, "russia"), 0,ranking);
+  CHECK(strcmp(current, "russia"), 0);
   current = (char*)listGetNext(ranking);
-  CHECK_WITH_LIST(strcmp(current, "moldova"), 0,ranking);
+  CHECK(strcmp(current, "moldova"), 0);
   current = (char*)listGetNext(ranking);
-  CHECK_WITH_LIST(strcmp(current, "spain"), 0,ranking);
+  CHECK(strcmp(current, "spain"), 0);
   current = (char*)listGetNext(ranking);
-  CHECK_WITH_LIST(strcmp(current, "croatia"), 0,ranking);
+  CHECK(strcmp(current, "croatia"), 0);
   current = (char*)listGetNext(ranking);
-  CHECK_WITH_LIST(strcmp(current, "cyprus"), 0,ranking);
+  CHECK(strcmp(current, "cyprus"), 0);
 
   listDestroy(ranking);
   eurovisionDestroy(eurovision);

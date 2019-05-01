@@ -287,15 +287,6 @@ MapKeyElement mapGetNext(Map map){
 
 } //CHECKED.
 
-MapKeyElement mapGetPrevious(Map map){
-
-  assert(map);
-  if(map == NULL) return NULL;
-  if(map->dictionary->previous_block == NULL) return NULL;
-  stepBackward(map);
-  return map->dictionary->key;
-
-} //CHECKED.
 
 int mapGetSize(Map map){
 

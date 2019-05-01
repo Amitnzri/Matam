@@ -246,6 +246,7 @@ static void cancelOtherStatesVotes(Map states_map,int removed_state){
               int* top_ten =stateGetVotes(state);
               addOrRemoveOwnVotes(states_map,top_ten,STATE,SUBTRACT);
               stateUpdateTopTen(state);
+              top_ten =stateGetVotes(state);
               addOrRemoveOwnVotes(states_map,top_ten,STATE,ADD);
               mapGet(states_map,state_id);
           }
@@ -595,6 +596,7 @@ stateRemoveVote(voter_state,stateTaker); //check this function.
 int* top_ten = stateGetVotes(voter_state);
 if(top_ten)addOrRemoveOwnVotes(eurovision->states_map,top_ten,STATE,SUBTRACT);
 stateUpdateTopTen(voter_state);
+top_ten = stateGetVotes(voter_state);
 addOrRemoveOwnVotes(eurovision->states_map,top_ten,STATE,ADD);
 
 return EUROVISION_SUCCESS;

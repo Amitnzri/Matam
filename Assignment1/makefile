@@ -14,11 +14,11 @@ external: main.o map.o eurovision.o state.o judge.o
 	gcc $(FLAGS_ND) *.o lib/$(OS)/libmtm.a -o $(OUTPUT_FILE)
 
 state.o: src/state.c include/state.h
-	gcc $(FLAG_ND) src/state.c -c
+	gcc $(FLAGS_ND) src/state.c -c
 
 
 judge.o: src/judge.c include/judge.h
-	gcc $(FLAG_ND) src/judge.c -c
+	gcc $(FLAGS_ND) src/judge.c -c
 
 main.o:
 	gcc $(FLAGS_ND) ex_tests/main.c -c

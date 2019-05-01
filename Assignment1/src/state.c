@@ -27,6 +27,7 @@ static char* copyName(const char* name){
     strcpy(copy,name);
     return copy;
 }
+/*
 //Copies an array of ints.
 static int* copyArray(const int* array, int len){
     if(!array)return NULL;
@@ -37,6 +38,7 @@ static int* copyArray(const int* array, int len){
     }
     return copy;
 }
+*/
 //Resets top ten array's values to NONE.
 static void resetArray(int* array){
     assert(array);

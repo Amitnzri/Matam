@@ -100,7 +100,6 @@
 #include "test99.c"
 #include "test100.c"
 
-
 int main(int argc, char *argv[]) {
 	TEST(test1_runContest);
 	TEST(test1_runAudience);

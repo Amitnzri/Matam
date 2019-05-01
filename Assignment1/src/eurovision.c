@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <assert.h>
-#include "../include/eurovision.h"
 #include <string.h>
+#include "../include/eurovision.h"
 #include "../include/map.h"
 #include "../include/set.h"
 
@@ -737,7 +737,7 @@ EurovisionResult eurovisionRemoveJudge(Eurovision eurovision, int judgeId){
 }
 
 void eurovisionDestroy(Eurovision eurovision){
-
+    if(!eurovision)return;
     mapDestroy(eurovision->states_map);
     mapDestroy(eurovision->judges_map);
     free(eurovision->contest_values);

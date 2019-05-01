@@ -8,6 +8,7 @@
   if((b) != (res)) do{                          \
       printf("fail: %s != %s\n", #b, #res);     \
       eurovisionDestroy(eurovision);            \
+      listDestroy(ranking);                     \
       return false;                             \
     } while(0)
 

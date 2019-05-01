@@ -672,7 +672,7 @@ EurovisionResult eurovisionAddJudge(Eurovision eurovision, int judgeId,
     /***********
    TODO: Check
    ***********/
-   // assert(eurovision && judgeName && judgeResults);
+    assert(eurovision && judgeName && judgeResults);
     if (!eurovision  || !judgeName || !judgeResults){
         return EUROVISION_NULL_ARGUMENT;
     }

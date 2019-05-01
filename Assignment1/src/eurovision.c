@@ -5,7 +5,7 @@
 #include "../include/eurovision.h"
 #include <string.h>
 #include "../include/map.h"
-
+#include "../include/set.h"
 
 /*****************************Defines&Typedefs*******************************/
 
@@ -13,6 +13,7 @@
 #define SPACE 32
 #define NONE -1
 #define SINGLE_VOTE 1
+
 
 typedef enum {
     JUDGE,
@@ -516,6 +517,66 @@ static List createWinnersNamesList(List scores_table){
     }
     return states_names_list;
 }
+/***********************************new********************************/
+//Checks if state B gave 12 point to the state which gave her 12 points
+static int* checkIfFriendly(Map states_map,int* state_a_id){
+    /*********
+    TODO:Check
+    *********/
+
+    assert(states_map&&state_a_id);
+    State state_a = mapGet(states_map,state_a_id);
+    if(!state_a->top_ten) return NULL;
+    int* state_b_id = &(state_a->top_ten[0]);
+    State state_b = mapGet(states_map,state_b_id);
+    int * b_top_ten = state_b->top_ten;
+    if(!b_top_ten) return NULL;
+    if(b_top_ten[0] == *state_a_id){
+        return state_b_id;
+    }
+    else {
+        return NULL;
+    }
+
+}
+//Converts 2 names into one string
+static void makingPair(const char* name_a, const char* name_b, char* pair){
+    /*********
+    TODO:Check
+    *********/
+    char* space = " - ";
+    strcpy(pair,name_a);
+    strcpy(pair+strlen(name_a),space);
+    strcpy(pair+strlen(name_a)+3,name_b);
+}
+
+//Inserts a pair of states into the friendly state list
+static List insertPair(Map map_state,List friendly_list,int* a_id,int* b_id){
+    /*********
+    TODO:Check
+    *********/
+    State state_a =  (mapGet(map_state,a_id));
+    char* name_a = state_a->name;
+    State state_b =  (mapGet(map_state,b_id));
+    char* name_b = state_b->name;
+    char* pair = (char*)malloc(sizeof(char)*(strlen(name_a)+strlen(name_b)+4));
+    if(!pair)
+        return NULL;
+
+    if(strcmp(name_a,name_b)<=0){
+        makingPair(name_a,name_b,pair);
+    }else{
+        makingPair(name_b,name_a,pair);
+    }
+    listInsertLast(friendly_list,pair);
+    free(pair);
+    return friendly_list;
+}
+
+static int compareLexicographicOrdeer(ListElement element_a, ListElement element_b){
+    return strcmp((char*)element_a,(char*)element_b);
+}
+
 /*****************************Functions**************************************/
 
 Eurovision eurovisionCreate(void){
@@ -611,7 +672,7 @@ EurovisionResult eurovisionAddJudge(Eurovision eurovision, int judgeId,
     /***********
    TODO: Check
    ***********/
-    assert(eurovision && judgeName && judgeResults);
+   // assert(eurovision && judgeName && judgeResults);
     if (!eurovision  || !judgeName || !judgeResults){
         return EUROVISION_NULL_ARGUMENT;
     }
@@ -795,6 +856,46 @@ List eurovisionRunContest (Eurovision eurovision, int audiencePercent){
     return createWinnersNamesList(eurovision->scores_table);
 }
 
-List eurovisionRunGetFriendlyStates(Eurovision eurovision){//TODO
-    return NULL;
+List eurovisionRunGetFriendlyStates(Eurovision eurovision){
+    /*********
+    TODO:Check
+    *********/
+
+    assert(eurovision);
+    //creates set and inserts the states in it.
+    Set states_set = setCreate(copyInt,freeInt,compareIntKeys);
+    if(!states_set)return NULL;
+    Map states_map = eurovision->states_map;
+    int* state_id = (int*)mapGetFirst(states_map);
+    while(state_id){
+        setAdd(states_set,state_id);
+        state_id = mapGetNext(states_map);
+    }
+
+    List friendly_list = listCreate(copyName,freeStr);
+    if(!friendly_list){
+        setDestroy(states_set);
+        return NULL;
+    }
+
+    state_id = (int*)mapGetFirst(states_map);
+    while(state_id) {
+        if (setIsIn(states_set, state_id)){
+            int *friendly_state = checkIfFriendly(states_map, state_id);
+            if (friendly_state) {
+                if(!insertPair(states_map,friendly_list,state_id,friendly_state)){
+                    setDestroy(states_set);
+                    return NULL;
+                }
+                setRemove(states_set, friendly_state);
+            }
+            setRemove(states_set,state_id);
+            mapGet(states_map, state_id);
+        }
+        state_id = (int*) mapGetNext(states_map);
+    }
+    listSort(friendly_list,compareLexicographicOrdeer);
+    setDestroy(states_set);
+    return friendly_list;
+
 }

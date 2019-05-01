@@ -76,8 +76,8 @@ Judge judgeCopy(Judge judge){
     Judge judge_copy = malloc(sizeof(*judge_copy));
     if(!judge_copy)return NULL;
     judge_copy->id = judge->id;
-    judge_copy->name = copyName(judge->name);
-    judge_copy->top_ten = copyArray(judge->top_ten,TOP_TEN_LEN);
+    judge_copy->name = judgeGetName(judge);
+    judge_copy->top_ten = judgeGetVotes(judge);
     if(!judge_copy->name || (!judge_copy->top_ten&&judge->top_ten)){
         free(judge_copy->name);
         free(judge_copy->top_ten);

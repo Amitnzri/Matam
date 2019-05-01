@@ -8,6 +8,12 @@ OUTPUT_FILE =  run
 prog: map.o eurovision.o eurovisionTests.o eurovisionTestsMain.o
 	gcc $(FLAGS_ND) $? lib/$(OS)/libmtm.a -o $(OUTPUT_FILE)
 
+external: main.o map.o eurovision.o
+	gcc $(FLAGS_ND) *.o lib/$(OS)/libmtm.a -o $(OUTPUT_FILE)
+
+main.o:
+	gcc $(FLAGS_ND) ex_tests/main.c -c
+
 eurovisionTests.o: tests/eurovisionTests.c include/eurovisionTests.h
 	gcc $(FLAGS_ND) tests/eurovisionTests.c -c
 

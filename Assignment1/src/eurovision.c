@@ -106,7 +106,7 @@ static MapKeyElement copyInt (MapKeyElement key){
     if(!copy) return NULL;
     *copy = *(int*)key;
     return (MapKeyElement) copy;
-}
+} //TODO:REMOVE
 //Copies a judge.
 static MapDataElement copyJudge(MapDataElement judge){
     /***********
@@ -150,7 +150,7 @@ static void freeInt(MapKeyElement n){
     TODO: Check
     **********/
     free(n);
-}
+} //TODO:Remove
 //Copy for str for the list.
 static ListElement copyName(ListElement str){
     return (ListElement) copyStr((char*)str);
@@ -179,7 +179,7 @@ static int compareIntKeys(MapKeyElement key_a,MapKeyElement key_b){
 
     assert(key_a&&key_b);
     return *(int*)key_a - *(int*)key_b;
-}
+}//TODO:Remove
 //Checks if ID is valid.
 static bool checkId(int state_id){
 
@@ -531,7 +531,7 @@ static int* checkIfFriendly(Map states_map,int* state_a_id){
     State state_b = mapGet(states_map,state_b_id);
     int * b_top_ten = state_b->top_ten;
     if(!b_top_ten) return NULL;
-    if(b_top_ten[0] == *state_a_id){
+    if(*b_top_ten == *state_a_id){
         return state_b_id;
     }
     else {
@@ -547,9 +547,8 @@ static void makingPair(const char* name_a, const char* name_b, char* pair){
     char* space = " - ";
     strcpy(pair,name_a);
     strcpy(pair+strlen(name_a),space);
-    strcpy(pair+strlen(name_a)+3,name_b);
+    strcpy(pair+strlen(pair),name_b);
 }
-
 //Inserts a pair of states into the friendly state list
 static List insertPair(Map map_state,List friendly_list,int* a_id,int* b_id){
     /*********
@@ -572,7 +571,7 @@ static List insertPair(Map map_state,List friendly_list,int* a_id,int* b_id){
     free(pair);
     return friendly_list;
 }
-
+//Compaires to elements lexicographicly.
 static int compareLexicographicOrdeer(ListElement element_a, ListElement element_b){
     return strcmp((char*)element_a,(char*)element_b);
 }

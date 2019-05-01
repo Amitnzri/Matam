@@ -1,6 +1,7 @@
 my_tests/
-
 *.o
 run
 map_new.c
 MAC/
+state.*
+judge.*

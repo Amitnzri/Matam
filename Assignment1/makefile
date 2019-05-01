@@ -6,27 +6,27 @@ VALGRIND_FLAGS = valgrind --leak-check=full --track-origins=yes
 OUTPUT_FILE =  run
 
 prog: map.o eurovision.o eurovisionTests.o eurovisionTestsMain.o
-	gcc $(FLAGS_ND) map.o eurovision.o eurovisionTests.o eurovisionTestsMain.o lib/$(OS)/libmtm.a -o $(OUTPUT_FILE)
+	gcc $(FLAGS_ND) $? lib/$(OS)/libmtm.a -o $(OUTPUT_FILE)
 
-eurovisionTests.o: tests/eurovisionTests.c headers/eurovisionTests.h
+eurovisionTests.o: tests/eurovisionTests.c include/eurovisionTests.h
 	gcc $(FLAGS_ND) tests/eurovisionTests.c -c
 
-eurovisionTestsMain.o: tests/eurovisionTestsMain.c headers/eurovisionTests.h
+eurovisionTestsMain.o: tests/eurovisionTestsMain.c include/eurovisionTests.h
 	gcc $(FLAG_ND) tests/eurovisionTestsMain.c -c
 
 eurovision.o: src/eurovision.c
 	gcc $(FLAGS_ND) src/eurovision.c -c
 
-map.o: src/map.c headers/map.h
+map.o: src/map.c include/map.h
 	gcc $(FLAGS_ND) src/map.c -c
 
-map_example_test.o: headers/test_utilities.h map_example_test.c
+map_example_test.o: include/test_utilities.h map_example_test.c
 	gcc $(FLAGS_ND) map_example_test.c -c
 
 clean:
 	rm -f *.o
 
-val: prog
+val: prog $(OUTPUT_FILE)
 	$(VALGRIND_FLAGS) ./$(OUTPUT_FILE)
 
 run: prog $(OUTPUT_FILE)

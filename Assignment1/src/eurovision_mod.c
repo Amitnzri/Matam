@@ -3,16 +3,11 @@
 #include <stdbool.h>
 #include <assert.h>
 #include "../include/eurovision.h"
-#include <string.h>
 #include "../include/map.h"
+#include ".../include/judge.h"
 
 
-/*****************************Defines&Typedefs*******************************/
-
-#define TOP_TEN_LEN 10
-#define SPACE 32
-#define NONE -1
-#define SINGLE_VOTE 1
+/********************************Typedefs************************************/
 
 typedef enum {
     JUDGE,

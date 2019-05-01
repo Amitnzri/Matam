@@ -55,12 +55,12 @@ int judgeGetId(Judge judge){
 
 char* judgeGetName(Judge judge){
     if(!judge)return NULL;
-    return copyName(judge->name);
+    return judge->name;
 }
 
 int* judgeGetVotes(Judge judge){
     if(!judge)return NULL;
-    return copyArray(judge->top_ten,TOP_TEN_LEN);
+    return judge->top_ten;
 }
 
 void judgeDestroy(Judge judge){

@@ -3,12 +3,14 @@ OS = mac
 FLAGS = -std=c99 -Wall -pedantic-errors -Werror -g
 FLAGS_ND = -std=c99 -Wall -pedantic-errors -Werror -DNDEBUG -g
 VALGRIND_FLAGS = valgrind --leak-check=full --track-origins=yes
+BUILDDIR = build
 OUTPUT_FILE =  run
 
 prog: state.o judge.o map.o eurovision.o eurovisionTests.o eurovisionTestsMain.o
 	gcc $(FLAGS_ND) $? lib/$(OS)/libmtm.a -o $(OUTPUT_FILE)
 
-external: main.o map.o eurovision.o
+
+external: main.o map.o eurovision.o state.o judge.o
 	gcc $(FLAGS_ND) *.o lib/$(OS)/libmtm.a -o $(OUTPUT_FILE)
 
 state.o: src/state.c include/state.h

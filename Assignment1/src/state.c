@@ -2,6 +2,7 @@
 #include <string.h>
 #include <assert.h>
 #include <stdbool.h>
+#include <stdio.h> //TODO:remove
 #include "../include/state.h"
 #include "../include/map.h"
 #include "../include/defines.h"
@@ -98,20 +99,16 @@ int stateGetId(State state){
 
 char* stateGetName(State state){
     if(!state)return NULL;
-    char* name_copy = copyName(state->name);
-    return name_copy;
+    return state->name;
 }
 
 char* stateGetSong(State state){
-    if(!state)return NULL;
-    char* song_copy = copyName(state->song);
-    return song_copy;
+    return state->song;
 }
 
 int* stateGetVotes(State state){
     if(!state)return NULL;
-    int* top_ten_copy = copyArray(state->top_ten,TOP_TEN_LEN);
-    return top_ten_copy;
+    return state->top_ten;
 }
 
 ContestValues stateGetContestValues(State state){
@@ -165,8 +162,8 @@ void stateUpdateVotes(State state,Voter who_voted,int n){
             assert(state->score_by_judges>=0);
             break;
         case STATE:
-            state->score_by_judges += n;
-            assert(state->score_by_judges>=0);
+            state->score_by_states += n;
+            assert(state->score_by_states>=0);
             break;
         default:
             assert(0);
@@ -220,9 +217,9 @@ void stateUpdateTopTen(State state){
     /*********
     TODO:Check
     *********/
-    if(!state)return;
-    if(!state->votes_map || !state->top_ten){
-        return;
+    if(!state||!state->votes_map)return;
+    if(!state->top_ten){
+        state->top_ten = malloc(sizeof(*state->top_ten)*TOP_TEN_LEN);
     }
     resetArray(state->top_ten);
     int* state_id = (int*) mapGetFirst(state->votes_map);
@@ -230,7 +227,8 @@ void stateUpdateTopTen(State state){
         for(int i=0;i<TOP_TEN_LEN;i++){ //Scans the array.
             int index_state_votes = NONE;
             if(state->top_ten[i]!=NONE){ //if There is a state in the index location.
-                index_state_votes = *(int*) mapGet(state->votes_map,&state->top_ten[i]);
+                index_state_votes = *(int*)mapGet(state->votes_map,
+                                                  &state->top_ten[i]);
             }
             int state_votes = *(int*) mapGet(state->votes_map,state_id);
             if(state_votes>index_state_votes&&state_votes!=0){

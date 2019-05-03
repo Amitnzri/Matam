@@ -1,6 +1,11 @@
 #ifndef DEFINE_H
 #define  DEFINE_H
 
+/***************************************************
+Contains all the defines for the eurovision project.
+***************************************************/
+
+
 typedef struct contestValues_t{
     int audience_percent;
     int num_of_judges;

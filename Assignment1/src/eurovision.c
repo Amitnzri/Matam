@@ -142,10 +142,6 @@ static bool checkJudgeResults(int* judge_results, Map states_map){
     if(!states_map) return false; //if there's no states
     for(int i=0;i<TOP_TEN_LEN;i++){
         if(!mapContains(states_map,&judge_results[i])) return false;
-        for(int j=0;j<TOP_TEN_LEN;j++){ //Checks for duplications
-            if(j==i) continue;
-            if(judge_results[i]==judge_results[j]) return false;
-        }
     }
     return true;
 }

@@ -5,7 +5,7 @@
 #include <assert.h>
 #include "../include/list.h"
 #include "../include/eurovision.h"
-#include "eurovisionTests.h"
+#include "../include/eurovisionTests.h"
 
 #define POINTS_OPTIONS_NUMBER 10
 

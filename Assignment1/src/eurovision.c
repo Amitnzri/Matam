@@ -60,7 +60,7 @@ static MapDataElement copyJudge(MapDataElement judge){
 
 }//UPDATED
 //Free judge allocation.
-static void freeJudge(MapDataElement judge){ 
+static void freeJudge(MapDataElement judge){
     /***********
     TODO: Check
     1.free name.
@@ -500,15 +500,14 @@ EurovisionResult eurovisionAddJudge(Eurovision eurovision, int judgeId,
         Judge tmp_judge = judgeCreate(judgeId, judgeName, judgeResults);
 
         if (mapPut(judges_map, &judgeId, tmp_judge) == MAP_OUT_OF_MEMORY) {
-            free(tmp_judge);//TODO:Check
+            judgeDestroy(tmp_judge);//TODO:Check
             return EUROVISION_OUT_OF_MEMORY;
         } else {
-            free(tmp_judge);//TODO:CHECK
+            judgeDestroy(tmp_judge);//TODO:CHECK
             addOrRemoveOwnVotes(eurovision->states_map,judgeResults,JUDGE,ADD);
             eurovision->contest_values->num_of_judges++;
             return EUROVISION_SUCCESS;
         }
-   // updateScore(eurovision) yet to write
 }//UPDATED
 
 EurovisionResult eurovisionRemoveJudge(Eurovision eurovision, int judgeId){

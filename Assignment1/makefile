@@ -9,6 +9,8 @@ OUTPUT_FILE =  run
 prog: state.o judge.o map.o eurovision.o eurovisionTests.o eurovisionTestsMain.o
 	gcc $(FLAGS_ND) $? lib/$(OS)/libmtm.a -o $(OUTPUT_FILE)
 
+map: map.o map_example_test.o
+	gcc $(FLAGS_ND) $? -o $(OUTPUT_FILE)
 
 external: main.o map.o eurovision.o state.o judge.o
 	gcc $(FLAGS_ND) *.o lib/$(OS)/libmtm.a -o $(OUTPUT_FILE)
@@ -35,13 +37,13 @@ eurovision.o: src/eurovision.c
 map.o: src/map.c include/map.h
 	gcc $(FLAGS_ND) src/map.c -c
 
-map_example_test.o: include/test_utilities.h map_example_test.c
-	gcc $(FLAGS_ND) map_example_test.c -c
+map_example_test.o: include/test_utilities.h tests/map_example_test.c
+	gcc $(FLAGS_ND) tests/map_example_test.c -c
 
 clean:
 	rm -f *.o
 
-val:$(OUTPUT_FILE)
+val: /$(OUTPUT_FILE)
 	$(VALGRIND_FLAGS) ./$(OUTPUT_FILE)
 
 run: prog $(OUTPUT_FILE)

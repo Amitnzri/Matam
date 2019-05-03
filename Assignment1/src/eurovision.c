@@ -479,7 +479,7 @@ EurovisionResult eurovisionAddJudge(Eurovision eurovision, int judgeId,
    TODO: Check
    ***********/
     assert(eurovision && judgeName);
-    if (!eurovision  || !judgeName){
+    if (!eurovision  || !judgeName ||!judgeResults){
         return EUROVISION_NULL_ARGUMENT;
     }
     if (!checkName(judgeName)) return EUROVISION_INVALID_NAME;

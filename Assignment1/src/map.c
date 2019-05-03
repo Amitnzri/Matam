@@ -211,7 +211,7 @@ Map mapCreate(copyMapDataElements copyDataElement,
 
 MapResult mapPut(Map map,MapKeyElement keyElement,MapKeyElement dataElement){
     assert(map&&keyElement&&dataElement);
-    if(map == NULL) return MAP_NULL_ARGUMENT;
+    if(!map || !keyElement ||!dataElement) return MAP_NULL_ARGUMENT; //TODO:CHECK
     if(map->dictionary == NULL){ //If the map has no dictionary yet.
         map->dictionary = createDictionaryBlock(map,NULL,NULL);
         if(map->dictionary == NULL) return MAP_OUT_OF_MEMORY;
@@ -278,9 +278,9 @@ int mapGetSize(Map map){
     return counter;
 }
 
-bool mapContains(Map map, MapKeyElement element){
+bool mapContains(Map map, MapKeyElement element){ //TODO: CHANGE
     assert(map&&element);
-    if(!map->dictionary)return false;
+    if(!map||!map->dictionary||!element)return false;
     compareMapKeyElements compareKeys = map->compareKeysFunction;
     findSortedPosition(map,element);
     if(compareKeys(element,map->dictionary->key)==0){
@@ -299,7 +299,7 @@ MapDataElement mapGet(Map map, MapKeyElement keyElement){
 
 MapResult mapRemove(Map map, MapKeyElement keyElement){
     assert(map&&map->dictionary);
-    if(!map||!map->dictionary) return MAP_NULL_ARGUMENT;
+    if(!map||!map->dictionary||!keyElement) return MAP_NULL_ARGUMENT;
     if(jumpTo(map,keyElement) == NULL) return MAP_ITEM_DOES_NOT_EXIST;
     DeleteCurrentBlock(map);
     return MAP_SUCCESS;
@@ -326,7 +326,8 @@ void mapDestroy(Map map){
 
 Map mapCopy(Map map){
     if(map == NULL)return NULL;
-    Map new_map = malloc(sizeof(*new_map));
+    Map new_map = mapCreate(map->copyDataFunction,map->copyKeyFunction,
+        map->freeDataFunction,map->freeKeyFunction,map->compareKeysFunction);
     if(new_map == NULL)return NULL;
     if(duplicateMap(new_map,map) != MAP_SUCCESS)return NULL;
     return new_map;

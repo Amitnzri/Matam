@@ -91,6 +91,7 @@ State stateCreate(int id,const char* name,const char* song,
 }
 
 int stateGetId(State state){
+    if(!state)return NULL_ARGUMENT;
     return state->id;
 }
 
@@ -100,6 +101,7 @@ char* stateGetName(State state){
 }
 
 char* stateGetSong(State state){
+    if(!state)return NULL;
     return state->song;
 }
 
@@ -109,17 +111,17 @@ int* stateGetVotes(State state){
 }
 
 ContestValues stateGetContestValues(State state){
-    assert(state);
+    if(!state)return NULL;
     return state->contest_values;
 }
 
 int stateGetScoreByJudges(State state){
-    assert(state);
+    if(!state)return NULL_ARGUMENT;
     return state->score_by_judges;
 }
 
 int stateGetScoreByStates(State state){
-    assert(state);
+    if(!state)return NULL_ARGUMENT;
     return state->score_by_states;
 }
 
@@ -153,6 +155,7 @@ void stateRemoveVote(State giver_state,int taker_state_id){
 }
 
 void stateUpdateVotes(State state,Voter who_voted,int n){
+    if(!state || who_voted) return;
     switch (who_voted) {
         case JUDGE:
             state->score_by_judges += n;

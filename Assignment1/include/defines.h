@@ -10,6 +10,7 @@ typedef struct contestValues_t{
 #define TOP_TEN_LEN 10
 #define SPACE 32
 #define NONE -1
+#define MAP_NULL_ARGUMENT -1
 #define SINGLE_VOTE 1
 
 typedef enum {

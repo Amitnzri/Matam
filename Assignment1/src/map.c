@@ -37,9 +37,10 @@ static MapResult assignValues(Map map,Dictionary block,
     assert(map&&key&&data);
     copyMapKeyElements copyKey = map->copyKeyFunction;
     copyMapDataElements copyData = map->copyDataFunction;
-
+    //If the block has values already, free them.
     if(block->key) map->freeKeyFunction(block->key);
     if(block->data) map->freeDataFunction(block->data);
+    //Assigns the new values.
     block->key = copyKey(key);
     block->data = copyData(data);
     if(!map->dictionary->key ||!map->dictionary->data) return MAP_OUT_OF_MEMORY;
@@ -68,9 +69,9 @@ static void goToFirstItem(Map map){
 }
 //Changes the dictionary ptr inside map to points on requested key.
 static Dictionary jumpTo (Map map, MapKeyElement key){
-    //check if the key is in the dictionary.
+    //Checks if the key is in the dictionary.
     if(!mapContains(map,key))return NULL;
-    //If contains the iterator moved to the wanted location.
+    //If contains,the iterator moved to the wanted location.
     return map->dictionary;
 }
 //Creates new dictionary block.

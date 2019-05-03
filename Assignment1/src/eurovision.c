@@ -521,6 +521,7 @@ return EUROVISION_SUCCESS;
 
 List eurovisionRunAudienceFavorite(Eurovision eurovision){
     assert(eurovision);
+    if(!eurovision) return NULL;
     eurovision->scores_table = updateScoreTable(eurovision->scores_table,
                             eurovision->states_map,eurovision->contest_values);
     if(!eurovision->scores_table) return NULL;
@@ -530,6 +531,7 @@ List eurovisionRunAudienceFavorite(Eurovision eurovision){
 
 List eurovisionRunContest (Eurovision eurovision, int audiencePercent){
     assert(eurovision);
+    if(!eurovision) return NULL;
     eurovision->contest_values->audience_percent =audiencePercent;
     eurovision->scores_table = updateScoreTable(eurovision->scores_table,
                             eurovision->states_map,eurovision->contest_values);
@@ -556,7 +558,7 @@ List eurovisionRunGetFriendlyStates(Eurovision eurovision){
     }
     state_id = (int*)mapGetFirst(states_map);
     while(state_id) {
-        
+
         if(!setIsIn(states_set,state_id)) state_id=(int*)mapGetNext(states_map);
 
         int *friendly_state = checkIfFriendly(states_map, state_id);

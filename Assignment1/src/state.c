@@ -47,9 +47,7 @@ static void resetArray(int* array){
 }
 //Copies an int.
 static MapKeyElement copyInt (MapKeyElement key){
-    /***********
-    TODO: Check
-    ***********/
+
     assert(key);
     if(!key) return NULL;
     int* copy = malloc(sizeof(*copy));
@@ -60,21 +58,18 @@ static MapKeyElement copyInt (MapKeyElement key){
 }
 //Free int allocation.
 static void freeInt(MapKeyElement n){
-    /**********
-    TODO: Check
-    **********/
     free(n);
 }
 //Comapares two int keys.
 static int compareIntKeys(MapKeyElement key_a,MapKeyElement key_b){
-
     assert(key_a&&key_b);
     return *(int*)key_a - *(int*)key_b;
 }
 
 /*****************************Functions**************************************/
 
-State stateCreate(int id,const char* name,const char* song,ContestValues contest_values){
+State stateCreate(int id,const char* name,const char* song,
+                                          ContestValues contest_values){
     assert(name&&song);
     State new_state = malloc(sizeof(*new_state));
     if(!new_state)return NULL;
@@ -185,7 +180,7 @@ void stateDestroy(State state){
 
 State stateCopy(State state){
     assert(state);
-    bool clear = false;
+    bool clear = false; //turns to turn if one of the allocation failed.
     if(!state)return NULL;
     State state_copy = malloc(sizeof(*state_copy));
     if(!state_copy)return NULL;
@@ -200,7 +195,7 @@ State stateCopy(State state){
     state_copy->votes_map = mapCopy(state->votes_map);
     if(state->votes_map&&!state_copy->votes_map)clear = true;
 
-    if(clear){
+    if(clear){ //if one of the allocation has failed, free all.
         free(state_copy->name);
         free(state_copy->song);
         free(state_copy->top_ten);
@@ -216,9 +211,6 @@ State stateCopy(State state){
 }
 
 void stateUpdateTopTen(State state){
-    /*********
-    TODO:Check
-    *********/
     if(!state||!state->votes_map)return;
     if(!state->top_ten){
         state->top_ten = malloc(sizeof(*state->top_ten)*TOP_TEN_LEN);
@@ -228,28 +220,30 @@ void stateUpdateTopTen(State state){
     while(state_id){
         for(int i=0;i<TOP_TEN_LEN;i++){ //Scans the array.
             int index_state_votes = NONE;
-            if(state->top_ten[i]!=NONE){ //if There is a state in the index location.
+            //if There is a state in the index location.
+            if(state->top_ten[i]!=NONE){
                 index_state_votes = *(int*)mapGet(state->votes_map,
                                                   &state->top_ten[i]);
             }
             int state_votes = *(int*) mapGet(state->votes_map,state_id);
             if(state_votes>index_state_votes&&state_votes!=0){
+                //If there is no country at this index,insert.
                 if(state->top_ten[i]==NONE) {
                     state->top_ten[i] = *state_id;
                     state_id = (int*)mapGetNext(state->votes_map);
                     break;
-                }else{
+                }else{//Insert and start from beggining.
                     state->top_ten[i]=*state_id;
                     state_id = (int*) mapGetFirst(state->votes_map);
                     break;
                 }
-            }else if(state_votes==index_state_votes){
-                //Same Countries
+            }else if(state_votes==index_state_votes){//If same number of votes.
+                //If its the same country.
                 if(*state_id == state->top_ten[i]){
                 state_id = (int*) mapGetNext(state->votes_map);
                 break;
                 }
-                //Different Countries.
+                //If its different countries.
                 else if(*state_id<state->top_ten[i]){
                     state->top_ten[i] =*state_id;
                     state_id = (int*) mapGetFirst(state->votes_map);
@@ -265,7 +259,7 @@ void stateUpdateTopTen(State state){
     }
 }
 
-void stateRemoveAllVotesToState(State state,int other_state_id){
+void stateClearVotes(State state,int other_state_id){
     while(mapContains(state->votes_map,&other_state_id)){
         stateRemoveVote(state,other_state_id);
     }

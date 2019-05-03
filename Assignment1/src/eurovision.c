@@ -14,9 +14,6 @@
 /*****************************DataSturctures*********************************/
 
 struct eurovision_t{
-    /***********
-    TODO: Check
-    ***********/
     Map states_map;
     Map judges_map;
     List scores_table;
@@ -108,9 +105,6 @@ static bool checkArrayValues(int len, int* judge_results){
 }
 //Checks if judges votes are valid.
 static bool checkJudgeResults(int* judge_results, Map states_map){
-    /***********
-    TODO: Check
-    ***********/
     if(!states_map) return false; //if there's no states
     for(int i=0;i<TOP_TEN_LEN;i++){
         if(!mapContains(states_map,&judge_results[i])) return false;
@@ -228,9 +222,6 @@ static double calculateFinalScore(float audience_percent, State state){
 }
 //Compares Two states by their final score.(Compare function for List)
 static int compareFinalScore(ListElement element_a, ListElement element_b) {
-    /***********
-     TODO: Check
-     ***********/
     assert(element_a&&element_b);
     State state_a = (State) element_a;
     State state_b = (State) element_b;
@@ -299,9 +290,6 @@ static int* checkIfFriendly(Map states_map,int* state_a_id){
 }
 //Converts 2 names into one string
 static void makingPair(const char* name_a, const char* name_b, char* pair){
-    /*********
-    TODO:Check
-    *********/
     char* space = " - ";
     strcpy(pair,name_a);
     strcpy(pair+strlen(name_a),space);
@@ -564,13 +552,11 @@ List eurovisionRunGetFriendlyStates(Eurovision eurovision){
         setAdd(states_set,state_id);
         state_id = mapGetNext(states_map);
     }
-
     List friendly_list = listCreate(copyName,freeStr);
     if(!friendly_list){
         setDestroy(states_set);
         return NULL;
     }
-
     state_id = (int*)mapGetFirst(states_map);
     while(state_id) {
         if (setIsIn(states_set, state_id)){
@@ -590,5 +576,4 @@ List eurovisionRunGetFriendlyStates(Eurovision eurovision){
     listSort(friendly_list,compareLexicographicOrdeer);
     setDestroy(states_set);
     return friendly_list;
-
 }

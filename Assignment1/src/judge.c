@@ -70,7 +70,7 @@ void judgeDestroy(Judge judge){
     free(judge);
 }
 
-Judge judgeCopy(Judge judge){ //TODO:CHECK shallow copies wit eurovisionCopy
+Judge judgeCopy(Judge judge){
     assert(judge);
     if(!judge)return NULL;
     Judge judge_copy = malloc(sizeof(*judge_copy));

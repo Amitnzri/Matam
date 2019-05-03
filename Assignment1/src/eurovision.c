@@ -429,10 +429,10 @@ EurovisionResult eurovisionAddState(Eurovision eurovision,
     State tmp_state = stateCreate(stateId,stateName,songName,
                                   eurovision->contest_values);
     if(mapPut(states_map,&stateId,tmp_state) == MAP_OUT_OF_MEMORY){
-        free(tmp_state); //TODO:check
+        stateDestroy(tmp_state); //TODO:check
         return EUROVISION_OUT_OF_MEMORY;
     }else{
-        free(tmp_state);//TODO:check
+        stateDestroy(tmp_state);//TODO:check
         eurovision->contest_values->num_of_states++;
         return EUROVISION_SUCCESS;
     }

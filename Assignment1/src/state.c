@@ -26,7 +26,7 @@ static char* copyName(const char* name){
     strcpy(copy,name);
     return copy;
 }
-/*
+
 //Copies an array of ints.
 static int* copyArray(const int* array, int len){
     if(!array)return NULL;
@@ -37,7 +37,7 @@ static int* copyArray(const int* array, int len){
     }
     return copy;
 }
-*/
+
 //Resets top ten array's values to NONE.
 static void resetArray(int* array){
     assert(array);
@@ -73,6 +73,7 @@ static int compareIntKeys(MapKeyElement key_a,MapKeyElement key_b){
 }
 
 /*****************************Functions**************************************/
+
 State stateCreate(int id,const char* name,const char* song,ContestValues contest_values){
     assert(name&&song);
     State new_state = malloc(sizeof(*new_state));
@@ -190,11 +191,11 @@ State stateCopy(State state){
     if(!state_copy)return NULL;
     state_copy->id = state->id;
 
-    state_copy->name = stateGetName(state);
+    state_copy->name = copyName(state->name);
     if(!state_copy->name)clear = true;
-    state_copy->song = stateGetSong(state);
+    state_copy->song = copyName(state->song);
     if(!state_copy->song)clear = true;
-    state_copy->top_ten = stateGetVotes(state);
+    state_copy->top_ten = copyArray(state->top_ten,TOP_TEN_LEN);
     if(state->top_ten&&!state_copy->top_ten)clear = true;
     state_copy->votes_map = mapCopy(state->votes_map);
     if(state->votes_map&&!state_copy->votes_map)clear = true;
@@ -207,9 +208,9 @@ State stateCopy(State state){
         free(state_copy);
         return NULL;
     }
-    state_copy->contest_values =stateGetContestValues(state);
-    state_copy->score_by_states =stateGetScoreByStates(state);
-    state_copy->score_by_judges =stateGetScoreByJudges(state);
+    state_copy->contest_values = stateGetContestValues(state);
+    state_copy->score_by_states = stateGetScoreByStates(state);
+    state_copy->score_by_judges = stateGetScoreByJudges(state);
 
     return state_copy;
 }

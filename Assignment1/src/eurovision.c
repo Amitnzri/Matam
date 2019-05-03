@@ -60,7 +60,7 @@ static MapDataElement copyJudge(MapDataElement judge){
 
 }//UPDATED
 //Free judge allocation.
-static void freeJudge(MapDataElement judge){ //needed void*
+static void freeJudge(MapDataElement judge){ 
     /***********
     TODO: Check
     1.free name.
@@ -75,7 +75,7 @@ static void freeInt(MapKeyElement n){
     TODO: Check
     **********/
     free(n);
-} //TODO:Remove
+}
 //Copy for str for the list.
 static ListElement copyName(ListElement str){
     return (ListElement) copyStr((char*)str);
@@ -252,7 +252,7 @@ static void cancelOtherStatesVotes(Map states_map,int removed_state){
           }
           state_id = mapGetNext(states_map);
       }
-  }//UPDATED
+}//UPDATED
 //Calculates final score
 static double calculateFinalScore(float audience_percent, State state){
     assert(state);
@@ -375,7 +375,7 @@ static List insertPair(Map map_state,List friendly_list,int* a_id,int* b_id){
     return friendly_list;
 }//UPDATED
 //Compaires to elements lexicographicly.
-static int compareLexicographicOrdeer(ListElement element_a, ListElement element_b){
+static int compareLexicographicOrdeer(ListElement element_a,ListElement element_b){
     return strcmp((char*)element_a,(char*)element_b);
 }
 
@@ -400,13 +400,12 @@ Eurovision eurovisionCreate(void){
     eurovision->judges_map = NULL;
     eurovision->scores_table = NULL;
     return eurovision;
-} //CHECKED
+}//CHECKED
 
 EurovisionResult eurovisionAddState(Eurovision eurovision,
                                     int stateId,
                                     const char *stateName,
                                     const char *songName){
-
     /*********
     TODO:Check
     *********/

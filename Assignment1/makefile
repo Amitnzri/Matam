@@ -1,5 +1,5 @@
 
-OS = mac
+OS = csl3
 FLAGS = -std=c99 -Wall -pedantic-errors -Werror -g
 FLAGS_ND = -std=c99 -Wall -pedantic-errors -Werror -DNDEBUG -g
 VALGRIND_FLAGS = valgrind --leak-check=full --track-origins=yes
@@ -27,7 +27,7 @@ eurovisionTests.o: tests/eurovisionTests.c include/eurovisionTests.h
 	gcc $(FLAGS_ND) tests/eurovisionTests.c -c
 
 eurovisionTestsMain.o: tests/eurovisionTestsMain.c include/eurovisionTests.h
-	gcc $(FLAG_ND) tests/eurovisionTestsMain.c -c
+	gcc $(FLAGS_ND) tests/eurovisionTestsMain.c -c
 
 eurovision.o: src/eurovision.c
 	gcc $(FLAGS_ND) src/eurovision.c -c

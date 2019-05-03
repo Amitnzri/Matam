@@ -2,7 +2,6 @@
 #include <string.h>
 #include <assert.h>
 #include <stdbool.h>
-#include <stdio.h> //TODO:remove
 #include "../include/state.h"
 #include "../include/map.h"
 #include "../include/defines.h"

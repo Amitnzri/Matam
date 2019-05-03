@@ -315,7 +315,7 @@ static List insertPair(Map map_state,List friendly_list,int* a_id,int* b_id){
     return friendly_list;
 }
 //Compaires to elements lexicographicly.
-static int compareLexicographicOrdeer(ListElement element_a,
+static int compareLexicographicOrder(ListElement element_a,
                                       ListElement element_b){
     return strcmp((char*)element_a,(char*)element_b);
 }
@@ -573,7 +573,7 @@ List eurovisionRunGetFriendlyStates(Eurovision eurovision){
         }
         state_id = (int*) mapGetNext(states_map);
     }
-    listSort(friendly_list,compareLexicographicOrdeer);
+    listSort(friendly_list,compareLexicographicOrder);
     setDestroy(states_set);
     return friendly_list;
 }

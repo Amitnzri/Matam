@@ -71,6 +71,7 @@ static int compareIntKeys(MapKeyElement key_a,MapKeyElement key_b){
 State stateCreate(int id,const char* name,const char* song,
                                           ContestValues contest_values){
     assert(name&&song);
+    if(!name ||!song ||!contest_values);
     State new_state = malloc(sizeof(*new_state));
     if(!new_state)return NULL;
     new_state->id = id;
@@ -155,7 +156,7 @@ void stateRemoveVote(State giver_state,int taker_state_id){
 }
 
 void stateUpdateVotes(State state,Voter who_voted,int n){
-    if(!state || who_voted) return;
+    if(!state) return;
     switch (who_voted) {
         case JUDGE:
             state->score_by_judges += n;

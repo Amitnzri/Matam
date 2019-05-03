@@ -5,13 +5,13 @@
 
 typedef struct State_t *State;
 
-/**************************
+/******************************************
 stateCreate:
 Creates a new state.
 Returns:
-NULL if failed to allocate.
+NULL if failed to allocate or null argument
 the new state if succeeded.
-**************************/
+******************************************/
 State stateCreate(int id,const char* name,const char* song,
                                           ContestValues contest_values);
 /***********************

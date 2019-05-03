@@ -9,7 +9,7 @@ judgeCreate:
 Creates new instance of Judge.
 Returns:
 New copy of judge if succeeded.
-NULL if failed.
+NULL if failed or null argument.
 ********************************************/
 Judge judgeCreate(int id,const char* name,int* votes);
 /**********************

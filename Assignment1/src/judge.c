@@ -36,7 +36,7 @@ static char* copyName(const char* name){
 /*****************************Functions**************************************/
 Judge judgeCreate(int id,const char* name, int* votes){
     Judge new_judge = malloc(sizeof(*new_judge));
-    if(!new_judge) return NULL;
+    if(!new_judge||!name ||!votes) return NULL;
     new_judge->id = id;
     new_judge->name = copyName(name);
     new_judge->top_ten = copyArray(votes,TOP_TEN_LEN);

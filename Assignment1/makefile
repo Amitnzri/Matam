@@ -41,7 +41,7 @@ map_example_test.o: include/test_utilities.h map_example_test.c
 clean:
 	rm -f *.o
 
-val: prog $(OUTPUT_FILE)
+val:$(OUTPUT_FILE)
 	$(VALGRIND_FLAGS) ./$(OUTPUT_FILE)
 
 run: prog $(OUTPUT_FILE)

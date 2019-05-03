@@ -2,5 +2,4 @@ my_tests/
 *.o
 run
 map_new.c
-MAC/
 test*.c

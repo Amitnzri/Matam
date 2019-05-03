@@ -1,6 +1,5 @@
 #include "../include/map.h"
 #include <assert.h>
-//#include <stdarg.h> TODO: Check if allowed.
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -33,19 +32,6 @@ typedef enum LocationType {
 
 /****************************InnerFunctions**********************************/
 
-/*
-//Returns false if one of the arguments is NULL.
-static bool checkIfNull(int n,...){
-  va_list arg;
-  va_start(arg,n);
-  for(int i=0;i<n;i++){
-    if(va_arg(arg,int) == 0)return false;
-  }
-  va_end(arg);
-  return true;
-} //TODO: Check if allowed.
-//Assigns a given key and data to a block.
-*/
 static MapResult assignValues(Map map,Dictionary block,
                               MapKeyElement key, MapDataElement data){
   assert(map&&key&&data);

@@ -1,7 +1,7 @@
-#include "../include/map.h"
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "../include/map.h"
 
 /*****************************Defines&Typedefs*******************************/
 
@@ -98,7 +98,7 @@ static LocationType findSortedPosition(Map map,MapKeyElement key){
     compareMapKeyElements compareKeys = map->compareKeysFunction;
     assert(map->dictionary);
     while(compareKeys(key,map->dictionary->key)>0){
-        if(map->dictionary->next_block == NULL){//if last item.
+        if(!map->dictionary->next_block){//if last item.
             return ASSIGN_AFTER;
 
         }else if(compareKeys(key,map->dictionary->next_block->key)<0){
@@ -155,7 +155,7 @@ static MapResult duplicateMap(Map destination,Map source){
     destination->freeDataFunction = source->freeDataFunction;
     destination->compareKeysFunction = source->compareKeysFunction;
 
-    if(source->dictionary == NULL)return MAP_NULL_ARGUMENT;
+    if(!source->dictionary)return MAP_NULL_ARGUMENT;
     goToFirstItem(source);
     while(source->dictionary){
         MapKeyElement key = source->dictionary->key;
@@ -189,6 +189,7 @@ Map mapCreate(copyMapDataElements copyDataElement,
     if(!map)return NULL;
 
     map->dictionary = NULL;
+
     //Assigns function pointers
     map->copyDataFunction = copyDataElement;
     map->copyKeyFunction = copyKeyElement;
@@ -201,37 +202,37 @@ Map mapCreate(copyMapDataElements copyDataElement,
 
 MapResult mapPut(Map map,MapKeyElement keyElement,MapKeyElement dataElement){
     assert(map&&keyElement&&dataElement);
-    if(!map || !keyElement ||!dataElement) return MAP_NULL_ARGUMENT;
-    if(map->dictionary == NULL){ //If the map has no dictionary yet.
+    if(!map || !keyElement) return MAP_NULL_ARGUMENT;
+    if(!map->dictionary){ //If the map has no dictionary yet.
         map->dictionary = createDictionaryBlock(map,NULL,NULL);
-        if(map->dictionary == NULL) return MAP_OUT_OF_MEMORY;
+        if(!map->dictionary) return MAP_OUT_OF_MEMORY;
         return assignValues(map,map->dictionary,keyElement,dataElement);
     }else{ //If has items in it already.
         Dictionary previous_block=NULL;
         Dictionary next_block=NULL;
         switch (findSortedPosition(map,keyElement)){
 
+            case ASSIGN_HERE:
+                placeBetweenKeys(map->dictionary);
+                assignValues(map,map->dictionary,keyElement,dataElement);
+                return MAP_SUCCESS;
+
             case ASSIGN_AFTER:
                 previous_block = map->dictionary;
-                if(map->dictionary->next_block == NULL)break;
+                if(!map->dictionary->next_block)break;
                 next_block = map->dictionary->next_block;
                 stepForward(map);
                 break;
 
             case ASSIGN_BEFORE:
                 next_block = map->dictionary;
-                if(map->dictionary->previous_block == NULL)break;
+                if(!map->dictionary->previous_block)break;
                 previous_block = map->dictionary->previous_block;
                 stepBackward(map);
                 break;
-
-            case ASSIGN_HERE:
-                placeBetweenKeys(map->dictionary);
-                assignValues(map,map->dictionary,keyElement,dataElement);
-                return MAP_SUCCESS;
         }
     Dictionary new_block = createDictionaryBlock(map,previous_block,next_block);
-    if(new_block == NULL) return MAP_OUT_OF_MEMORY;
+    if(!new_block) return MAP_OUT_OF_MEMORY;
     placeBetweenKeys(new_block);
     assignValues(map,new_block,keyElement,dataElement);
     return MAP_SUCCESS;
@@ -240,22 +241,20 @@ MapResult mapPut(Map map,MapKeyElement keyElement,MapKeyElement dataElement){
 
 MapKeyElement mapGetFirst(Map map){
     assert(map);
-    if(map == NULL || map->dictionary == NULL) return NULL;
+    if(!map || !map->dictionary) return NULL;
     goToFirstItem(map);
     return map->dictionary->key;
 }
 
 MapKeyElement mapGetNext(Map map){
     assert(map);
-    if(!map||!map->dictionary) return NULL;
-    if(map->dictionary->next_block == NULL) return NULL;
+    if(!map|| !map->dictionary || !map->dictionary->next_block) return NULL;
     stepForward(map);
     return map->dictionary->key;
 }
 
 int mapGetSize(Map map){
-
-    if(map == NULL) return -1;
+    if(!map) return -1;
     int counter = 0;
     if(map->dictionary){
         counter++;
@@ -281,16 +280,16 @@ bool mapContains(Map map, MapKeyElement element){
 }
 
 MapDataElement mapGet(Map map, MapKeyElement keyElement){
-    if(map == NULL || keyElement == NULL) return NULL;
+    if(!map || !keyElement) return NULL;
     Dictionary requested_block = jumpTo(map,keyElement);
-    if(requested_block == NULL)return NULL;
+    if(!requested_block)return NULL;
     return requested_block->data;
 }
 
 MapResult mapRemove(Map map, MapKeyElement keyElement){
     assert(map&&map->dictionary);
     if(!map||!map->dictionary||!keyElement) return MAP_NULL_ARGUMENT;
-    if(jumpTo(map,keyElement) == NULL) return MAP_ITEM_DOES_NOT_EXIST;
+    if(!jumpTo(map,keyElement)) return MAP_ITEM_DOES_NOT_EXIST;
     DeleteCurrentBlock(map);
     return MAP_SUCCESS;
 }
@@ -299,13 +298,13 @@ MapResult mapClear(Map map){
     assert(map);
     if(!map) return MAP_NULL_ARGUMENT;
 
-  goToFirstItem(map);
+    goToFirstItem(map);
 
-  while(map->dictionary->next_block){
-      DeleteCurrentBlock(map);
-  }
-  DeleteCurrentBlock(map);
-  return MAP_SUCCESS;
+    while(map->dictionary->next_block){
+        DeleteCurrentBlock(map);
+    }
+    DeleteCurrentBlock(map);
+    return MAP_SUCCESS;
 }
 
 void mapDestroy(Map map){
@@ -315,10 +314,10 @@ void mapDestroy(Map map){
 }
 
 Map mapCopy(Map map){
-    if(map == NULL)return NULL;
+    if(!map)return NULL;
     Map new_map = mapCreate(map->copyDataFunction,map->copyKeyFunction,
-        map->freeDataFunction,map->freeKeyFunction,map->compareKeysFunction);
-    if(new_map == NULL)return NULL;
+    map->freeDataFunction,map->freeKeyFunction,map->compareKeysFunction);
+    if(!new_map)return NULL;
     if(duplicateMap(new_map,map) != MAP_SUCCESS)return NULL;
     return new_map;
 }

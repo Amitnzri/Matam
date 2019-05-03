@@ -14,7 +14,7 @@ struct Judge_t{
 };
 
 /*****************************StaticFunctions********************************/
-
+//Copies an array.
 static int* copyArray(const int* array, int len){
     if(!array) return NULL;
     int* copy = malloc(sizeof(*copy)*len);
@@ -24,7 +24,7 @@ static int* copyArray(const int* array, int len){
     }
     return copy;
 }
-
+//Copies a name.
 static char* copyName(const char* name){
     int len = strlen(name)+1;
     char* copy = malloc(sizeof(*copy)*len);

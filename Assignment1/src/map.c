@@ -68,20 +68,9 @@ static void goToFirstItem(Map map){
 }
 //Changes the dictionary ptr inside map to points on requested key.
 static Dictionary jumpTo (Map map, MapKeyElement key){
-    compareMapKeyElements compareKey = map->compareKeysFunction;
     //check if the key is in the dictionary.
     if(!mapContains(map,key))return NULL;
-
-    //locate the key in the dictionary.
-    while(compareKey(key,map->dictionary->key)>0){
-        assert(map->dictionary->next_block);
-        stepForward(map);
-    }
-    while(compareKey(key,map->dictionary->key)<0){
-        assert(map->dictionary->previous_block);
-        stepBackward(map);
-    }
-    //The key was found,return his block.
+    //If contains the iterator moved to the wanted location.
     return map->dictionary;
 }
 //Creates new dictionary block.
@@ -211,7 +200,7 @@ Map mapCreate(copyMapDataElements copyDataElement,
 
 MapResult mapPut(Map map,MapKeyElement keyElement,MapKeyElement dataElement){
     assert(map&&keyElement&&dataElement);
-    if(!map || !keyElement ||!dataElement) return MAP_NULL_ARGUMENT; //TODO:CHECK
+    if(!map || !keyElement ||!dataElement) return MAP_NULL_ARGUMENT;
     if(map->dictionary == NULL){ //If the map has no dictionary yet.
         map->dictionary = createDictionaryBlock(map,NULL,NULL);
         if(map->dictionary == NULL) return MAP_OUT_OF_MEMORY;
@@ -257,7 +246,7 @@ MapKeyElement mapGetFirst(Map map){
 
 MapKeyElement mapGetNext(Map map){
     assert(map);
-    if(map == NULL) return NULL;
+    if(!map||!map->dictionary) return NULL;
     if(map->dictionary->next_block == NULL) return NULL;
     stepForward(map);
     return map->dictionary->key;
@@ -278,11 +267,11 @@ int mapGetSize(Map map){
     return counter;
 }
 
-bool mapContains(Map map, MapKeyElement element){ //TODO: CHANGE
+bool mapContains(Map map, MapKeyElement element){
     assert(map&&element);
     if(!map||!map->dictionary||!element)return false;
     compareMapKeyElements compareKeys = map->compareKeysFunction;
-    findSortedPosition(map,element);
+    findSortedPosition(map,element); //moves the iterator to the closest key.
     if(compareKeys(element,map->dictionary->key)==0){
         return true;
     }else{

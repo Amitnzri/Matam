@@ -114,15 +114,23 @@ static bool checkName(const char *state_name){
     }
     return true;
 }//Checked
+//Checks if state id shows up more than once inside judge's top_ten array.
+static bool lookForDuplicates(const int* array,int value){
+    int counter =0;
+    for(int i=0;i<TOP_TEN_LEN;i++){
+        if(array[i] == value) counter++;
+    }
+    assert(counter>=1);
+    return (counter ==1) ? (true) : (false);
+}
 //Ckecks if  an array of ID numbers is valid.
 static bool checkArrayValues(int len, int* judge_results){
-    /***********
-    TODO: Check
-    ***********/
+
     assert(judge_results);
     if(!judge_results) return false;
     for(int i = 0;i<len;i++){
         if(!checkId(judge_results[i]))return false;
+        if(!lookForDuplicates(judge_results,judge_results[i])) return false;
     }
     return true;
 }
@@ -375,7 +383,8 @@ static List insertPair(Map map_state,List friendly_list,int* a_id,int* b_id){
     return friendly_list;
 }//UPDATED
 //Compaires to elements lexicographicly.
-static int compareLexicographicOrdeer(ListElement element_a,ListElement element_b){
+static int compareLexicographicOrdeer(ListElement element_a,
+                                      ListElement element_b){
     return strcmp((char*)element_a,(char*)element_b);
 }
 
@@ -474,11 +483,11 @@ EurovisionResult eurovisionAddJudge(Eurovision eurovision, int judgeId,
    TODO: Check
    ***********/
     assert(eurovision && judgeName);
-    if (!eurovision  || !judgeName || !judgeResults){
+    if (!eurovision  || !judgeName){
         return EUROVISION_NULL_ARGUMENT;
     }
     if (!checkName(judgeName)) return EUROVISION_INVALID_NAME;
-    if (!checkArrayValues(TOP_TEN_LEN,judgeResults)){
+    if (judgeResults && !checkArrayValues(TOP_TEN_LEN,judgeResults)){
         return EUROVISION_INVALID_ID;
     }
     if (!checkId(judgeId))return EUROVISION_INVALID_ID;
@@ -494,7 +503,8 @@ EurovisionResult eurovisionAddJudge(Eurovision eurovision, int judgeId,
         if (mapContains(judges_map, &judgeId)) {
             return EUROVISION_JUDGE_ALREADY_EXIST;
         }
-        if (!checkJudgeResults(judgeResults, eurovision->states_map)){
+        if (judgeResults && !checkJudgeResults(judgeResults,
+                                               eurovision->states_map)){
             return EUROVISION_STATE_NOT_EXIST;
         }
         Judge tmp_judge = judgeCreate(judgeId, judgeName, judgeResults);

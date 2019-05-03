@@ -6,7 +6,10 @@ typedef struct Judge_t *Judge;
 
 /********************************************
 judgeCreate:
-Creates new instance of Judge and returns it.
+Creates new instance of Judge.
+Returns:
+New copy of judge if succeeded.
+NULL if failed.
 ********************************************/
 Judge judgeCreate(int id,const char* name,int* votes);
 /**********************
@@ -14,21 +17,27 @@ judgeDestroy:
 Free Judge from memory.
 ***********************/
 void judgeDestroy(Judge judge);
-/*****************************************
+/*******************************
 judgeGetVotes:
-Returns a copy of judge's votes.
-Caller's responsibility to free after use.
-*****************************************/
+(shallow copy)
+Returns:
+Judge's top ten array.
+NULL if null argument has given.
+*******************************/
 int* judgeGetVotes(Judge judge);
-/*****************************************
+/*******************************
 judgeGetName:
-Returns a copy of judge's name.
-Caller's responsibility to free after use.
-*****************************************/
+Returns:
+The name of the judge.
+NULL if null argument has given.
+*******************************/
 char* judgeGetName(Judge judge);
 /*******************************
 judgeCopy:
 Creates new copy of given judge.
+Returns:
+The copy if succeeded.
+NULL argument if failed.
 *******************************/
 Judge judgeCopy(Judge judge);
 

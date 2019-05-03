@@ -50,6 +50,7 @@ Judge judgeCreate(int id,const char* name, int* votes){
 }
 
 int judgeGetId(Judge judge){
+    if(!judge) return NULL_ARGUMENT;
     return judge->id;
 }
 

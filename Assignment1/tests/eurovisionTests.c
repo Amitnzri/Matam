@@ -5,21 +5,13 @@
 #include <assert.h>
 #include "../include/list.h"
 #include "../include/eurovision.h"
-#include "../include/eurovisionTests.h"
+#include "eurovisionTests.h"
 
 #define POINTS_OPTIONS_NUMBER 10
 
 #define CHECK(b,res)                            \
   if((b) != (res)) do{                          \
       printf("fail: %s != %s\n", #b, #res);     \
-      eurovisionDestroy(eurovision);            \
-      return false;                             \
-    } while(0)
-
-#define CHECK_WITH_LIST(b,res,list)             \
-  if((b) != (res)) do{                          \
-      printf("fail: %s != %s\n", #b, #res);     \
-      listDestroy(list);                        \
       eurovisionDestroy(eurovision);            \
       return false;                             \
     } while(0)
@@ -137,8 +129,8 @@ static void setupEurovisionVotes(Eurovision eurovision) {
 static void setupEurovisionVotes2(Eurovision eurovision) {
   giveVotes(eurovision, 1, 2, 20);
   giveVotes(eurovision, 1, 3, 18);
-  giveVotes(eurovision, 1, 4, 16);//swap
-  giveVotes(eurovision, 1, 5, 14);//swap
+  giveVotes(eurovision, 1, 5, 16);
+  giveVotes(eurovision, 1, 4, 14);
   giveVotes(eurovision, 1, 6, 12);
   giveVotes(eurovision, 1, 7, 10);
   giveVotes(eurovision, 1, 8, 8);
@@ -284,17 +276,17 @@ bool testRunContest() {
   setupEurovisionVotes2(eurovision);
 
   List ranking = eurovisionRunContest(eurovision, 40);
-  CHECK_WITH_LIST(listGetSize(ranking), 16,ranking);
+  CHECK(listGetSize(ranking), 16);
   char *current = (char*)listGetFirst(ranking);
-  CHECK_WITH_LIST(strcmp(current, "united kingdom"), 0,ranking);
+  CHECK(strcmp(current, "united kingdom"), 0);
   current = (char*)listGetNext(ranking);
-  CHECK_WITH_LIST(strcmp(current, "moldova"), 0,ranking);
+  CHECK(strcmp(current, "moldova"), 0);
   current = (char*)listGetNext(ranking);
-  CHECK_WITH_LIST(strcmp(current, "russia"), 0,ranking);
+  CHECK(strcmp(current, "russia"), 0);
   current = (char*)listGetNext(ranking);
-  CHECK_WITH_LIST(strcmp(current, "cyprus"), 0,ranking);
+  CHECK(strcmp(current, "cyprus"), 0);
   current = (char*)listGetNext(ranking);
-  CHECK_WITH_LIST(strcmp(current, "spain"), 0,ranking);
+  CHECK(strcmp(current, "spain"), 0);
 
   listDestroy(ranking);
   eurovisionDestroy(eurovision);

@@ -1,6 +1,6 @@
 #include "test_utilities.h"
 #include <stdlib.h>
-#include "../map.h"
+#include "../include/map.h"
 
 /** Function to be used for copying an int as a key to the map */
 static MapKeyElement copyKeyInt(MapKeyElement n) {

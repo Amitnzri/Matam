@@ -532,6 +532,7 @@ List eurovisionRunAudienceFavorite(Eurovision eurovision){
 List eurovisionRunContest (Eurovision eurovision, int audiencePercent){
     assert(eurovision);
     if(!eurovision) return NULL;
+    if(audiencePercent>100 || audiencePercent<0)return NULL;
     eurovision->contest_values->audience_percent =audiencePercent;
     eurovision->scores_table = updateScoreTable(eurovision->scores_table,
                             eurovision->states_map,eurovision->contest_values);

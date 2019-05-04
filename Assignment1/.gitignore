@@ -1,5 +1,10 @@
 my_tests/
+<<<<<<< HEAD
 *.o
 run
 map_new.c
 test*.c
+=======
+tests/
+*.o
+>>>>>>> ced78c5d1c27117fa9f0d1d45f881e6ef10ec3d9

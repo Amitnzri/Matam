@@ -71,7 +71,7 @@ static int compareIntKeys(MapKeyElement key_a,MapKeyElement key_b){
 State stateCreate(int id,const char* name,const char* song,
                                           ContestValues contest_values){
     assert(name&&song);
-    if(!name ||!song ||!contest_values);
+    if(!name ||!song ||!contest_values)return NULL;
     State new_state = malloc(sizeof(*new_state));
     if(!new_state)return NULL;
     new_state->id = id;

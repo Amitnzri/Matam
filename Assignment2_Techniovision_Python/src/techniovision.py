@@ -1,10 +1,7 @@
+
 from Techniovision import *
 
-PATH = 'file'
-
-#first type: inside contest
-#second type: techniovision
-#third type: staff choice
+PATH = 'input.txt'
 
 #scans the file and returns participants faculties.
 def get_faculties(file_name):
@@ -50,7 +47,6 @@ def inside_contest(faculty,file_name):
 
     return sorted_programs[-1] if len(sorted_programs)>0 else None
 
-
 def run_contest(elected_programs,file_name):
     technion_object= TechniovisionCreate()
     with open(file_name,'r') as file:
@@ -65,6 +61,7 @@ def run_contest(elected_programs,file_name):
 
     TechniovisionWinningFaculty(technion_object)
     TechniovisionDestroy(technion_object)
+
 
 if __name__ =='__main__':
     faculties = get_faculties(PATH)

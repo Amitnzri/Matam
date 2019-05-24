@@ -1,9 +1,20 @@
+from Techniovision import *
 
 PATH = 'file'
 
 #first type: inside contest
 #second type: techniovision
 #third type: staff choice
+
+#scans the file and returns participants faculties.
+def get_faculties(file_name):
+    faculties =[]
+    with open(file_name,'r') as file:
+        for line in file:
+            command_type,*_,faculty = line.split()
+            if command_type =='staff':
+                faculties.append(faculty)
+    return faculties
 
 def inside_contest(faculty,file_name):
     used_id = []
@@ -40,6 +51,24 @@ def inside_contest(faculty,file_name):
     return sorted_programs[-1] if len(sorted_programs)>0 else None
 
 
+def run_contest(elected_programs,file_name):
+    technion_object= TechniovisionCreate()
+    with open(file_name,'r') as file:
+        for line in file:
+            command,student_id,voted_program,student_faculty,*_= line.split()
+
+            if command =='techniovision' and \
+                                       voted_program in elected_programs.keys():
+
+                TechniovisionStudentVotes(technion_object, int(student_id),
+                        student_faculty, elected_programs.get(voted_program))
+
+    TechniovisionWinningFaculty(technion_object)
+    TechniovisionDestroy(technion_object)
 
 if __name__ =='__main__':
-    print(inside_contest('Electrical_Engineering',PATH))
+    faculties = get_faculties(PATH)
+    elected_programs ={} # contains the elected program of each faculty.
+    for faculty in faculties:
+        elected_programs[inside_contest(faculty,PATH)] = faculty
+    run_contest(elected_programs,PATH)

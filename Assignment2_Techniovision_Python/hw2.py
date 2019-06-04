@@ -13,6 +13,7 @@ def getFaculties(file_name):
     return faculties
 
 def inside_contest(faculty,file_name):
+
     used_id = []
     valid_programs = []
     votes = {}
@@ -37,7 +38,8 @@ def inside_contest(faculty,file_name):
 
     #Removes votes of programs that dont exist.
     keys = list(votes.keys())
-    for program in keys:
+    
+    program in keys:
         if program not in valid_programs:
             votes.pop(program)
 
@@ -47,9 +49,12 @@ def inside_contest(faculty,file_name):
     return sorted_programs[-1] if len(sorted_programs)>0 else None
 
 def runContest(elected_programs,file_name):
-    technion_object= TechniovisionCreate()
+    technion_object = TechniovisionCreate()
+
     with open(file_name,'r') as file:
+
         for line in file:
+        
             command,student_id,voted_program,student_faculty,*_= line.split()
 
             if command =='techniovision' and \
@@ -63,8 +68,10 @@ def runContest(elected_programs,file_name):
 
 
 if __name__ =='__main__':
+
     faculties = getFaculties(PATH)
     elected_programs ={} # contains the elected program of each faculty.
     for faculty in faculties:
         elected_programs[inside_contest(faculty,PATH)] = faculty
+
 runContest(elected_programs,PATH)

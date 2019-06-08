@@ -104,36 +104,37 @@ class MainControl
 {
 // relevant private members can be defined here, if necessary.
 //TODO:Check convention.
-    typedef struct VotesCount_t{
+    struct VotesCount{ //TODO:Check why typedef isn't needed.
+        VotesCount();
+        VotesCount& operator=(const Participant& participant);
         string state_name;
         unsigned int regular_votes;
         unsigned int judges_votes;
-    }VotesCount;
-
-    
-    void addParticipant(Participant& participant);
+    };
+    void setVotesCounts();
+    void registerParticipant(Participant& participant);
     void removeParticipant(Participant& participant);
     void giveVotes(const Vote& vote);
-    ostream& getParticipants()const;
-    ostream& getVotes()const;
+    ostream& getParticipants(ostream& os) const;
+    ostream& getVotes(ostream& os) const;
 
     unsigned int time_limit;
     unsigned int max_participant;
     unsigned int votes_limit;
     Phase phase;
-    VotesCount* votes;
-    Participant* participants;
+    VotesCount** votes;
+    Participant** participants;
 
 
 public:
     MainControl(const unsigned int time_limit=180,
        const unsigned int max_participant=26, const unsigned int votes_limit=5);
     ~MainControl();
-    MainControl& operator+=(const Participant& participant);
-    MainControl& operator-=(const Participant& participant);
+    MainControl& operator+=(Participant& participant);
+    MainControl& operator-=(Participant& participant);
     MainControl& operator+=(const Vote& vote);
     friend ostream& operator<<(ostream& os ,const MainControl& main_control);
-    void setPhase(Phase phase) const;
+    void setPhase(const Phase phase);
     bool legalParticipant(const Participant& participant)const;
     bool participate(const string state) const;
 // need to define here possibly c'tr and d'tr and ONLY methods that

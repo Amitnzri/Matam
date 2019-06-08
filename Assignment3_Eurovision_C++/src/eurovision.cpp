@@ -1,7 +1,7 @@
 #include "../includes/eurovision.h"//TODO:Change before submission.
 using std::cout;
 using std::endl;
-
+using std::to_string;
 //TODO:Check if needs to remove all the votes while returning to the registration phase.
 
 /* ------------------------------------Vote----------------------------------*/
@@ -98,8 +98,8 @@ MainControl::MainControl(const unsigned int time_limit,
           const unsigned int max_participant,const unsigned int votes_limit):
           time_limit(time_limit), max_participant(max_participant),
           votes_limit(votes_limit), phase(Registration),
-          votes(new VotesCount[max_participant]{nullptr},
-          participants(new Participant[max_participant]{nullptr})){}
+          votes(new VotesCount*[max_participant]{nullptr}),
+          participants(new Participant*[max_participant]{nullptr}){}
 //TODO:Check if c'structor and = operator is needed.
 MainControl::~MainControl(){
     delete[] votes;
@@ -112,15 +112,16 @@ MainControl::VotesCount::VotesCount(){
     judges_votes=0;
 }
 
-MainControl& MainControl::operator+=(const Participant& participant){
-    if(legalParticipant(participant)&&phase==Registration){
-        addParticipant(participant);
+MainControl& MainControl::operator+=(Participant& participant){
+    if(!participate(participant.state()) && legalParticipant(participant)&&
+                                                          phase==Registration){
+        registerParticipant(participant);
     }
     return *this;
 }
 
-MainControl& MainControl::operator-=(const participant& participant){
-    if(participate(participant)&&phase==Registration){
+MainControl& MainControl::operator-=(Participant& participant){
+    if(participate(participant.state())&&phase==Registration){
       removeParticipant(participant);
     }
     return *this;
@@ -133,18 +134,20 @@ MainControl& MainControl::operator+=(const Vote& vote){
     return *this;
 }
 
-MainControl& operator<<(ostream& os, const MainControl& main_control){
+//TODO: Check why Ostream cannot get ostream by <<
+ostream& operator<<(ostream& os, const MainControl& main_control){ //TODO: Understand why ostream << needs pf.
     switch(main_control.phase){
         case Registration:
-            os<< '{' <<endl << "Registration" <<endl<<
-            main_control.getParticipants() << endl <<'}';
+            os << '{' <<endl << "Registration" <<endl;
+            main_control.getParticipants(os) << endl <<'}';
         case Voting:
-            os<< '{' <<endl << "Voting" <<endl<<
-            main_control.getVotes() << endl <<'}';
+            os << '{' <<endl << "Voting" <<endl;
+            main_control.getVotes(os) <<'}';
 
-    return *this;
     }
+    return os;
 }
+
 //TODO: Check if 0 time length is valid.
 bool MainControl::legalParticipant(const Participant& participant) const {
     if(participant.song()=="" || participant.state()=="" ||
@@ -157,20 +160,52 @@ bool MainControl::legalParticipant(const Participant& participant) const {
 }
 
 bool MainControl::participate(string state)const{
-    for(i=0;participants[i]!=nullptr;i++){
-        if (participant[i].state() == state) return true;
+    for(int i=0;participants[i]!=nullptr;i++){
+        if (participants[i]->state() == state) return true;
     }
     return false;
 }
 
-void MainControl::setPhase(Phase phase){
+void MainControl::setPhase(const Phase phase){
   switch(phase){
-    case Contest:
-        if(this->phase == "Registration") this->phase = phase;
-        if(this->phase == "Voting") this->phase = phase;
-    case Voting:
-        if(this->phase == "Contest") this->phase = phase;
-    case Registration:
-        if(this->phase == "Contest") this->phase = phase;
+      case Contest:
+          if(this->phase == Registration) this->phase = phase;
+      case Voting:
+          if(this->phase == Contest) this->phase = phase;
   }
 }
+
+ostream& MainControl::getVotes(ostream& os) const{
+      for(int i=0;votes[i]!=nullptr;i++){
+          //<state> : Regular(num) Judge(num)
+          os << votes[i]->state_name << " : Regular(" << votes[i]->regular_votes
+          << ") Judge(" << votes[i]->judges_votes << ")";
+
+      }
+      return os;
+}
+
+ostream& MainControl::getParticipants(ostream& os) const{
+      for(int i=0;participants[i]!=nullptr;i++){
+          os << participants[i]<<endl;
+      }
+      return os;
+}
+
+void MainControl::registerParticipant(Participant& participant){
+    if(participants[max_participant-1]!= nullptr) return;
+    Participant* participant_ptr = &participant;
+    int i=0;
+    for(;participants[i]!=nullptr;i++)
+    {
+        if(participant_ptr->state() < participants[i]->state()){
+            Participant& tmp = *participants[i];
+            participants[i] = participant_ptr;
+            participant_ptr = &tmp;
+        }
+    }
+    participants[i] = participant_ptr;
+    participant.updateRegistered(true);
+}
+
+/*---------------------------------------------------------------------------*/

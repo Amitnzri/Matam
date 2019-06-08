@@ -1,4 +1,5 @@
 #include "../includes/eurovision.h"//TODO:Change before submission.
+#include <cassert>
 using std::cout;
 using std::endl;
 using std::to_string;
@@ -112,6 +113,13 @@ MainControl::VotesCount::VotesCount(){
     judges_votes=0;
 }
 
+void MainControl::setVotesCount(){
+    for(int i=0;participants[i]!=nullptr&&i<max_participant;i++){
+        votes[i]->state_name = participants[i]->state();
+}
+
+}
+
 MainControl& MainControl::operator+=(Participant& participant){
     if(!participate(participant.state()) && legalParticipant(participant)&&
                                                           phase==Registration){
@@ -139,10 +147,10 @@ ostream& operator<<(ostream& os, const MainControl& main_control){ //TODO: Under
     switch(main_control.phase){
         case Registration:
             os << '{' <<endl << "Registration" <<endl;
-            main_control.getParticipants(os) << endl <<'}';
+            main_control.getParticipants(os) <<'}';
         case Voting:
             os << '{' <<endl << "Voting" <<endl;
-            main_control.getVotes(os) <<'}';
+            main_control.getVotes(os)<<'}';
 
     }
     return os;
@@ -160,7 +168,7 @@ bool MainControl::legalParticipant(const Participant& participant) const {
 }
 
 bool MainControl::participate(string state)const{
-    for(int i=0;participants[i]!=nullptr;i++){
+    for(int i=0;participants[i]!=nullptr&&i<max_participant;i++){
         if (participants[i]->state() == state) return true;
     }
     return false;
@@ -169,14 +177,18 @@ bool MainControl::participate(string state)const{
 void MainControl::setPhase(const Phase phase){
   switch(phase){
       case Contest:
-          if(this->phase == Registration) this->phase = phase;
+          if(this->phase == Registration) {
+              this->phase = phase;
+          //arrange the votes array by the order of the registered participants.
+              setVotesCount();
+          }
       case Voting:
           if(this->phase == Contest) this->phase = phase;
   }
 }
 
 ostream& MainControl::getVotes(ostream& os) const{
-      for(int i=0;votes[i]!=nullptr;i++){
+      for(int i=0;votes[i]!=nullptr&&i<max_participant;i++){
           //<state> : Regular(num) Judge(num)
           os << votes[i]->state_name << " : Regular(" << votes[i]->regular_votes
           << ") Judge(" << votes[i]->judges_votes << ")";
@@ -186,17 +198,17 @@ ostream& MainControl::getVotes(ostream& os) const{
 }
 
 ostream& MainControl::getParticipants(ostream& os) const{
-      for(int i=0;participants[i]!=nullptr;i++){
-          os << participants[i]<<endl;
+      for(int i=0;participants[i]!=nullptr&&i<max_participant;i++){
+          os << *participants[i]<<endl;
       }
       return os;
 }
-
+//TODO:Check
 void MainControl::registerParticipant(Participant& participant){
     if(participants[max_participant-1]!= nullptr) return;
     Participant* participant_ptr = &participant;
     int i=0;
-    for(;participants[i]!=nullptr;i++)
+    for(;participants[i]!=nullptr&&i<max_participant;i++)
     {
         if(participant_ptr->state() < participants[i]->state()){
             Participant& tmp = *participants[i];
@@ -206,6 +218,49 @@ void MainControl::registerParticipant(Participant& participant){
     }
     participants[i] = participant_ptr;
     participant.updateRegistered(true);
+}
+unsigned int MainControl::findParticipantLocation(string state_name){
+    int i=0;
+    for(;participants[i]->state()!=state_name;i++)
+    assert(participants[i]->state() == state_name);
+    return i;
+}
+//TODO:Check
+void MainControl::removeParticipant(Participant& participant){
+      participant.updateRegistered(false);
+      unsigned int i=findParticipantLocation(participant.state());
+      for(;participants[i]!=nullptr&&(i+1)<max_participant;i++){
+        participants[i]=participants[i+1];
+      }
+      participants[i]=nullptr;
+}
+
+void MainControl::giveVotes(const Vote& vote){
+    Voter& voter = vote.voter;
+    switch(voter.voterType()){
+        case Judge:
+            if(!participate(voter.state())||voter.timesOfVotes()!=0)return;
+            for(int i=0;votes[i]!=nullptr&&i<10;i++){
+                if(voter.state()!=vote.votes[i] && participate(vote.votes[i])){
+                  unsigned int i = findParticipantLocation(vote.votes[0]);
+                      votes[i]->judges_votes+=(i<3)?(12-2*i):(10-i);
+                }
+            }
+            ++voter;
+
+
+
+        case Regular:
+            //Check if voter's state exists.
+            if(!participate(voter.state())||voter.state()==vote.votes[0])return;
+            if(!participate(vote.votes[0])||voter.timesOfVotes()>=votes_limit){
+                return;
+            }
+            unsigned int i = findParticipantLocation(vote.votes[0]);
+            votes[i]->regular_votes++;
+            ++voter;
+
+    }
 }
 
 /*---------------------------------------------------------------------------*/

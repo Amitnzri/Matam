@@ -106,12 +106,13 @@ class MainControl
 //TODO:Check convention.
     struct VotesCount{ //TODO:Check why typedef isn't needed.
         VotesCount();
-        VotesCount& operator=(const Participant& participant);
         string state_name;
         unsigned int regular_votes;
         unsigned int judges_votes;
     };
-    void setVotesCounts();
+    unsigned int findParticipantLocation(string state_name);
+  //arrange the votes array by the order of the registered participants.
+    void setVotesCount(); //
     void registerParticipant(Participant& participant);
     void removeParticipant(Participant& participant);
     void giveVotes(const Vote& vote);

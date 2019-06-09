@@ -110,8 +110,8 @@ MainControl::MainControl(const unsigned int time_limit,
           const unsigned int max_participant,const unsigned int votes_limit):
           time_limit(time_limit), max_participant(max_participant),
           votes_limit(votes_limit), phase(Registration),
-          votes(new VotesCount*[this->max_participant]{nullptr}),
-          participants(new Participant*[this->max_participant]{nullptr}){}
+          votes(new VotesCount*[max_participant]{nullptr}),
+          participants(new Participant*[max_participant]{nullptr}){}
 //TODO:Check if c'structor and = operator is needed.
 MainControl::~MainControl(){
     for(int i=0; votes[i]!=nullptr;i++){

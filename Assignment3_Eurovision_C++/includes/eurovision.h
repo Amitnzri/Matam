@@ -105,7 +105,7 @@ class MainControl
 // relevant private members can be defined here, if necessary.
 //TODO:Check convention.
     struct VotesCount{ //TODO:Check why typedef isn't needed.
-        VotesCount();
+        VotesCount(string state="");
         string state_name;
         unsigned int regular_votes;
         unsigned int judges_votes;

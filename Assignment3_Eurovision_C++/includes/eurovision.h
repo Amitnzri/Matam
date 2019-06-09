@@ -119,9 +119,9 @@ class MainControl
     ostream& getParticipants(ostream& os) const;
     ostream& getVotes(ostream& os) const;
 
-    unsigned int time_limit;
-    unsigned int max_participant;
-    unsigned int votes_limit;
+    const unsigned int time_limit;
+    const unsigned int max_participant;
+    const unsigned int votes_limit;
     Phase phase;
     VotesCount** votes;
     Participant** participants;

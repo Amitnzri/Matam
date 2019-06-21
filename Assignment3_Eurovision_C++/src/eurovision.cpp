@@ -3,7 +3,6 @@
 using std::cout;
 using std::endl;
 using std::to_string;
-//TODO:Check if needs to remove all the votes while returning to the registration phase.
 
 /* ------------------------------------Vote----------------------------------*/
 //TODO:Check if passing a list the regular is valid.
@@ -142,7 +141,9 @@ MainControl& MainControl::operator+=(Participant& participant){
 
 MainControl& MainControl::operator-=(Participant& participant){
     if(participate(participant.state())&&phase==Registration){
-      removeParticipant(participant);
+      for(int i =0; i< max_participant;i++){ //TODO:Changed.
+          if (participants[i] == &participant) removeParticipant(participant);
+      }
     }
     return *this;
 }
@@ -155,7 +156,7 @@ MainControl& MainControl::operator+=(const Vote& vote){
 }
 
 //TODO: Check why Ostream cannot get ostream by <<
-ostream& operator<<(ostream& os, const MainControl& main_control){ //TODO: Understand why ostream << needs pf.
+ostream& operator<<(ostream& os, const MainControl& main_control){
     switch(main_control.phase){
         case Registration:
             os << '{' <<endl << "Registration" <<endl;
@@ -260,11 +261,12 @@ void MainControl::giveVotes(const Vote& vote){
     switch(voter.voterType()){
 
         case Judge:
-            if(!participate(voter.state())||voter.timesOfVotes()!=0)return;
-            for(unsigned int i=0;votes[i]!=nullptr&&i<10;i++){
+            if(!participate(voter.state()) || voter.timesOfVotes()!=0)return;
+            for(unsigned int i=0;i<10;i++){ //TODO:Changed.
                 if(voter.state()!=vote.votes[i] && participate(vote.votes[i])){
                   unsigned int j = findParticipantLocation(vote.votes[i]);
-                      votes[j]->judges_votes+=(i<3)?(12-2*i):(10-i);
+                  votes[j]->judges_votes+=(i<3)?(12-2*i):(10-i);
+                  ++voter; //TODO:Changed
                 }
             }
             break;

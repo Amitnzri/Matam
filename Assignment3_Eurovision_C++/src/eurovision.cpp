@@ -119,32 +119,36 @@ MainControl::~MainControl(){
     delete[]participants;
 }
 
-MainControl::Iterator::Iterator(Participant *ptr): participant_ptr(ptr){}
+MainControl::Iterator::Iterator(Participant** ptr):participant_ptr(ptr){}
 
 MainControl::Iterator& MainControl::Iterator::operator++(){
     participant_ptr++;
     return *this;
 }
 
-
-bool MainControl::Iterator::operator<(Iterator& iterator){
-    return participant_ptr < iterator.participant_ptr;
+bool MainControl::Iterator::operator<(Iterator iterator) const{
+    return *participant_ptr > *iterator.participant_ptr;
 }
 
-bool MainControl::Iterator::operator==(Iterator& iterator){
-    return participant_ptr == iterator.participant_ptr;
+bool MainControl::Iterator::operator==(Iterator iterator) const{
+    return *participant_ptr == *iterator.participant_ptr;
 }
 
-Participant& MainControl::Iterator::operator*(){
-    return *participant_ptr;
+Participant& MainControl::Iterator::operator*() const{
+    return **participant_ptr;
 }
 
-MainControl::Iterator MainControl::begin(){
-    return Iterator(*participants);
+MainControl::Iterator MainControl::begin() const{
+    return Iterator(participants);
 }
 
-MainControl::Iterator MainControl::end(){
-    return Iterator();
+MainControl::Iterator MainControl::end() const{
+    for (unsigned int i=0;i<max_participant;i++)
+    {
+        if (!participants[i])return Iterator(&participants[i]);
+    }
+    cout <<"flag"<<endl;
+    return Iterator(&participants[max_participant]);
 }
 MainControl::VotesCount::VotesCount(string state):
     state_name(state),

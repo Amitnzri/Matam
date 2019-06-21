@@ -137,7 +137,7 @@ public:
     MainControl& operator+=(const Vote& vote);
     friend ostream& operator<<(ostream& os ,const MainControl& main_control);
     void setPhase(const Phase phase);
-    bool legalParticipant(const Participant& participant)const;
+    bool legalParticipant(const Participant& participant) const;
     bool participate(const string state) const;
 // need to define here possibly c'tr and d'tr and ONLY methods that
 // are mentioned and demonstrated in the test example that has been published.
@@ -146,17 +146,17 @@ public:
 // Also it's allowed here to define friend.
 /*===================================PART-B==================================*/
     class Iterator{
+        Participant** participant_ptr;
     public:
-      Participant *participant_ptr;
-      Iterator(Participant *ptr =nullptr);
+      Iterator(Participant** participant_ptr=nullptr);
       Iterator& operator++();
-      bool operator==(Iterator& iterator);
-      bool operator<(Iterator& iterator);
-      Participant& operator*();
+      bool operator==(Iterator iterator) const;
+      bool operator<(Iterator iterator) const;
+      Participant& operator*() const;
     };
 
-    Iterator begin();
-    Iterator end();
+    Iterator begin() const;
+    Iterator end() const;
 
 
 };

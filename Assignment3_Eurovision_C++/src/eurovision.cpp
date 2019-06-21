@@ -1,5 +1,4 @@
 #include "../includes/eurovision.h"//TODO:Change before submission.
-#include <cassert>
 using std::cout;
 using std::endl;
 using std::to_string;
@@ -120,6 +119,33 @@ MainControl::~MainControl(){
     delete[]participants;
 }
 
+MainControl::Iterator::Iterator(Participant *ptr): participant_ptr(ptr){}
+
+MainControl::Iterator& MainControl::Iterator::operator++(){
+    participant_ptr++;
+    return *this;
+}
+
+
+bool MainControl::Iterator::operator<(Iterator& iterator){
+    return participant_ptr < iterator.participant_ptr;
+}
+
+bool MainControl::Iterator::operator==(Iterator& iterator){
+    return participant_ptr == iterator.participant_ptr;
+}
+
+Participant& MainControl::Iterator::operator*(){
+    return *participant_ptr;
+}
+
+MainControl::Iterator MainControl::begin(){
+    return Iterator(*participants);
+}
+
+MainControl::Iterator MainControl::end(){
+    return Iterator();
+}
 MainControl::VotesCount::VotesCount(string state):
     state_name(state),
     regular_votes(0),
@@ -141,7 +167,7 @@ MainControl& MainControl::operator+=(Participant& participant){
 
 MainControl& MainControl::operator-=(Participant& participant){
     if(participate(participant.state())&&phase==Registration){
-      for(int i =0; i< max_participant;i++){ //TODO:Changed.
+      for(unsigned int i =0; i< max_participant;i++){ //TODO:Changed.
           if (participants[i] == &participant) removeParticipant(participant);
       }
     }
@@ -243,7 +269,6 @@ void MainControl::registerParticipant(Participant& participant){
 unsigned int MainControl::findParticipantLocation(string state_name){
     unsigned int i=0;
     for(;participants[i]->state()!=state_name;i++);
-    assert(participants[i]->state() == state_name);
     return i;
 }
 //TODO:Check

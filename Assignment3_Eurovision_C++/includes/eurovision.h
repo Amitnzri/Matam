@@ -110,6 +110,7 @@ class MainControl
         unsigned int regular_votes;
         unsigned int judges_votes;
     };
+
     unsigned int findParticipantLocation(string state_name);
   //arrange the votes array by the order of the registered participants.
     void setVotesCount(); //
@@ -143,6 +144,20 @@ public:
 // NO OTHER METHODS SHOULD APPEAR HERE.
 
 // Also it's allowed here to define friend.
+/*===================================PART-B==================================*/
+    class Iterator{
+    public:
+      Participant *participant_ptr;
+      Iterator(Participant *ptr =nullptr);
+      Iterator& operator++();
+      bool operator==(Iterator& iterator);
+      bool operator<(Iterator& iterator);
+      Participant& operator*();
+    };
+
+    Iterator begin();
+    Iterator end();
+
 
 };
 

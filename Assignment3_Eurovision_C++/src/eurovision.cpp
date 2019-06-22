@@ -113,7 +113,7 @@ MainControl::MainControl(const unsigned int time_limit,
           participants(new Participant*[max_participant]{}){}
 //TODO:Check if c'structor and = operator is needed.
 MainControl::~MainControl(){
-    for(int i=0; votes[i]!=nullptr;i++){
+    for(unsigned int i=0; i<max_participant && votes[i]!=nullptr;i++){
         delete votes[i];
     }
     delete[]votes;
@@ -155,7 +155,7 @@ MainControl::VotesCount::VotesCount(string state):
 {}
 
 void MainControl::setVotesCount(){
-    for(unsigned int i=0;participants[i]!=nullptr&&i<max_participant;i++){
+    for(unsigned int i=0;i<max_participant && participants[i]!=nullptr;i++){
         votes[i] = new VotesCount(participants[i]->state());
 }    }
 
@@ -257,7 +257,7 @@ bool MainControl::legalParticipant(const Participant& participant) const {
 }
 
 bool MainControl::participate(string state)const{
-    for(unsigned int i=0;participants[i]!=nullptr&&i<max_participant;i++){
+    for(unsigned int i=0;i<max_participant && participants[i]!=nullptr;i++){
         if (participants[i]->state() == state) return true;
     }
     return false;
@@ -282,7 +282,7 @@ void MainControl::setPhase(Phase phase){
 }
 
 ostream& MainControl::getVotes(ostream& os) const{
-      for(unsigned int i=0;votes[i]!=nullptr&&i<max_participant;i++){
+      for(unsigned int i=0;i<max_participant&& votes[i]!=nullptr;i++){
           //<state> : Regular(num) Judge(num)
           os << votes[i]->state_name << " : Regular(" << votes[i]->regular_votes
           << ") Judge(" << votes[i]->judges_votes << ")"<<endl;
@@ -292,7 +292,7 @@ ostream& MainControl::getVotes(ostream& os) const{
 }
 
 ostream& MainControl::getParticipants(ostream& os) const{
-      for(unsigned int i=0;participants[i]!=nullptr&&i<max_participant;i++){
+      for(unsigned int i=0;i<max_participant && participants[i]!=nullptr;i++){
           os << *participants[i]<<endl;
       }
       return os;

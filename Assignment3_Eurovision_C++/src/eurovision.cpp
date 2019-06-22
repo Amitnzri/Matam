@@ -1,4 +1,5 @@
 #include "../includes/eurovision.h"//TODO:Change before submission.
+#include "../includes/get.h"
 using std::cout;
 using std::endl;
 using std::to_string;
@@ -127,11 +128,11 @@ MainControl::Iterator& MainControl::Iterator::operator++(){
 }
 
 bool MainControl::Iterator::operator<(Iterator iterator) const{
-    return *participant_ptr > *iterator.participant_ptr;
+    return participant_ptr < iterator.participant_ptr;
 }
 
 bool MainControl::Iterator::operator==(Iterator iterator) const{
-    return *participant_ptr == *iterator.participant_ptr;
+    return participant_ptr == iterator.participant_ptr;
 }
 
 Participant& MainControl::Iterator::operator*() const{
@@ -143,13 +144,10 @@ MainControl::Iterator MainControl::begin() const{
 }
 
 MainControl::Iterator MainControl::end() const{
-    for (unsigned int i=0;i<max_participant;i++)
-    {
-        if (!participants[i])return Iterator(&participants[i]);
-    }
-    cout <<"flag"<<endl;
-    return Iterator(&participants[max_participant]);
+    return Iterator(participants+countParticipants());
 }
+
+
 MainControl::VotesCount::VotesCount(string state):
     state_name(state),
     regular_votes(0),
@@ -184,6 +182,51 @@ MainControl& MainControl::operator+=(const Vote& vote){
     }
     return *this;
 }
+
+string MainControl::operator()(int i,VoterType type){
+    if (i > countParticipants() || i < 1) return "";
+    class Compare{ //Compare Functor for sorting the states by votes.
+        VoterType type;
+        public:
+        Compare(VoterType type):type(type){}
+        bool operator()(VotesCount** state_a,VotesCount** state_b){
+            int sum_of_votes_a;
+            int sum_of_votes_b;
+            switch (type){
+                case Regular:
+                {
+                    sum_of_votes_a = (*state_a)->regular_votes;
+                    sum_of_votes_b = (*state_b)->regular_votes;
+                    break;
+                }
+                case Judge:
+                {
+                    sum_of_votes_a = (*state_a)->judges_votes;
+                    sum_of_votes_b = (*state_b)->judges_votes;
+                    break;
+                }
+                case All:
+                {
+                    sum_of_votes_a = (*state_a)->judges_votes +
+                                     (*state_a)->regular_votes;
+                    sum_of_votes_b = (*state_b)->regular_votes +
+                                     (*state_b)->judges_votes;
+                    break;
+                }
+            }
+            return (sum_of_votes_a>=sum_of_votes_b);
+        }
+    };
+
+    //Return the requsted states VotesCount, end if isn't one.
+    auto begin = votes; //pointer the the start of votes array.
+    auto end = votes + countParticipants(); //pointer to the end of votes array.
+    VotesCount *state(*(get(begin,end,i,Compare(type))));
+    //Return the state name if exists or "" if isn't.
+    return state->state_name;
+ }
+
+
 
 //TODO: Check why Ostream cannot get ostream by <<
 ostream& operator<<(ostream& os, const MainControl& main_control){
@@ -220,7 +263,7 @@ bool MainControl::participate(string state)const{
     return false;
 }
 
-void MainControl::setPhase(const Phase phase){
+void MainControl::setPhase(Phase phase){
   switch(phase){
       case Contest:
           if(this->phase == Registration) {
@@ -316,6 +359,13 @@ void MainControl::giveVotes(const Vote& vote){
             break;
 
     }
+}
+
+int MainControl::countParticipants() const{
+    for (int i=0;i<int(max_participant);i++){
+        if(!participants[i]) return i;
+    }
+    return max_participant;
 }
 
 /*---------------------------------------------------------------------------*/

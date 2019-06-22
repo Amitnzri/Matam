@@ -111,8 +111,9 @@ class MainControl
         unsigned int judges_votes;
     };
 
+    int countParticipants() const;
     unsigned int findParticipantLocation(string state_name);
-  //arrange the votes array by the order of the registered participants.
+    //arrange the votes array by the order of the registered participants.
     void setVotesCount(); //
     void registerParticipant(Participant& participant);
     void removeParticipant(Participant& participant);
@@ -136,9 +137,9 @@ public:
     MainControl& operator-=(Participant& participant);
     MainControl& operator+=(const Vote& vote);
     friend ostream& operator<<(ostream& os ,const MainControl& main_control);
-    void setPhase(const Phase phase);
+    void setPhase(Phase phase);
     bool legalParticipant(const Participant& participant) const;
-    bool participate(const string state) const;
+    bool participate(string state) const;
 // need to define here possibly c'tr and d'tr and ONLY methods that
 // are mentioned and demonstrated in the test example that has been published.
 // NO OTHER METHODS SHOULD APPEAR HERE.
@@ -158,6 +159,7 @@ public:
     Iterator begin() const;
     Iterator end() const;
 
+    string operator()(int i,VoterType type);
 
 };
 

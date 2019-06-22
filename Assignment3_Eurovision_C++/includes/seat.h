@@ -1,3 +1,6 @@
+#ifndef SEAT_H
+#define SEAT_H
+
 #include <iostream>
 #include <string>
 using std::string;
@@ -116,3 +119,4 @@ public:
 };
 
 // ---------------------------------------------
+#endif

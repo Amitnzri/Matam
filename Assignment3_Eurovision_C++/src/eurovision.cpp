@@ -5,8 +5,9 @@ using std::endl;
 using std::to_string;
 
 /* ------------------------------------Vote----------------------------------*/
-//TODO:Check if passing a list the regular is valid.
 
+//TODO:change var names.
+//TODO:if regular get the first registered state.
 Vote::Vote(Voter& voter ,const string v1,const string v2,
     const string v3,const string v4,const string v5,const string v6,
     const string v7,const string v8,const string v9,const string v10):
@@ -93,6 +94,7 @@ VoterType Voter::voterType() const{
   return voter_type;
 }
 
+//Return the number of times a Voter has voted.
 unsigned int Voter::timesOfVotes() const{
   return num_of_votes;
 }
@@ -111,7 +113,7 @@ MainControl::MainControl(const unsigned int time_limit,
           votes_limit(votes_limit), phase(Registration),
           votes(new VotesCount*[max_participant]{}),
           participants(new Participant*[max_participant]{}){}
-//TODO:Check if c'structor and = operator is needed.
+         
 MainControl::~MainControl(){
     for(unsigned int i=0; i<max_participant && votes[i]!=nullptr;i++){
         delete votes[i];
@@ -154,6 +156,7 @@ MainControl::VotesCount::VotesCount(string state):
     judges_votes(0)
 {}
 
+//Creates VotesCounts for every registered state and stores it in votes.
 void MainControl::setVotesCount(){
     for(unsigned int i=0;i<max_participant && participants[i]!=nullptr;i++){
         votes[i] = new VotesCount(participants[i]->state());
@@ -169,7 +172,7 @@ MainControl& MainControl::operator+=(Participant& participant){
 
 MainControl& MainControl::operator-=(Participant& participant){
     if(participate(participant.state())&&phase==Registration){
-      for(unsigned int i =0; i< max_participant;i++){ //TODO:Changed.
+      for(unsigned int i =0; i< max_participant;i++){ 
           if (participants[i] == &participant) removeParticipant(participant);
       }
     }
@@ -228,12 +231,12 @@ string MainControl::operator()(int i,VoterType type){
 
 
 
-//TODO: Check why Ostream cannot get ostream by <<
+
 ostream& operator<<(ostream& os, const MainControl& main_control){
     switch(main_control.phase){
         case Registration:
             os << '{' <<endl << "Registration" <<endl;
-            main_control.getParticipants(os)<<'}'<<endl;//TODO:Check if needed endl
+            main_control.getParticipants(os)<<'}'<<endl;
             break;
         case Voting:
             os << '{' <<endl << "Voting" <<endl;
@@ -283,7 +286,7 @@ void MainControl::setPhase(Phase phase){
 
 ostream& MainControl::getVotes(ostream& os) const{
       for(unsigned int i=0;i<max_participant&& votes[i]!=nullptr;i++){
-          //<state> : Regular(num) Judge(num)
+
           os << votes[i]->state_name << " : Regular(" << votes[i]->regular_votes
           << ") Judge(" << votes[i]->judges_votes << ")"<<endl;
 
@@ -297,7 +300,7 @@ ostream& MainControl::getParticipants(ostream& os) const{
       }
       return os;
 }
-//TODO:Check
+
 void MainControl::registerParticipant(Participant& participant){
     if(participants[max_participant-1]!= nullptr) return;
     Participant* participant_ptr = &participant;
@@ -318,7 +321,7 @@ unsigned int MainControl::findParticipantLocation(string state_name){
     for(;participants[i]->state()!=state_name;i++);
     return i;
 }
-//TODO:Check
+
 void MainControl::removeParticipant(Participant& participant){
       participant.updateRegistered(false);
       unsigned int i=findParticipantLocation(participant.state());
@@ -333,12 +336,13 @@ void MainControl::giveVotes(const Vote& vote){
     switch(voter.voterType()){
 
         case Judge:
+            //Check if the vote is valid.
             if(!participate(voter.state()) || voter.timesOfVotes()!=0)return;
-            for(unsigned int i=0;i<10;i++){ //TODO:Changed.
+            for(unsigned int i=0;i<10;i++){ 
                 if(voter.state()!=vote.votes[i] && participate(vote.votes[i])){
                   unsigned int j = findParticipantLocation(vote.votes[i]);
                   votes[j]->judges_votes+=(i<3)?(12-2*i):(10-i);
-                  ++voter; //TODO:Changed
+                  ++voter; 
                 }
             }
             break;

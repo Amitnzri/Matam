@@ -116,7 +116,7 @@ MainControl::MainControl(const unsigned int time_limit,
 MainControl::~MainControl(){
     for(unsigned int i=0; i<max_participant&&participants[i]!=nullptr;i++){
         //Unregister all the participants.
-        *participants[i].updateRegistered(false);
+        participants[i]->updateRegistered(false);
 
         //Deletes all the VotesCounts (if phase isn't Registration).
         if(phase != Registration){
@@ -233,7 +233,7 @@ string MainControl::operator()(int i,VoterType type){
     auto begin = votes; //pointer the the start of votes array.
     auto end = votes + countParticipants(); //pointer to the end of votes array.
     //Returns the state name if exists or "" if isn't.
-    return get(begin,end,i,Compare(type))->state_name;
+    return (*get(begin,end,i,Compare(type)))->state_name;
  }
 
 ostream& operator<<(ostream& os, const MainControl& main_control){

@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <string>
+
 using std::string;
 using std::exception;
 
@@ -46,11 +47,11 @@ public:
 class MainHallSeat : public Seat
 {
 protected:
-  int base_price;
+    int base_price;
 public:
-  MainHallSeat(int line,int chair,int base_price);
-  string location() const override = 0;
-  int price() const override = 0;
+    MainHallSeat(int line,int chair,int base_price);
+    string location() const override = 0;
+    int price() const override = 0;
 };
 
 // ---------------------------------------------
@@ -75,9 +76,9 @@ public:
 class DisablePodiumSeat : public SpecialSeat
 {
 public:
-  DisablePodiumSeat(int line, int chair, int base_price = DISABLE_BASE_PRICE);
-  string location() const override;
-  int price() const override;
+    DisablePodiumSeat(int line, int chair, int base_price = DISABLE_BASE_PRICE);
+    string location() const override;
+    int price() const override;
 };
 
 // ---------------------------------------------
@@ -86,36 +87,36 @@ class RegularSeat : public MainHallSeat
 protected:
     char area;
 public:
-  RegularSeat(char area,int line,int chair,int base_price);
-  string location() const override =0;
-  int price() const override =0;
+    RegularSeat(char area,int line,int chair,int base_price);
+    string location() const override =0;
+    int price() const override =0;
 };
 
 // ---------------------------------------------
 class FrontRegularSeat : public RegularSeat
 {
 public:
-  FrontRegularSeat(char area, int line,int chair,int base_price);
-  string location()const override;
-  int price()const override;
+    FrontRegularSeat(char area, int line,int chair,int base_price);
+    string location()const override;
+    int price()const override;
 };
 
 // ---------------------------------------------
 class MiddleRegularSeat : public RegularSeat
 {
 public:
-  MiddleRegularSeat(char area, int line,int chair,int base_price);
-  string location()const override;
-  int price()const override;
+    MiddleRegularSeat(char area, int line,int chair,int base_price);
+    string location()const override;
+    int price()const override;
 };
 
 // ---------------------------------------------
 class RearRegularSeat : public RegularSeat
 {
 public:
-  RearRegularSeat(char area, int line,int chair,int base_price);
-  string location()const override;
-  int price()const override;
+    RearRegularSeat(char area, int line,int chair,int base_price);
+    string location()const override;
+    int price()const override;
 };
 
 // ---------------------------------------------

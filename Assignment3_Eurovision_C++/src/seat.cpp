@@ -15,7 +15,7 @@ string GreenRoomSeat::location() const {
 }
 
 int GreenRoomSeat::price() const {
-  throw NoPrice();
+    throw NoPrice();
 }
 /*--------------------------* MainHallSeats *--------------------------------*/
 MainHallSeat::MainHallSeat(int line, int chair, int base_price):
@@ -34,18 +34,18 @@ string RearRegularSeat::location()const {
 }
 
 int RearRegularSeat::price()const{
-        return base_price + MAIN_HALL_PRICE;
+    return base_price + MAIN_HALL_PRICE;
 }
     /*--------------------- MiddleRegularSeat ------------------------------*/
 MiddleRegularSeat::MiddleRegularSeat(char area,int line,int chair,
     int base_price): RegularSeat(area,line,chair,base_price){}
 
 string MiddleRegularSeat::location() const {
-  return "Middle-> area: " + string(1,area) + ", line: "+ to_string(line) +
+    return "Middle-> area: " + string(1,area) + ", line: "+ to_string(line) +
                                                 ", chair: " + to_string(chair);
 }
 int MiddleRegularSeat::price() const {
-  return base_price + MAIN_HALL_PRICE + MIDDLE_REGULAR_PRICE;
+    return base_price + MAIN_HALL_PRICE + MIDDLE_REGULAR_PRICE;
 }
 
     /*--------------------- FrontRegularSeat ------------------------------*/
@@ -71,12 +71,12 @@ GoldenCircleSeat::GoldenCircleSeat(int line,int chair,int base_price):
     SpecialSeat(line,chair,base_price){}
 
 string GoldenCircleSeat::location() const {
-  return "Golden Circle-> line: " + to_string(line) + ", chair: "
-                                                        + to_string(chair);
+    return "Golden Circle-> line: " + to_string(line) + ", chair: "
+                                                      + to_string(chair);
 }
 
 int GoldenCircleSeat::price() const {
-  return MAIN_HALL_PRICE + SPECIAL_SEAT_PRICE + GOLDEN_CIRCLE_PRICE +base_price;
+    return MAIN_HALL_PRICE + SPECIAL_SEAT_PRICE + GOLDEN_CIRCLE_PRICE +base_price;
 }
 
 

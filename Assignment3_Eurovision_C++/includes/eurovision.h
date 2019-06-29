@@ -20,12 +20,11 @@ class Participant
 // relevant private members can be defined here, if necessary.
 string state_name;
 string song_name;
-unsigned int song_length; //TODO:Check if unsigned is valid.
+unsigned int song_length;
 string singer_name;
 bool is_registered;
 
 public:
-
     Participant() = delete;
     Participant(Participant& copy) = delete;
     Participant& operator=(Participant& participant) = delete;
@@ -55,19 +54,19 @@ public:
 class Voter
 {
 // relevant private members can be defined here, if necessary.
-//TODO: Check c'structor
+
 string voter_state;
 VoterType voter_type;
-unsigned int num_of_votes;//TODO: Check if allowed.
+unsigned int num_of_votes;
 
 public :
-Voter() =delete; //TODO:Check
-Voter(const string voter_state,const VoterType voter_type = Regular);
-~Voter()=default; //TODO:Check
-Voter& operator++();//TODO:Check with refferrence.
-string state() const;
-VoterType voterType() const;
-unsigned int timesOfVotes() const;
+    Voter() =delete;
+    Voter(const string voter_state,const VoterType voter_type = Regular);
+    ~Voter()=default;
+    Voter& operator++();
+    string state() const;
+    VoterType voterType() const;
+    unsigned int timesOfVotes() const;
 
 
 
@@ -84,17 +83,16 @@ unsigned int timesOfVotes() const;
 
 struct Vote
 {
-Voter& voter; //TODO:Check if pointer;
-string* votes;
-//TODO:Check Convention.
-Vote(Voter& voter ,const string v1="",const string v2="",const string v3="",
-const string v4="",const string v5="",const string v6="",const string v7="",
-const string v8="",const string v9="",const string v10="");
-~Vote();
+    Voter& voter;
+    string* votes;
+    Vote(Voter& voter ,const string vote_a="",const string vote_b="",
+    const string vote_c="",const string vote_d="",const string vote_e="",
+    const string vote_f="",const string vote_g="",const string vote_h="",
+    const string vote_i="",const string vote_j="");
+    ~Vote();
 // ALL is public here.
 // need to define ONLY data members and c'tr and d'tr.
 // NO NEED to define anything else.
-
 };
 
 // -----------------------------------------------------------
@@ -103,8 +101,7 @@ const string v8="",const string v9="",const string v10="");
 class MainControl
 {
 // relevant private members can be defined here, if necessary.
-//TODO:Check convention.
-    struct VotesCount{ //TODO:Check why typedef isn't needed.
+    struct VotesCount{
         VotesCount(string state="");
         string state_name;
         unsigned int regular_votes;
@@ -168,6 +165,5 @@ public:
 //OverLoads:
 ostream& operator<<(ostream& os,const Participant& participant);
 ostream& operator<<(ostream& os,const Voter& voter);
-
 
 #endif
